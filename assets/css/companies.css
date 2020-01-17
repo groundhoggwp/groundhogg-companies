@@ -1,0 +1,102 @@
+.company-inside{
+    max-width: 1000px;
+}
+
+@media screen and (max-width: 600px){
+    #wpbody {
+        padding-top: 0 !important;
+    }
+}
+
+.profile-picture{
+    vertical-align: middle;
+}
+
+.save,
+.contact-details{
+    width: 100%;
+    display: block;
+    float: right;
+    /*margin-right: 20px;*/
+    position: relative;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    background: #fff;
+
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+    /*margin-left: 300px;*/
+}
+
+#col-left-company {
+    float: left;
+    width: 48%;
+}
+
+#col-right-company {
+    float: right;
+    width: 48%;
+}
+
+.save{
+    padding-top: 20px;
+}
+
+.company-details {
+    display: inline-block;
+    float: left;
+
+    /*margin-right: 20px;*/
+    position: relative;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    background: #fff;
+
+    padding: 0 20px 20px 20px;
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+
+.company-picture {
+    display: inline-block;
+    float: left;
+    margin-right: 20px;
+    position: relative;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    background: #fff;
+}
+
+.basic-details .details {
+    margin: 0 0 10px 2px;
+}
+
+.company-details  {
+    /*margin: 0 0 10px 2px;*/
+    width: 100%;
+}
+
+.contact-details textarea{
+    width: 100%;
+}
+.basic-details .details .regular-text {
+    width: 20em;
+}
+
+.basic-details .details a {
+    text-decoration: none;
+    padding: 0 4px 1px;
+}
+
+.basic-details .details .dashicons{
+    vertical-align: text-bottom;
+}
+
+.company-details label {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
