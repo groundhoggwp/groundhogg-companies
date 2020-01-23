@@ -12,11 +12,29 @@
     vertical-align: middle;
 }
 
-.save,
-.contact-details{
+.col-wrap p.submit {
+    margin-top: 0 !important;
+}
+
+li.select2-search{
+    line-height: 1em;
+}
+
+/*#add-contact-form .select2-container{*/
+/*    margin-top: -13px;*/
+/*}*/
+
+/*#add-contact-form .select2-container,*/
+/*input[type=search],*/
+/*.select2-container .select2-selection--multiple{*/
+/*    !*margin-top: -17px;*!*/
+/*    min-height: 24px;*/
+/*}*/
+
+.save{
     width: 100%;
     display: block;
-    float: right;
+    /*float: right;*/
     /*margin-right: 20px;*/
     position: relative;
     border: 1px solid #e5e5e5;
@@ -45,7 +63,7 @@
 
 .company-details {
     display: inline-block;
-    float: left;
+    /*float: left;*/
 
     /*margin-right: 20px;*/
     position: relative;
@@ -61,12 +79,21 @@
 
 .company-picture {
     display: inline-block;
-    float: left;
     margin-right: 20px;
     position: relative;
-    border: 1px solid #e5e5e5;
+    /*border: 1px solid #e5e5e5;*/
     box-shadow: 0 1px 1px rgba(0,0,0,.04);
     background: #fff;
+    max-width: 100%;
+}
+
+.company-picture-wrap{
+    display: block;
+}
+
+.auto-copy {
+    width: 100%;
+    max-width: 400px;
 }
 
 .basic-details .details {

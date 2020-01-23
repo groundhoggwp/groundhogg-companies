@@ -5,11 +5,13 @@ namespace GroundhoggCompanies\Admin\Companies;
 use Groundhogg\Admin\Admin_Page;
 use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\admin_page_url;
-use function Groundhogg\get_db;
+use function Groundhogg\get_array_var;
 use function Groundhogg\get_post_var;
 use function Groundhogg\get_request_var;
-use Groundhogg\Plugin;
+use function Groundhogg\get_url_var;
 use function Groundhogg\html;
+use function Groundhogg\normalize_files;
+use function GroundhoggCompanies\get_clean_domain;
 use function GroundhoggCompanies\recount_company_contacts_count;
 
 // Exit if accessed directly
@@ -18,10 +20,10 @@ if ( !defined( 'ABSPATH' ) ) {
 }
 
 /**
- * View Tags
+ * View Companies
  *
  * @package     Admin
- * @subpackage  Admin/Tags
+ * @subpackage  Admin/Companies
  * @author      Adrian Tobey <info@groundhogg.io>
  * @copyright   Copyright (c) 2020, Groundhogg Inc.
  * @license     https://opensource.org/licenses/GPL-3.0 GNU Public License v3
@@ -40,7 +42,7 @@ class Companies_Page extends Admin_Page
 
     public function scripts()
     {
-        if ( get_request_var( 'companies' ) ){
+        if ( get_request_var( 'company' ) ) {
             wp_enqueue_style( 'groundhogg-companies-admin' );
         }
     }
@@ -65,10 +67,15 @@ class Companies_Page extends Admin_Page
 
     public function get_cap()
     {
-        return 'edit_tags';
+        return 'edit_companies';
     }
 
     public function get_item_type()
+    {
+        return 'company';
+    }
+
+    public function get_item_type_plural()
     {
         return 'companies';
     }
@@ -95,77 +102,69 @@ class Companies_Page extends Admin_Page
                 return $this->get_name();
                 break;
             case 'edit':
-                return _x( 'Edit Tag', 'page_title', 'groundhogg' );
+                return _x( 'Edit Company', 'page_title', 'groundhogg' );
                 break;
         }
     }
 
     /**
-     * Add Tag Process
+     * Add company Process
      *
      * @return \WP_Error|true|false
      */
     public function process_add()
     {
 
-        if ( !current_user_can( 'add_tags' ) ) {
+        if ( !current_user_can( 'add_companies' ) ) {
             $this->wp_die_no_access();
         }
 
-//        if ( isset( $_POST[ 'bulk_add' ] ) ) {
-//
-//            $tag_names = explode( PHP_EOL, trim( sanitize_textarea_field( get_post_var( 'bulk_tags' ) ) ) );
-//
-//            $ids = [];
-//
-//            foreach ( $tag_names as $name ) {
-//                if ( strlen( $name ) < 50 ) {
-//                    $id = Plugin::$instance->dbs->get_db( 'tags' )->add( [ 'tag_name' => $name ] );
-//
-//                    if ( $id ) {
-//                        $ids[] = $id;
-//
-//                        do_action( 'groundhogg/admin/tags/add', $id );
-//                    }
-//                }
-//
-//            }
-//
-//            if ( empty( $ids ) ) {
-//                return new \WP_Error( 'unable_to_add_tags', "Something went wrong adding the tags." );
-//            }
-//
-//            $this->add_notice( 'new-tags', sprintf( _nx( '%d tag created', '%d tags created', count( $tag_names ), 'notice', 'groundhogg' ), count( $tag_names ) ) );
-//
-//            return true;
-//
-//        } else {
+        $company_name = sanitize_text_field( get_request_var( 'company_name' ) );
+        if ( strlen( $company_name ) > 50 ) {
+            return new \WP_Error( 'too_long', __( "Maximum length for company name is 50 characters.", 'groundhogg' ) );
+        }
 
-            $company_name = sanitize_text_field( get_request_var( 'company_name' ) );
-            if ( strlen( $company_name ) > 50 ) {
-                return new \WP_Error( 'too_long', __( "Maximum length for tag name is 50 characters.", 'groundhogg' ) );
-            }
+        $company_desc = sanitize_textarea_field( get_request_var( 'company_description' ) );
 
-            $company_desc = sanitize_textarea_field( get_request_var( 'company_description' ) );
+        $company = new Company( [
+            'name' => $company_name,
+            'description' => $company_desc,
+        ] );
 
+        if ( !$company->get_id() ) {
+            return new \WP_Error( 'unable_to_add_company', "Something went wrong adding the new company." );
+        }
 
-            $company  = new Company( [
-                'name' => $company_name,
-                'description' => $company_desc,
-            ] );
+        if ( get_request_var( 'address' ) ) {
+            $company->update_meta( 'address', sanitize_textarea_field( get_request_var( 'address' ) ) );
+        }
 
+        if ( get_request_var( 'contacts' ) ) {
+            $company->add_contacts( wp_parse_id_list( get_request_var( 'contacts' ) ) );
+            recount_company_contacts_count();
+        }
 
-            if ( $company ) {
-                return new \WP_Error( 'unable_to_add_company', "Something went wrong adding the new company." );
-            }
+        do_action( 'groundhogg/admin/companies/add', $company->get_id() );
 
-            do_action( 'groundhogg/admin/companies/add', $company->get_id() );
-
-            $this->add_notice( 'new-company', _x( 'Company created!', 'notice', 'groundhogg' ) );
-
-//        }
+        $this->add_notice( 'new-company', _x( 'Company created!', 'notice', 'groundhogg' ) );
 
         return false;
+    }
+
+
+    public function process_remove_contact()
+    {
+
+        $company = new Company( get_request_var( 'company' ) );
+
+        $company->remove_contacts( get_request_var( 'contact' ) );
+
+        recount_company_contacts_count();
+
+        return admin_page_url( 'gh_companies', [
+            'action' => 'edit',
+            'company' => $company->get_id()
+        ] );
     }
 
     /**
@@ -174,48 +173,121 @@ class Companies_Page extends Admin_Page
     public function process_edit()
     {
 
-        if ( !current_user_can( 'edit_tags' ) ) {
+        if ( !current_user_can( 'edit_companies' ) ) {
             $this->wp_die_no_access();
         }
 
-        $company = new Company(absint( get_request_var( 'companies' ) ) );
+        $company = new Company( absint( get_request_var( 'company' ) ) );
 
-        $company_name = sanitize_text_field( get_post_var( 'company_name' ) );
-        $company_desc = sanitize_textarea_field( get_post_var( 'company_description' ) );
-        if ( strlen( $company_name ) > 50 ) {
-            return new \WP_Error( 'too_long', __( "Maximum length for tag name is 50 characters.", 'groundhogg' ) );
+        switch ( get_request_var( 'operation' ) ) {
+
+            default:
+            case 'update_company' :
+                $company_name = sanitize_text_field( get_post_var( 'company_name' ) );
+                $company_desc = sanitize_textarea_field( get_post_var( 'company_description' ) );
+                if ( strlen( $company_name ) > 50 ) {
+                    return new \WP_Error( 'too_long', __( "Maximum length for company name is 50 characters.", 'groundhogg' ) );
+                }
+
+                $company->update( [
+                    'name' => $company_name,
+                    'description' => $company_desc,
+                    'domain' => get_clean_domain( sanitize_text_field( get_request_var( 'company_domain' ) ) )
+                ] );
+
+                if ( get_request_var( 'address' ) ) {
+                    $company->update_meta( 'address', sanitize_textarea_field( get_request_var( 'address' ) ) );
+                }
+
+                if ( get_request_var( 'add_new_note' ) ) {
+                    $company->add_note( get_request_var( 'add_note' ) );
+                }
+
+                if ( !empty( $_FILES[ 'pictures' ] ) ) {
+                    $files = normalize_files( $_FILES[ 'pictures' ] );
+                    foreach ( $files as $file_key => $file ) {
+                        if ( !get_array_var( $file, 'error' ) ) {
+                            $e = $company->upload_picture( $file );
+                            if ( is_wp_error( $e ) ) {
+                                return $e;
+                            }
+                        }
+                    }
+                }
+
+                break;
+
+            case 'add_files' :
+
+                if ( !empty( $_FILES[ 'files' ] ) ) {
+                    $files = normalize_files( $_FILES[ 'files' ] );
+                    foreach ( $files as $file_key => $file ) {
+                        if ( !get_array_var( $file, 'error' ) ) {
+                            $e = $company->upload_file( $file );
+                            if ( is_wp_error( $e ) ) {
+                                return $e;
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'add_contact':
+
+
+                if ( get_request_var( 'contact' ) ) {
+                    $contact_id = absint( get_request_var( 'contact' ) );
+                    $company->add_contacts( $contact_id );
+
+                }
+                recount_company_contacts_count();
+                break;
+
+
         }
-
-        $company->update([
-            'name'        => $company_name,
-            'description' => $company_desc,
-            'domain' => sanitize_text_field(get_request_var('company_domain') )
-        ]);
-
+        do_action( 'groundhogg/companies/admin/company/edit', $company->get_id() );
 
         $this->add_notice( 'updated', _x( 'Company updated.', 'notice', 'groundhogg' ) );
-
-        if (get_request_var( 'contact_id' )) {
-            $contact_id = absint(get_request_var('contact_id'));
-
-            $get_id  = get_db( 'company_relationships' )->query( ['company_id' => $company->get_id() , 'contact_id' => $contact_id  ] );
-            if(empty($get_id)) {
-
-                $id = get_db('company_relationships')->add( $company->get_id(), $contact_id );
-
-            }
-
-        }
-
-        do_action( 'groundhogg/admin/tags/edit', $company->get_id() );
-
-        // Return false to return to main page.
+        // Return Url to return to same page
         return admin_page_url( 'gh_companies', [
             'action' => 'edit',
-            'companies' => $company->get_id()
+            'company' => $company->get_id()
         ] );
 
     }
+
+
+    public function process_remove_file()
+    {
+        if ( !current_user_can( 'edit_companies' ) ) {
+            $this->wp_die_no_access();
+        }
+
+        $file_name = sanitize_text_field( get_url_var( 'file' ) );
+
+        $company = new Company( absint( get_url_var( 'company' ) ) );
+
+        if ( !$company ) {
+            return new \WP_Error( 'error', 'The given company does nto exist.' );
+        }
+
+        $folders = $company->get_uploads_folder();
+        $path = $folders[ 'path' ];
+
+        $file_path = wp_normalize_path( $path . DIRECTORY_SEPARATOR . $file_name );
+
+        if ( !file_exists( $file_path ) ) {
+            return new \WP_Error( 'error', 'The requested file does nto exist.' );
+        }
+
+        unlink( $file_path );
+
+        $this->add_notice( 'success', __( 'File deleted.', 'groundhogg' ) );
+
+        // Return to contact edit screen.
+        return admin_page_url( 'gh_companies', [ 'action' => 'edit', 'company' => $company->get_id() ] );
+
+    }
+
 
     /**
      * @return bool
@@ -236,19 +308,20 @@ class Companies_Page extends Admin_Page
      */
     public function process_delete()
     {
-
-        if ( !current_user_can( 'delete_tags' ) ) {
+        if ( !current_user_can( 'delete_companies' ) ) {
             $this->wp_die_no_access();
         }
 
         foreach ( $this->get_items() as $id ) {
-            $company = new Company($id);
+            $company = new Company( $id );
+            $company->delete_pictures();
+            $company->delete_files();
             $company->delete();
         }
 
         $this->add_notice(
             'deleted',
-            sprintf( _nx( '%d company deleted', '%d company deleted', count( $this->get_items() ), 'notice', 'groundhogg-company' ),
+            sprintf( _nx( '%d company deleted.', '%d companies deleted.', count( $this->get_items() ), 'notice', 'groundhogg-company' ),
                 count( $this->get_items() )
             )
         );
@@ -276,14 +349,13 @@ class Companies_Page extends Admin_Page
                             <input type="hidden" name="action" value="add">
                             <?php wp_nonce_field(); ?>
                             <div class="form-field term-name-wrap">
-                                <label for="company-name"><?php _e( 'company Name', 'groundhogg' ) ?></label>
+                                <label for="company-name"><?php _e( 'Company Name', 'groundhogg' ) ?></label>
                                 <?php
                                 echo html()->input( [
                                     'name' => 'company_name',
                                     'type' => 'text'
                                 ] );
                                 ?>
-
                                 <p><?php _e( 'Enter a Name of company.', 'groundhogg' ); ?></p>
                             </div>
                             <div class="form-field term-description-wrap">
@@ -295,6 +367,26 @@ class Companies_Page extends Admin_Page
                                 ?>
                                 <p><?php _e( 'Describe something about a company in details which makes it unique.', 'groundhogg' ); ?></p>
                             </div>
+                            <div class="form-field term-address-wrap">
+                                <label for="company-description"><?php _e( 'Address', 'groundhogg' ) ?></label>
+                                <?php
+                                echo html()->textarea( [
+                                    'name' => 'address',
+                                ] );
+                                ?>
+                                <p><?php _e( 'Describe location details of a company in detail.', 'groundhogg' ); ?></p>
+                            </div>
+                            <div class="form-field term-contacts-wrap">
+                                <label for="company-description"><?php _e( 'Contacts', 'groundhogg' ) ?></label>
+                                <?php
+                                echo html()->dropdown_contacts( [
+                                    'name' => 'contacts[]',
+                                    'multiple' => true
+                                ] );
+                                ?>
+                                <p><?php _e( 'Add initial contacts to the newly created company.', 'groundhogg' ); ?></p>
+                            </div>
+
                             <?php do_action( 'groundhogg/admin/companies/add/form' ); ?>
 
                             <?php submit_button( _x( 'Add New Company', 'action', 'groundhogg' ), 'primary', 'add_company' ); ?>
@@ -316,7 +408,7 @@ class Companies_Page extends Admin_Page
 
     public function edit()
     {
-        if ( !current_user_can( 'edit_tags' ) ) {
+        if ( !current_user_can( 'edit_companies' ) ) {
             $this->wp_die_no_access();
         }
 

@@ -8,9 +8,9 @@ use function Groundhogg\isset_not_empty;
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
- * Tags DB
+ * Companies DB
  *
- * Store tags
+ * Store Companies
  *
  * @package     Includes
  * @subpackage  includes/DB
@@ -21,14 +21,6 @@ if ( !defined( 'ABSPATH' ) ) exit;
  */
 class Companies extends DB
 {
-//
-//    /**
-//     * Runtime associative array of ID => tag_object
-//     *
-//     * @var array
-//     */
-//    public $tag_cache = [];
-
     /**
      * Get the DB suffix
      *
@@ -59,6 +51,7 @@ class Companies extends DB
         return '2.0';
     }
 
+
     /**
      * Get the object type we're inserting/updateing/deleting.
      *
@@ -66,14 +59,16 @@ class Companies extends DB
      */
     public function get_object_type()
     {
-        return 'companies';
+        return 'company';
     }
 
     protected function add_additional_actions()
     {
-        add_action( 'groundhogg/db/post_insert/companies_relationship', [ $this, 'increase_contact_count' ], 10, 2 );
-        add_action( 'groundhogg/db/post_delete/companies_relationship', [ $this, 'decrease_contact_count' ], 10 );
-        add_action( 'groundhogg/db/pre_bulk_delete/companies_relationships', [ $this, 'bulk_decrease_count' ], 10 );
+
+        //done using recount method where operation are supported
+//        add_action( 'groundhogg/db/post_insert/company_relationship', [ $this, 'increase_contact_count' ], 10, 2 );
+//        add_action( 'groundhogg/db/post_delete/company_relationship', [ $this, 'decrease_contact_count' ], 10 );
+//        add_action( 'groundhogg/db/pre_bulk_delete/company_relationships', [ $this, 'bulk_decrease_count' ], 10 );
     }
 
     /**
@@ -112,130 +107,68 @@ class Companies extends DB
         );
     }
 
-    /**
-     * TODO
-     * Given a list of tags, make sure that the tags exist, if they don't add/or remove them
-     *
-     * @param array $maybe_tags
-     * @return array $tags
-     */
-    public function validate( $maybe_tags = array() )
-    {
 
-        $tags = array();
-
-        if ( !is_array( $maybe_tags ) ) {
-            $maybe_tags = array( $maybe_tags );
-        }
-
-        foreach ( $maybe_tags as $i => $tag_id_or_string ) {
-
-            if ( is_numeric( $tag_id_or_string ) ) {
-
-                $tag_id = intval( $tag_id_or_string );
-
-                if ( $this->exists( $tag_id ) ) {
-                    $tags[] = $tag_id;
-                }
-
-            } else if ( is_string( $tag_id_or_string ) ) {
-
-                $slug = sanitize_title( $tag_id_or_string );
-
-                if ( $this->exists( $slug, 'tag_slug' ) ) {
-                    $tag = $this->get_tag_by( 'tag_slug', $slug );
-                    $tags[] = $tag->tag_id;
-
-                } else {
-                    $tags[] = $this->add( array( 'tag_name' => sanitize_text_field( $tag_id_or_string ) ) );
-                }
-            }
-        }
-
-        return $tags;
-    }
-
-
-    /**
-     * TODO
-     * Get tags in an array format that is select friendly.
-     *
-     * @return array
-     */
-    public function get_companies_select()
-    {
-        global $wpdb;
-        $results = $wpdb->get_results( "SELECT * FROM $this->table_name ORDER BY $this->primary_key DESC" );
-
-        $companies = [];
-
-        foreach ( $results as $company ) {
-            $companies[ $company->ID ] = sprintf( "%s (%s)", $company->name, $company->contact_count );
-        }
-
-        return $companies;
-    }
-
-    /**
-     * Increase the contact tag count
-     *
-     * @param $insert_id
-     * @param $args
-     */
-    public function increase_contact_count( $insert_id = 0, $args = [] )
-    {
-        $tag_id = absint( $args[ 'tag_id' ] );
-
-        if ( !$this->exists( $tag_id ) ) {
-            return;
-        }
-
-        $tag = $this->get_tag( $tag_id );
-        $tag->contact_count = intval( $tag->contact_count ) + 1;
-        $this->update( $tag_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
-    }
-
-    /**
-     * TODO
-     * Decrease the contact tag count
-     *
-     * @param $insert_id
-     * @param $args
-     */
-    public function decrease_contact_count( $args = [] )
-    {
-        if ( !isset_not_empty( $args, 'tag_id' ) ) {
-            return;
-        }
-
-        $tag_id = absint( $args[ 'tag_id' ] );
-
-        if ( !$this->exists( $tag_id ) ) {
-            return;
-        }
-
-        $tag = $this->get_tag( $tag_id );
-        $tag->contact_count = intval( $tag->contact_count ) - 1;
-        $this->update( $tag_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
-    }
-
-    /**
-     * TODO
-     * Bulk decrease the contact count.
-     *
-     * @param $company_ids
-     */
-    public function bulk_decrease_count( $company_ids )
-    {
-
-        if ( empty( $company_ids ) ) {
-            return;
-        }
-
-        foreach ( $company_ids as $id ) {
-            $this->decrease_contact_count( [ 'ID' => $id ] );
-        }
-    }
+//
+//    /**
+//     * Increase the contact company count
+//     *
+//     * @param $insert_id
+//     * @param $args
+//     */
+//    public function increase_contact_count( $insert_id = 0, $args = [] )
+//    {
+//        $tag_id = absint( $args[ 'tag_id' ] );
+//
+//        if ( !$this->exists( $tag_id ) ) {
+//            return;
+//        }
+//
+//        $tag = $this->get_tag( $tag_id );
+//        $tag->contact_count = intval( $tag->contact_count ) + 1;
+//        $this->update( $tag_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
+//    }
+//
+//    /**
+//     * TODO
+//     * Decrease the contact tag count
+//     *
+//     * @param $insert_id
+//     * @param $args
+//     */
+//    public function decrease_contact_count( $args = [] )
+//    {
+//        if ( !isset_not_empty( $args, 'tag_id' ) ) {
+//            return;
+//        }
+//
+//        $tag_id = absint( $args[ 'tag_id' ] );
+//
+//        if ( !$this->exists( $tag_id ) ) {
+//            return;
+//        }
+//
+//        $tag = $this->get_tag( $tag_id );
+//        $tag->contact_count = intval( $tag->contact_count ) - 1;
+//        $this->update( $tag_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
+//    }
+//
+//    /**
+//     * TODO
+//     * Bulk decrease the contact count.
+//     *
+//     * @param $company_ids
+//     */
+//    public function bulk_decrease_count( $company_ids )
+//    {
+//
+//        if ( empty( $company_ids ) ) {
+//            return;
+//        }
+//
+//        foreach ( $company_ids as $id ) {
+//            $this->decrease_contact_count( [ 'ID' => $id ] );
+//        }
+//    }
 
     /**
      * Create the table

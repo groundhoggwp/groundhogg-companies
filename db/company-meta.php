@@ -32,6 +32,6 @@ class Company_Meta extends Meta_DB
 
     public function get_object_type()
     {
-        return 'companies';
+        return 'company';
     }
 }

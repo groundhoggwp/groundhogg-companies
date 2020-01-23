@@ -7,8 +7,6 @@ use Groundhogg\DB\Manager;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
 use GroundhoggCompanies\DB\Companies;
-use GroundhoggCompanies\DB\Companies_Meta;
-use GroundhoggCompanies\DB\Companies_Relationships;
 use GroundhoggCompanies\DB\Company_Meta;
 use GroundhoggCompanies\DB\Company_Relationships;
 

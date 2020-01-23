@@ -1,177 +1,28 @@
 <?php
+
 namespace GroundhoggCompanies\Admin\companies;
 
 use Groundhogg\Contact;
 use GroundhoggCompanies\Classes\Company;
-use GroundhoggRSP\Classes\Subscription;
 use function Groundhogg\admin_page_url;
-use function Groundhogg\get_date_time_format;
 use function Groundhogg\get_db;
 use function Groundhogg\get_request_var;
 use Groundhogg\Plugin;
 use function Groundhogg\html;
+use function GroundhoggCompanies\get_clean_domain;
 
 if ( !defined( 'ABSPATH' ) ) exit;
 
-
-$id = absint( get_request_var( 'companies' ) );
+$id = absint( get_request_var( 'company' ) );
 
 if ( !$id ) {
     return;
 }
-
 $company = new Company( absint( $id ) );
+
+
 ?>
-<div class="wrap">
-    <?php
-    Plugin::$instance->notices->print_notices();
-    ?>
-    <form method="post">
-        <?php wp_nonce_field(); ?>
-        <div class="company">
-            <div class="company-inside">
-                <div id="col-container">
-                    <div id="col-left-company">
-                        <div class="contact-details">
-                            <h2><?php _e( 'Add Contact', 'groundhogg-companies' ); ?></h2>
-                            <?php
-                            echo html()->dropdown_contacts([
-                                    'name' => 'contact_id'
-                            ] );
-                            ?>
 
-                            <h2><?php _e( 'Contacts', 'groundhogg-companies' ); ?></h2>
-                            <?php
-                            $contacts = get_db( 'company_relationships' )->query( [ 'company_id' => absint( $company->get_id()  )] );
-                            //                            $contacts = get_db( 'companies_relationships' )->query( [ 'company_id' => absint( get_request_var( 'companies' ) ) ] );
-                            $contacts_rows = [];
-
-                            if ( !empty( $contacts ) ) {
-                                foreach ( $contacts as $id ) {
-
-                                    $contact = new Contact( absint( $id->contact_id ) );
-
-                                    $contacts_rows[] = [
-
-                                        html()->e( 'a', [ 'href' => admin_page_url( 'gh_contacts', [
-                                            'action' => 'edit',
-                                            'contact' => $contact->get_id()
-                                        ] ) ], $contact->get_full_name() ),
-                                        $contact->get_full_name(),
-                                        $contact->get_email(),
-                                        $contact->get_phone_number(), // Date
-
-                                    ];
-                                }
-                            }
-
-                            html()->list_table( [ 'style' => [ 'max-width' => '700px' ] ], [
-                                __( 'Name', 'groundhogg-companies' ),
-                                __( 'Role', 'groundhogg-companies' ),
-                                __( 'Email', 'groundhogg-companies' ),
-                                __( 'phone', 'groundhogg-companies' ),
-
-                            ], $contacts_rows );
-                            ?>
-
-
-                        </div>
-
-                    </div>
-                    <div id="col-right-company">
-                        <div class="save">
-                            <span class="spinner" style="float: left"></span>
-                            <?php
-
-                            submit_button( null, 'primary', 'submit', false, [ 'style' => 'float:right' ] );
-
-                            ?>
-                        </div>
-                        <div class="company-details">
-
-<!--                            <h3>--><?php //_e( 'Company Details' ); ?><!--</h3>-->
-
-                            <!-- Photo -->
-<!--                            <div class="company-picture">-->
-<!--                                --><?php //echo html()->e( 'img', [
-//                                    'class' => 'company-picture',
-//                                    'title' => __( 'Profile Picture' ),
-//                                    'width' => 150,
-//                                    'height' => 150,
-////                                            'src' => $company->get_profile_picture()
-//                                ] ); ?>
-<!--                            </div>-->
-                            <h3><?php _e( 'Company' ); ?></h3>
-                                <!-- FIRST -->
-                                <?php
-
-                                echo html()->e( 'div', [ 'class' => 'details' ], html()->input( [
-                                    'name' => 'company_name',
-                                    'title' => __( 'Company Name' ),
-                                    'value' => $company->get_name(),
-                                    'class' => 'auto-copy regular-text'
-                                ] ) );
-                                ?>
-                            <h3><?php _e( 'Website' ); ?></h3>
-                            <?php
-
-                                echo html()->e( 'div', [ 'class' => 'details' ], html()->input( [
-                                    'name' => 'company_domain',
-                                    'title' => __( 'Website' ),
-                                    'value' => $company->get_domain(),
-                                    'class' => 'auto-copy regular-text'
-                                ] ) );
-
-                                ?>
-
-
-                            <h3><?php _e( 'Description' ); ?></h3>
-                            <?php
-
-                            echo html()->e( 'div', [ 'class' => 'details' ], html()->textarea( [
-                                'name' => 'company_description',
-                                'value' => $company->get_description(),
-
-                                'class' => 'auto-copy regular-text',
-                                'rows' => 6,
-                            ] ) );
-                            ?>
-
-                            <h3><?php _e( 'Address' ); ?></h3>
-                            <?php
-
-                            echo html()->e( 'div', [ 'class' => 'details' ], html()->textarea( [
-                                'name' => 'address',
-                                'value' => $company->get_address(),
-
-                                'class' => 'auto-copy regular-text',
-                                'rows' => 6,
-                            ] ) );
-
-                            ?>
-                            <h3><?php _e( 'Notes' ); ?></h3>
-                            <?php
-
-                            echo html()->e( 'div', [ 'class' => 'details' ], html()->textarea( [
-                                'name' => 'notes',
-                                'value' => $company->get_notes(),
-
-                                'class' => 'auto-copy regular-text'
-                            ] ) );
-
-                            ?>
-                            <!-- Edit -->
-
-                            <?php do_action( 'groundhogg/companies/admin/edit/after_details', $company ); ?>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="wp-clearfix"></div>
-            </div>
-        </div>
-    </form>
-</div>
 <script>
     (function ($) {
         $('form').on('submit', function () {
@@ -179,57 +30,247 @@ $company = new Company( absint( $id ) );
         });
     })(jQuery);
 </script>
+<div id="col-container" class="wp-clearfix">
+    <?php
+    Plugin::$instance->notices->print_notices();
+    ?>
+
+    <div id="col-left">
+        <div class="col-wrap">
+            <div class="form-wrap">
+                <div id="company">
+                    <form method="post" enctype="multipart/form-data" name="company_details">
+                        <div class="save">
+                            <span class="spinner" style="float: left"></span>
+                            <?php
+                            submit_button( null, 'primary', 'submit', false, [ 'style' => 'float:right' ] );
+                            ?>
+                            <div class="wp-clearfix"></div>
+                        </div>
+                        <div class="company-details">
+
+                            <?php wp_nonce_field();
+                            echo html()->input( [
+                                'type' => 'hidden',
+                                'name' => 'operation',
+                                'value' => 'update_company'
+                            ] );
+                            ?>
+                            <h3><?php _e( 'Company Details' ); ?></h3>
+
+                            <!-- Photo -->
+                            <?php
+                            if ( !empty( $company->get_picture() ) ) {
+                                ?>
+                                <div class="company-picture-wrap">
+                                    <?php
+
+                                    $file = array_pop( $company->get_picture() );
+
+                                    echo html()->e( 'img', [
+                                        'class' => 'company-picture ',
+                                        'title' => __( 'Company Picture' ),
+                                        'src' => $file[ 'file_url' ],
+                                    ] );
+
+                                    ?>
+                                </div>
+                                <?php
+                            }
+                            ?>
+
+                            <div style="width: 100%">
+                                <input class="gh-file-uploader" type="file" name="pictures[]"
+                                       accept="image/x-png,image/gif,image/jpeg" multiple>
+                            </div>
 
 
-<!---->
-<!---->
-<!---->
-<!--<form name="edittag" id="edittag" method="post" action="" class="validate">-->
-<!--    --><?php //wp_nonce_field();
-?>
-<!--    <table class="form-table">-->
-<!--        <tbody>-->
-<!--        <tr class="form-field form-required term-name-wrap">-->
-<!--            <th scope="row"><label for="name">--><?php //_e( 'Name' )
-?><!--</label></th>-->
-<!--            <td>-->
-<!--                --><?php
-//                echo html()->input([
-//                    'name' => 'company_name',
-//                    'value' => $company->get_name()
-//                ]);
-//
-?>
-<!--                <p>--><?php //_e( 'Enter a Name of company.', 'groundhogg' );
-?><!--</p>-->
-<!--            </td>-->
-<!--        </tr>-->
-<!--        <tr class="form-field term-description-wrap">-->
-<!--            <th scope="row"><label for="description">--><?php //_e( 'Description' );
-?><!--</label></th>-->
-<!--            <td>-->
-<!--                --><?php
-//
-//                echo html()->textarea( [
-//                    'name' => 'company_description',
-//                    'value' => $company->get_description()
-//                ] );
-//
-//
-?>
-<!--                <p>--><?php //_e( 'Describe something about a company in details which makes it unique.', 'groundhogg' );
-?><!--</p>-->
-<!--            </td>-->
-<!--        </tr>-->
-<!--        </tbody>-->
-<!--        --><?php //do_action( 'groundhogg/admin/companies/edit/form', $id );
-?>
-<!--    </table>-->
-<!--    <div class="edit-tag-actions">-->
-<!--        --><?php //submit_button( __( 'Update' ), 'primary', 'update', false );
-?>
-<!--        <span id="delete-link"><a class="delete" href="--><?php //echo wp_nonce_url( admin_url( 'admin.php?page=gh_companies&action=delete&companies='. $id ), 'delete'  )
-?><!--">--><?php //_e( 'Delete' );
-?><!--</a></span>-->
-<!--    </div>-->
-<!--</form>-->
+                            <h3><?php _e( 'Company' ); ?></h3>
+
+                            <?php
+
+                            echo html()->e( 'div', [ 'class' => 'details' ], html()->input( [
+                                'name' => 'company_name',
+                                'title' => __( 'Company Name' ),
+                                'value' => $company->get_name(),
+                                'class' => 'auto-copy regular-text'
+                            ] ) );
+
+                            ?>
+
+                            <h3>
+                                <?php _e( 'Website' ); ?>
+
+                                <a title="<?php printf( esc_attr__( 'Visit %s', 'groundhogg' ), $company->get_domain() ) ?>"
+                                   style="text-decoration: none" target="_blank"
+                                   href="<?php echo esc_url( $company->get_domain() ); ?>">
+                                    <span class="dashicons dashicons-external"></span>
+                                </a>
+                            </h3>
+                            <?php
+
+                            echo html()->e( 'div', [ 'class' => 'details' ], html()->input( [
+                                'type' => 'url',
+                                'name' => 'company_domain',
+                                'title' => __( 'Website' ),
+                                'value' => $company->get_domain(),
+                                'class' => 'auto-copy regular-text '
+                            ] ) );
+
+                            ?>
+
+
+                            <h3><?php _e( 'Description' );
+                                ?></h3>
+                            <?php
+
+                            echo html()->e( 'div', [ 'class' => 'details' ], html()->textarea( [
+                                'name' => 'company_description',
+                                'value' => $company->get_description(),
+                                'class' => 'auto-copy regular-text',
+                                'rows' => 6,
+                            ] ) );
+
+                            ?>
+
+                            <h3>
+                                <?php _e( 'Address' ); ?>
+
+                                <a title="<?php printf( esc_attr__( 'View in map', 'groundhogg' )) ?>"
+                                   style="text-decoration: none" target="_blank"
+                                   href="<?php echo sprintf(  'http://maps.google.com/?q=%s', urlencode( $company->get_searchable_address() ) ); ?>">
+                                    <span class="dashicons dashicons-location-alt"></span>
+                                </a>
+                            </h3>
+                            <?php
+
+                            echo html()->e( 'div', [ 'class' => 'details' ], html()->textarea( [
+                                'name' => 'address',
+                                'value' => $company->get_address(),
+                                'class' => 'auto-copy regular-text ',
+                                'rows' => 6,
+                            ] ) );
+
+                            ?>
+                            <h3><?php _e( 'Notes' );
+                                ?></h3>
+                            <?php
+                            echo html()->e( 'div', [ 'class' => 'details' ], html()->textarea( [
+                                'name' => 'add_note',
+                                'class' => 'auto-copy regular-text ',
+                                'rows' => 3,
+                            ] ) );
+
+                            submit_button( _x( 'Add Note', 'action', 'groundhogg' ), 'secondary', 'add_new_note' );
+
+                            $args = array(
+                                'id' => 'notes',
+                                'name' => 'notes',
+                                'value' => $company->get_notes(),
+                                'readonly' => true,
+                                'class' => 'auto-copy regular-text ',
+                                'rows' => 10,
+                            );
+                            echo Plugin::$instance->utils->html->textarea( $args );
+                            ?>
+
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="col-right">
+        <div class="col-wrap">
+            <div id="company">
+
+                <h3><?php _e( 'Contacts', 'groundhogg-companies' ); ?></h3>
+                <div class="contact-details">
+                    <form method="post">
+                        <?php
+                        if ( !class_exists( 'Contacts_Table' ) ) {
+                            include dirname( __FILE__ ) . '/contacts-table.php';
+                        }
+
+                        $contacts_table = new Contacts_Table();
+
+                        $contacts_table->prepare_items();
+                        $contacts_table->display();
+                        ?>
+                    </form>
+                </div>
+                <h3><?php _e( 'Files', 'groundhogg-companies' ); ?></h3>
+
+                <div class="company-files">
+
+                    <form method="post" enctype="multipart/form-data">
+                        <div style="">
+                            <style>
+                                .wp-admin .gh-file-uploader {
+                                    width: 100%;
+                                    margin: auto;
+                                    padding: 30px !important;
+                                    box-sizing: border-box;
+                                    background: #F9F9F9;
+                                    border: 2px dashed #e5e5e5;
+                                    text-align: center;
+                                    margin-top: 10px;
+                                }
+                            </style>
+                            <?php
+                            wp_nonce_field();
+                            echo html()->input( [
+                                'type' => 'hidden',
+                                'name' => 'operation',
+                                'value' => 'add_files'
+                            ] );
+
+                            $files = $company->get_files();
+
+                            $rows = [];
+
+                            foreach ( $files as $key => $item ) {
+
+                                $info = pathinfo( $item[ 'file_path' ] );
+
+                                $rows[] = [
+                                    sprintf( "<a href='%s' target='_blank'>%s</a>", esc_url( $item[ 'file_url' ] ), esc_html( $info[ 'basename' ] ) ),
+                                    esc_html( size_format( filesize( $item[ 'file_path' ] ) ) ),
+                                    esc_html( $info[ 'extension' ] ),
+                                    html()->e( 'span', [ 'class' => 'row-actions' ], [
+                                        html()->e( 'span', [ 'class' => 'delete' ],
+                                            html()->e( 'a', [
+                                                'class' => 'delete',
+                                                'href' => admin_page_url( 'gh_companies', [
+                                                    'action' => 'remove_file',
+                                                    'file' => $info[ 'basename' ],
+                                                    'company' => $company->get_id(),
+                                                    '_wpnonce' => wp_create_nonce( 'remove_file' )
+                                                ] ) ], __( 'Delete' ) ) ),
+                                    ] )
+                                ];
+
+                            }
+
+                            html()->list_table( [ 'class' => 'files', 'id' => 'files' ], [
+                                _x( 'Name', 'contact_record', 'groundhogg' ),
+                                _x( 'Size', 'contact_record', 'groundhogg' ),
+                                _x( 'Type', 'contact_record', 'groundhogg' ),
+                                _x( 'Actions', 'contact_record', 'groundhogg' ),
+                            ], $rows );
+
+                            ?>
+                            <div>
+                                <input class="gh-file-uploader" type="file" name="files[]" multiple>
+                            </div>
+                            <?php
+                            submit_button( 'Upload File', 'secondary', 'submit' );
+                            ?>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -20,6 +20,36 @@ class Roles extends \Groundhogg\Roles
         return [];
     }
 
+
+    public function get_administrator_caps()
+    {
+        return [
+            'add_companies',
+            'delete_companies',
+            'edit_companies',
+            'manage_companies',
+            'view_companies'
+        ];
+    }
+
+    public function get_sales_manager_caps()
+    {
+        return [
+            'view_companies'
+        ];
+    }
+
+    public function get_marketer_caps()
+    {
+        return [
+            'add_companies',
+            'delete_companies',
+            'edit_companies',
+            'manage_companies',
+            'view_companies'
+        ];
+    }
+
     /**
      * Return a cap to check against the admin to ensure caps are also installed.
      *
@@ -27,6 +57,6 @@ class Roles extends \Groundhogg\Roles
      */
     protected function get_admin_cap_check()
     {
-        // TODO: Implement get_admin_cap_check() method.
+        return 'edit_companies';
     }
 }

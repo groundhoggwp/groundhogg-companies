@@ -9,7 +9,7 @@ if ( !defined( 'ABSPATH' ) ) exit;
 /**
  * companies relationships DB
  *
- * Store the relationships between tags and contacts
+ * Store the relationships between company and contacts
  *
  * @package     Includes
  * @subpackage  includes/DB
@@ -70,12 +70,12 @@ class Company_Relationships extends DB
     }
 
     /**
-     * Clean up after tag/contact is deleted.
+     * Clean up after company/contact is deleted.
      */
     protected function add_additional_actions()
     {
         add_action( 'groundhogg/db/post_delete/contact', [ $this, 'contact_deleted' ] );
-        add_action( 'groundhogg/db/post_delete/companies', [ $this, 'company_deleted' ] );
+        add_action( 'groundhogg/db/post_delete/company', [ $this, 'company_deleted' ] );
         parent::add_additional_actions();
     }
 
@@ -108,7 +108,7 @@ class Company_Relationships extends DB
     }
 
     /**
-     * Add a tag relationship
+     * Add a company relationship
      *
      * @access  public
      * @since   2.1
@@ -131,7 +131,7 @@ class Company_Relationships extends DB
     }
 
     /**
-     * A tag was delete, delete all company relationships
+     * A company was delete, delete all company relationships
      *
      * @param $company_id
      *
@@ -143,7 +143,7 @@ class Company_Relationships extends DB
     }
 
     /**
-     * A contact was deleted, delete all tag relationships
+     * A contact was deleted, delete all company relationships
      *
      * @param $contact_id
      *
@@ -222,7 +222,7 @@ class Company_Relationships extends DB
     }
 
     /**
-     * Get a list of tags associated with a particular contact
+     * Get a list of company associated with a particular contact
      *
      * @param int $contact_id
      * @return array|bool|null|object
@@ -234,7 +234,7 @@ class Company_Relationships extends DB
 
 
     /**
-     * Get a list of contacts associated with a particular tag
+     * Get a list of contacts associated with a particular company
      *
      * @param int $company_id
      * @return array|bool|null|object

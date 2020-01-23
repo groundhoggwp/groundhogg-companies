@@ -28,7 +28,7 @@ class Companies_Table extends WP_List_Table {
     public function __construct() {
         // Set parent defaults.
         parent::__construct( array(
-            'singular' => 'companies',     // Singular name of the listed records.
+            'singular' => 'company',     // Singular name of the listed records.
             'plural'   => 'companies',    // Plural name of the listed records.
             'ajax'     => false,       // Does this table support ajax?
         ) );
@@ -87,7 +87,7 @@ class Companies_Table extends WP_List_Table {
      */
     protected function column_company_name( $company )
     {
-        $editUrl = admin_url( 'admin.php?page=gh_companies&action=edit&companies=' . $company->get_id() );
+        $editUrl = admin_url( 'admin.php?page=gh_companies&action=edit&company=' . $company->get_id() );
         $html = "<a class='row-title' href='$editUrl'>" . esc_html( $company->get_name() ) . "</a>";
         return $html;
     }
@@ -99,8 +99,6 @@ class Companies_Table extends WP_List_Table {
     protected function column_contact_count( $company )
     {
         return $company->get_contact_count();
-//        $count = $company->get_contact_count();
-//        return $count ? '<a href="'.admin_url('admin.php?page=gh_contacts&tags_include=' . $company->get_id() ).'">'. $count .'</a>' : '0';
     }
 
     /**
@@ -114,14 +112,12 @@ class Companies_Table extends WP_List_Table {
 
     /**
      * Get default column value.
-     * @param object $tag        A singular item (one full row's worth of data).
+     * @param object $company        A singular item (one full row's worth of data).
      * @param string $column_name The name/slug of the column to be processed.
      * @return string Text or HTML to be placed inside the column <td>.
      */
-    protected function column_default( $tag, $column_name ) {
-
-        return do_action( "groundhogg/admin/companies/table/{$column_name}", $tag );
-
+    protected function column_default( $company, $column_name ) {
+        return do_action( "groundhogg/admin/companies/table/{$column_name}", $company );
     }
 
 
@@ -141,6 +137,7 @@ class Companies_Table extends WP_List_Table {
      * @return array An associative array containing all the bulk steps.
      */
     protected function get_bulk_actions() {
+
         $actions = array(
             'delete' => _x( 'Delete', 'List table bulk action', 'groundhogg-companies' ),
         );
@@ -168,6 +165,7 @@ class Companies_Table extends WP_List_Table {
         $this->_column_headers = array( $columns, $hidden, $sortable );
 
         $per_page = absint( get_url_var( 'limit', get_screen_option( 'per_page' ) ) );
+
         $paged   = $this->get_pagenum();
         $offset  = $per_page * ( $paged - 1 );
         $search  = get_url_var( 's' );
@@ -214,19 +212,19 @@ class Companies_Table extends WP_List_Table {
         $actions = array();
         $title = $company->get_name();
 
-        $actions[ 'id' ] = 'ID: ' . $company->get_id();
+//        $actions[ 'id' ] = 'ID: ' . $company->get_id();
 
         $actions['edit'] = sprintf(
             '<a href="%s" class="editinline" aria-label="%s">%s</a>',
             /* translators: %s: title */
-            admin_url( 'admin.php?page=gh_companies&action=edit&companies=' . $company->get_id() ),
+            admin_url( 'admin.php?page=gh_companies&action=edit&company=' . $company->get_id() ),
             esc_attr( sprintf( __( 'Edit' ), $title ) ),
             __( 'Edit' )
         );
 
         $actions['delete'] = sprintf(
             '<a href="%s" class="submitdelete" aria-label="%s">%s</a>',
-            wp_nonce_url(admin_url('admin.php?page=gh_companies&companies='. $company->get_id() . '&action=delete')),
+            wp_nonce_url(admin_url('admin.php?page=gh_companies&company='. $company->get_id() . '&action=delete')),
             /* translators: %s: title */
             esc_attr( sprintf( __( 'Delete &#8220;%s&#8221; permanently' ), $title ) ),
             __( 'Delete' )
