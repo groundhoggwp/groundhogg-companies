@@ -82,6 +82,7 @@ class Companies extends DB
         return array(
             'ID'            => '%d',
             'name'          => '%s',
+            'slug'          => '%s',
             'description'   => '%s',
             'contact_count' => '%d',
             'domain'        => '%s',
@@ -100,6 +101,7 @@ class Companies extends DB
         return array(
             'ID'            => 0,
             'name'          => '',
+            'slug'          => '',
             'description'   => '',
             'contact_count' => 0,
             'domain'        => '',
@@ -185,6 +187,7 @@ class Companies extends DB
         $sql = "CREATE TABLE " . $this->table_name . " (
         ID bigint(20) unsigned NOT NULL AUTO_INCREMENT,        
         name mediumtext NOT NULL,
+        slug mediumtext NOT NULL,
         description text NOT NULL,
         contact_count bigint(20) unsigned NOT NULL,     
         domain VARCHAR(80) NOT NULL,

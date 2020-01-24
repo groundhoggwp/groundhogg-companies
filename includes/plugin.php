@@ -70,7 +70,7 @@ class Plugin extends Extension{
      */
     public function get_download_id()
     {
-        return  123456;
+        return  37360;
     }
 
     /**

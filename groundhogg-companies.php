@@ -1,8 +1,8 @@
 <?php
 /*
  * Plugin Name: Groundhogg - Companies
- * Plugin URI:  https://www.groundhogg.io/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash
- * Description: The description of your extension.
+ * Plugin URI:  https://www.groundhogg.io/downloads/companies/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash
+ * Description: Organize contacts into companies and keep track of vital company information.
  * Version: 1.0
  * Author: Groundhogg Inc.
  * Author URI: https://www.groundhogg.io/?utm_source=wp-plugins&utm_campaign=author-uri&utm_medium=wp-dash
@@ -23,9 +23,9 @@
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-define( 'GROUNDHOGG_COMPANIES_VERSION', '1.0' ); // Todo Update Version #
-define( 'GROUNDHOGG_COMPANIES_PREVIOUS_STABLE_VERSION', '0.1' ); // TODO  Update Version #
-define( 'GROUNDHOGG_COMPANIES_NAME', 'Companies' ); //TODO Update the name of your extension.
+define( 'GROUNDHOGG_COMPANIES_VERSION', '1.0' );
+define( 'GROUNDHOGG_COMPANIES_PREVIOUS_STABLE_VERSION', '0.1' );
+define( 'GROUNDHOGG_COMPANIES_NAME', 'Companies' );
 
 define( 'GROUNDHOGG_COMPANIES__FILE__', __FILE__ );
 define( 'GROUNDHOGG_COMPANIES_PLUGIN_BASE', plugin_basename( GROUNDHOGG_COMPANIES__FILE__ ) );
@@ -79,5 +79,3 @@ if ( ! version_compare( PHP_VERSION, '5.6', '>=' ) ) {
         });
     }
 }
-
-

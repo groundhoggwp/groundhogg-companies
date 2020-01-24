@@ -6,6 +6,7 @@ use Groundhogg\Admin\Admin_Page;
 use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\admin_page_url;
 use function Groundhogg\get_array_var;
+use function Groundhogg\get_db;
 use function Groundhogg\get_post_var;
 use function Groundhogg\get_request_var;
 use function Groundhogg\get_url_var;
@@ -126,13 +127,22 @@ class Companies_Page extends Admin_Page
 
         $company_desc = sanitize_textarea_field( get_request_var( 'company_description' ) );
 
-        $company = new Company( [
-            'name' => $company_name,
-            'description' => $company_desc,
-        ] );
+        if ( get_db('companies')->exists( sanitize_title( $company_name ), 'slug') ) {
 
-        if ( !$company->get_id() ) {
-            return new \WP_Error( 'unable_to_add_company', "Something went wrong adding the new company." );
+            $data  = get_db('companies')->get_by('slug' , sanitize_title( $company_name )) ;
+            $company = new Company( $data->ID );
+
+        } else {
+
+            $company = new Company( [
+                'name' => $company_name,
+                'slug' => sanitize_title($company_name),
+                'description' => $company_desc,
+            ] );
+
+            if ( !$company->get_id() ) {
+                return new \WP_Error( 'unable_to_add_company', "Something went wrong adding the new company." );
+            }
         }
 
         if ( get_request_var( 'address' ) ) {
@@ -192,6 +202,7 @@ class Companies_Page extends Admin_Page
                 $company->update( [
                     'name' => $company_name,
                     'description' => $company_desc,
+                    'slug' => sanitize_title( $company_name ),
                     'domain' => get_clean_domain( sanitize_text_field( get_request_var( 'company_domain' ) ) )
                 ] );
 
