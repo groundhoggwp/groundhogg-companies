@@ -1,5 +1,4 @@
 <?php
-
 namespace GroundhoggCompanies;
 
 use Groundhogg\Contact;
@@ -164,31 +163,47 @@ function add_companies_based_on_form_submission( $object_id, $meta_key, $meta_va
 {
     if ( $meta_key === 'company_name' ) {
 
-        if ( get_db( 'companies' )->exists( sanitize_title( $meta_value ), 'slug' ) ) {
-
-            $data = get_db( 'companies' )->get_by( 'slug', sanitize_title( sanitize_title( $meta_value ) ) );
-            $company = new Company( $data->ID );
-
-        } else {
-
-            $company = new Company( [
-                'name' => sanitize_text_field( $meta_value ),
-                'slug' => sanitize_title( $meta_value ),
-
-            ] );
-
-            if ( !$company->get_id() ) {
-                return new \WP_Error( 'unable_to_add_company', "Something went wrong adding the new company." );
-            }
-        }
-
-        $res = $company->add_contacts( absint( $object_id ) );
+        add_companies_based_on_contact( $object_id, $meta_value );
 
     }
 
 }
 
+
 add_action( 'groundhogg/meta/contact/update', __NAMESPACE__ . '\add_companies_based_on_form_submission', 10, 4 );
+
+/**
+ * @param $contact_id
+ * @param $company_name
+ * @return \WP_Error | bool
+ */
+
+function add_companies_based_on_contact( $contact_id, $company_name ) {
+
+    if ( get_db( 'companies' )->exists( sanitize_title( $company_name ), 'slug' ) ) {
+
+        $data = get_db( 'companies' )->get_by( 'slug', sanitize_title( sanitize_title( $company_name ) ) );
+        $company = new Company( $data->ID );
+
+    } else {
+
+        $company = new Company( [
+            'name' => sanitize_text_field( $company_name ),
+            'slug' => sanitize_title( $company_name ),
+
+        ] );
+
+        if ( !$company->get_id() ) {
+            return new \WP_Error( 'unable_to_add_company', "Something went wrong adding the new company." );
+        }
+    }
+
+    $company->add_contacts( absint( $contact_id ) );
+
+    return true;
+}
+
+
 
 
 /**
@@ -237,3 +252,77 @@ function get_clean_domain( $domain )
     return sprintf( "https://%s", $sanitized );
 
 }
+
+
+
+/**
+ * Adds new tab inside Groundhogg Tools page
+ *
+ * @param $tags
+ * @return array
+ */
+function tools_tab( $tags )
+{
+    $tags [] = [
+        'name' => __( 'Companies' ),
+        'slug' => 'companies'
+    ];
+
+    return $tags;
+}
+
+add_filter( 'groundhogg/admin/tools/tabs', __NAMESPACE__ . '\tools_tab', 10 );
+
+
+/**
+ * Displays Validate email button inside tools page of Groundhogg
+ *
+ * @param $page
+ */
+function display_company_settings( $page )
+{
+    ?>
+    <div class="show-upload-view">
+        <div class="upload-plugin-wrap">
+            <div class="upload-plugin">
+                <p class="install-help"><?php _e( 'Sync companies', 'groundhogg-companies' ); ?></p>
+                <form method="post" class="wp-upload-form">
+                    <?php wp_nonce_field(); ?>
+                    <?php echo Plugin::$instance->utils->html->input( [
+                        'type' => 'hidden',
+                        'name' => 'action',
+                        'value' => 'sync_companies',
+                    ] ); ?>
+                    <p><?php _e( 'Syncs existing company details form the contact with the companies.' , 'groundhogg-companies'  ); ?></p>
+                    <p class="submit" style="text-align: center;padding-bottom: 0;margin: 0;">
+                        <button style="width: 100%" class="button-primary" name="validate_contacts"
+                                value="sync"><?php _ex( 'Sync Companies', 'action', 'groundhogg-companies' ); ?></button>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+add_action( 'groundhogg/admin/gh_tools/display/companies_view', __NAMESPACE__ . '\display_company_settings', 10 );
+
+/**
+ * Start's the bulk from the tools page
+ *
+ * @return mixed
+ */
+function sync_companies_from_contact( $exitcode ){
+
+    Plugin::$instance->bulk_jobs->sync_companies->start();
+
+    return $exitcode;
+}
+
+add_filter( 'groundhogg/admin/gh_tools/process/companies_sync_companies', __NAMESPACE__ . '\sync_companies_from_contact', 10 );
+
+
+
+
+
+

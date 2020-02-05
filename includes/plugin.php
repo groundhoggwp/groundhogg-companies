@@ -6,6 +6,7 @@ use Groundhogg\Admin\Admin_Menu;
 use Groundhogg\DB\Manager;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
+use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
 use GroundhoggCompanies\DB\Companies;
 use GroundhoggCompanies\DB\Company_Meta;
 use GroundhoggCompanies\DB\Company_Relationships;
@@ -62,6 +63,11 @@ class Plugin extends Extension{
         $admin_menu->companies = new Companies_Page();
     }
 
+
+    public function register_bulk_jobs( $manager )
+    {
+        $manager->sync_companies  = new Sync_Companies();
+    }
 
     /**
      * Get the ID number for the download in EDD Store
