@@ -25,7 +25,6 @@ function recount_company_contacts_count()
     }
 }
 
-
 /**
  * Get the job title of a contact
  *
@@ -48,13 +47,12 @@ function get_job_title( $contact_id )
 
 }
 
-
+/**
+ * Add the company selector in the contact record
+ */
 function company_section_in_contact()
 {
-
     ?>
-    <!--    <h2>--><?php //_ex('Location', 'contact_record', 'groundhogg');
-    ?><!--</h2>-->
     <table class="form-table">
         <tbody>
         <tr>
@@ -76,8 +74,6 @@ function company_section_in_contact()
         </tbody>
     </table>
     <?php
-
-
 }
 
 add_action( 'groundhogg/contact/record/company_info/after', __NAMESPACE__ . '\company_section_in_contact' );
@@ -88,13 +84,7 @@ add_action( 'groundhogg/contact/record/company_info/after', __NAMESPACE__ . '\co
  */
 function manage_companies( $contact_id, $contact )
 {
-    $companies = get_request_var( 'companies' );
-
-    if ( $companies == null ) {
-        $companies = [];
-    }
-
-//    if ( $companies ) {
+    $companies = get_request_var( 'companies', [] );
 
     $company_ids = wp_parse_id_list( wp_list_pluck( get_db( 'company_relationships' )->query( [
         'contact_id' => $contact_id
@@ -125,11 +115,7 @@ function manage_companies( $contact_id, $contact )
 
     recount_company_contacts_count();
 
-
-//    }
-
 }
-
 
 add_action( 'groundhogg/admin/contact/save', __NAMESPACE__ . '\manage_companies', 10, 2 );
 
@@ -140,9 +126,7 @@ add_action( 'groundhogg/admin/contact/save', __NAMESPACE__ . '\manage_companies'
  * @param $args
  * @return string
  */
-
-function dropdown_companies( $args )
-{
+function dropdown_companies( $args ) {
     $a = wp_parse_args( $args, array(
         'name' => 'companies[]',
         'id' => 'companies',
@@ -152,25 +136,37 @@ function dropdown_companies( $args )
         'placeholder' => __( 'Please Select a Company', 'groundhogg-calendar' ),
         'tags' => false,
     ) );
+
     $companies = get_db( 'companies' )->query();
     foreach ( $companies as $company ) {
         $a[ 'data' ][ $company->ID ] = $company->name . '(' . $company->contact_count . ')';
     }
+
     return html()->select2( $a );
 }
 
-function add_companies_based_on_form_submission( $object_id, $meta_key, $meta_value, $prev_value )
+/**
+ * Given information about a contact, get any company info and create a company record.
+ *
+ * @param $contact_id
+ * @return int|false this ID of the company created, or false if no company could be created.
+ */
+function generate_company_from_contact( $contact_id )
 {
-    if ( $meta_key === 'company_name' ) {
 
-        add_companies_based_on_contact( $object_id, $meta_value );
-
+    if ( ! $contact_id ){
+        return false;
     }
 
+    // Check if the contact already has a linked company, if so return that company ID
+    // Check if the contact has the minimum number of fields to create a company record
+    // Create the company record
+    //
+
+
+
+
 }
-
-
-add_action( 'groundhogg/meta/contact/update', __NAMESPACE__ . '\add_companies_based_on_form_submission', 10, 4 );
 
 /**
  * @param $contact_id
@@ -203,9 +199,6 @@ function add_companies_based_on_contact( $contact_id, $company_name ) {
     return true;
 }
 
-
-
-
 /**
  * Adds company in the contact list when contact email address domain is matched with company domain.
  * works on contact create method.
@@ -233,6 +226,17 @@ function add_contact_based_on_domain( $contact_id, $data )
 
 add_action( 'groundhogg/db/post_insert/contact', __NAMESPACE__ . '\add_contact_based_on_domain', 10, 2 );
 
+function add_companies_based_on_form_submission( $object_id, $meta_key, $meta_value, $prev_value )
+{
+	if ( $meta_key === 'company_name' ) {
+
+		add_companies_based_on_contact( $object_id, $meta_value );
+
+	}
+
+}
+add_action( 'groundhogg/meta/contact/update', __NAMESPACE__ . '\add_companies_based_on_form_submission', 10, 4 );
+
 
 /**
  * Normalize domain to store in the database
@@ -252,77 +256,6 @@ function get_clean_domain( $domain )
     return sprintf( "https://%s", $sanitized );
 
 }
-
-
-
-/**
- * Adds new tab inside Groundhogg Tools page
- *
- * @param $tags
- * @return array
- */
-function tools_tab( $tags )
-{
-    $tags [] = [
-        'name' => __( 'Companies' ),
-        'slug' => 'companies'
-    ];
-
-    return $tags;
-}
-
-add_filter( 'groundhogg/admin/tools/tabs', __NAMESPACE__ . '\tools_tab', 10 );
-
-
-/**
- * Displays Validate email button inside tools page of Groundhogg
- *
- * @param $page
- */
-function display_company_settings( $page )
-{
-    ?>
-    <div class="show-upload-view">
-        <div class="upload-plugin-wrap">
-            <div class="upload-plugin">
-                <p class="install-help"><?php _e( 'Sync companies', 'groundhogg-companies' ); ?></p>
-                <form method="post" class="wp-upload-form">
-                    <?php wp_nonce_field(); ?>
-                    <?php echo Plugin::$instance->utils->html->input( [
-                        'type' => 'hidden',
-                        'name' => 'action',
-                        'value' => 'sync_companies',
-                    ] ); ?>
-                    <p><?php _e( 'Syncs existing company details form the contact with the companies.' , 'groundhogg-companies'  ); ?></p>
-                    <p class="submit" style="text-align: center;padding-bottom: 0;margin: 0;">
-                        <button style="width: 100%" class="button-primary" name="validate_contacts"
-                                value="sync"><?php _ex( 'Sync Companies', 'action', 'groundhogg-companies' ); ?></button>
-                    </p>
-                </form>
-            </div>
-        </div>
-    </div>
-    <?php
-}
-
-add_action( 'groundhogg/admin/gh_tools/display/companies_view', __NAMESPACE__ . '\display_company_settings', 10 );
-
-/**
- * Start's the bulk from the tools page
- *
- * @return mixed
- */
-function sync_companies_from_contact( $exitcode ){
-
-    Plugin::$instance->bulk_jobs->sync_companies->start();
-
-    return $exitcode;
-}
-
-add_filter( 'groundhogg/admin/gh_tools/process/companies_sync_companies', __NAMESPACE__ . '\sync_companies_from_contact', 10 );
-
-
-
 
 
 

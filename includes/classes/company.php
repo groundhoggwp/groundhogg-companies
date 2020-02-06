@@ -13,17 +13,17 @@ use function GroundhoggCompanies\recount_company_contacts_count;
 
 class Company extends Base_Object_With_Meta
 {
-    protected function get_meta_db()
-    {
-        return get_db( 'company_meta' );
-    }
-
-    protected function post_setup()
+	protected function post_setup()
     {
         // TODO: Implement post_setup() method.
     }
 
-    protected function get_db()
+	protected function get_meta_db()
+	{
+		return get_db( 'company_meta' );
+	}
+
+	protected function get_db()
     {
 
         return get_db( 'companies' );
@@ -88,7 +88,13 @@ class Company extends Base_Object_With_Meta
         return $this->get_meta( 'notes' );
     }
 
-
+	/**
+	 * Add contacts to a company record
+	 *
+	 * @param $contact_id_or_array
+	 *
+	 * @return bool
+	 */
     public function add_contacts( $contact_id_or_array )
     {
 
@@ -101,19 +107,29 @@ class Company extends Base_Object_With_Meta
         }
 
         foreach ( $contacts as $contact_id ) {
+
             $get_id = get_db( 'company_relationships' )->query( [ 'company_id' => $this->get_id(), 'contact_id' => $contact_id ] );
+
             if ( empty( $get_id ) ) {
 
                 $id = get_db( 'company_relationships' )->add( $this->get_id(), $contact_id );
+
                 if ( $id === 0 ) {
                     do_action( 'groundhogg/company/contact_added', $this, $contact_id );
                 }
             }
         }
-        recount_company_contacts_count();
+
         return true;
     }
 
+	/**
+	 * Remove contacts from a company record
+	 *
+	 * @param $contact_id_or_array
+	 *
+	 * @return bool
+	 */
     public function remove_contacts( $contact_id_or_array )
     {
         if ( !is_array( $contact_id_or_array ) ) {
@@ -125,7 +141,9 @@ class Company extends Base_Object_With_Meta
         }
 
         foreach ( $contacts as $contact_id ) {
-            $get_id = get_db( 'company_relationships' )->query( [ 'company_id' => $this->get_id(), 'contact_id' => $contact_id ] );
+
+        	$get_id = get_db( 'company_relationships' )->query( [ 'company_id' => $this->get_id(), 'contact_id' => $contact_id ] );
+
             if ( $get_id ) {
 
                 $id = get_db( 'company_relationships' )->delete( [ 'company_id' => $this->get_id(), 'contact_id' => $contact_id ] );
@@ -200,9 +218,13 @@ class Company extends Base_Object_With_Meta
         return $mfile;
     }
 
+	/**
+	 * @var string[]
+	 */
+	protected $upload_paths;
 
     /**
-     * get the upload folder for this contact
+     * get the upload folder for this company
      */
     public function get_uploads_folder()
     {
@@ -273,7 +295,6 @@ class Company extends Base_Object_With_Meta
         return $data;
     }
 
-
     /**
      * Get a list of associated files.
      */
@@ -323,7 +344,6 @@ class Company extends Base_Object_With_Meta
             require_once( ABSPATH . '/wp-admin/includes/file.php' );
         }
 
-
         $this->get_picture_folder();
         add_filter( 'upload_dir', [ $this, 'map_upload' ] );
         $mfile = wp_handle_upload( $file, $upload_overrides );
@@ -335,7 +355,6 @@ class Company extends Base_Object_With_Meta
 
         return $mfile;
     }
-
 
     /**
      * get the upload folder for this contact
@@ -351,8 +370,6 @@ class Company extends Base_Object_With_Meta
         return $paths;
     }
 
-
-
     public function delete_pictures()
     {
         $uploads_dir = $this->get_picture_folder();
@@ -363,7 +380,6 @@ class Company extends Base_Object_With_Meta
         $uploads_dir = $this->get_uploads_folder();
         $this->delete_contents($uploads_dir);
     }
-
 
     private function delete_contents($uploads_dir)
     {

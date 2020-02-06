@@ -66,9 +66,9 @@ class Companies extends DB
     {
 
         //done using recount method where operation are supported
-//        add_action( 'groundhogg/db/post_insert/company_relationship', [ $this, 'increase_contact_count' ], 10, 2 );
-//        add_action( 'groundhogg/db/post_delete/company_relationship', [ $this, 'decrease_contact_count' ], 10 );
-//        add_action( 'groundhogg/db/pre_bulk_delete/company_relationships', [ $this, 'bulk_decrease_count' ], 10 );
+        add_action( 'groundhogg/db/post_insert/company_relationship', [ $this, 'increase_contact_count' ], 10, 2 );
+        add_action( 'groundhogg/db/post_delete/company_relationship', [ $this, 'decrease_contact_count' ], 10 );
+        add_action( 'groundhogg/db/pre_bulk_delete/company_relationships', [ $this, 'bulk_decrease_count' ], 10 );
     }
 
     /**
@@ -109,68 +109,65 @@ class Companies extends DB
         );
     }
 
+    /**
+     * Increase the contact company count
+     *
+     * @param $insert_id
+     * @param $args
+     */
+    public function increase_contact_count( $insert_id = 0, $args = [] )
+    {
+        $company_id = absint( $args[ 'company_id' ] );
 
-//
-//    /**
-//     * Increase the contact company count
-//     *
-//     * @param $insert_id
-//     * @param $args
-//     */
-//    public function increase_contact_count( $insert_id = 0, $args = [] )
-//    {
-//        $tag_id = absint( $args[ 'tag_id' ] );
-//
-//        if ( !$this->exists( $tag_id ) ) {
-//            return;
-//        }
-//
-//        $tag = $this->get_tag( $tag_id );
-//        $tag->contact_count = intval( $tag->contact_count ) + 1;
-//        $this->update( $tag_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
-//    }
-//
-//    /**
-//     * TODO
-//     * Decrease the contact tag count
-//     *
-//     * @param $insert_id
-//     * @param $args
-//     */
-//    public function decrease_contact_count( $args = [] )
-//    {
-//        if ( !isset_not_empty( $args, 'tag_id' ) ) {
-//            return;
-//        }
-//
-//        $tag_id = absint( $args[ 'tag_id' ] );
-//
-//        if ( !$this->exists( $tag_id ) ) {
-//            return;
-//        }
-//
-//        $tag = $this->get_tag( $tag_id );
-//        $tag->contact_count = intval( $tag->contact_count ) - 1;
-//        $this->update( $tag_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
-//    }
-//
-//    /**
-//     * TODO
-//     * Bulk decrease the contact count.
-//     *
-//     * @param $company_ids
-//     */
-//    public function bulk_decrease_count( $company_ids )
-//    {
-//
-//        if ( empty( $company_ids ) ) {
-//            return;
-//        }
-//
-//        foreach ( $company_ids as $id ) {
-//            $this->decrease_contact_count( [ 'ID' => $id ] );
-//        }
-//    }
+        if ( ! $this->exists( $company_id ) ) {
+            return;
+        }
+
+        $tag = $this->get( $company_id );
+        $tag->contact_count = intval( $tag->contact_count ) + 1;
+        $this->update( $company_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
+    }
+
+    /**
+     * TODO
+     * Decrease the contact tag count
+     *
+     * @param $insert_id
+     * @param $args
+     */
+    public function decrease_contact_count( $args = [] )
+    {
+        if ( !isset_not_empty( $args, 'company_id' ) ) {
+            return;
+        }
+
+	    $company_id = absint( $args[ 'company_id' ] );
+
+	    if ( ! $this->exists( $company_id ) ) {
+		    return;
+	    }
+
+	    $tag = $this->get( $company_id );
+        $tag->contact_count = intval( $tag->contact_count ) - 1;
+        $this->update( $company_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
+    }
+
+    /**
+     * Bulk decrease the contact count.
+     *
+     * @param $company_ids
+     */
+    public function bulk_decrease_count( $company_ids )
+    {
+
+        if ( empty( $company_ids ) ) {
+            return;
+        }
+
+        foreach ( $company_ids as $id ) {
+            $this->decrease_contact_count( [ 'ID' => $id ] );
+        }
+    }
 
     /**
      * Create the table

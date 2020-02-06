@@ -73,10 +73,8 @@ class Sync_Companies extends Bulk_Job
 
         $contact = new Contact($item);
 
-        if(  $company_name = $contact->get_meta( 'company_name' ) ) {
-
+        if( $company_name = $contact->get_meta( 'company_name' ) ) {
             add_companies_based_on_contact( $contact->get_id() , $company_name );
-
         }
     }
 

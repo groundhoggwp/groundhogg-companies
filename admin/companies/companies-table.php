@@ -52,8 +52,8 @@ class Companies_Table extends WP_List_Table {
      */
     protected function get_sortable_columns() {
         $sortable_columns = array(
-            'company_name'    => array( 'company_name', false ),
-            'company_description' => array( 'company_description', false ),
+            'company_name'    => array( 'name', false ),
+//            'company_description' => array( 'company_description', false ),
             'contact_count' => array( 'contact_count', false ),
         );
         return $sortable_columns;

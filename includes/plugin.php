@@ -6,6 +6,7 @@ use Groundhogg\Admin\Admin_Menu;
 use Groundhogg\DB\Manager;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
+use GroundhoggCompanies\Admin\Tools_Tab;
 use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
 use GroundhoggCompanies\DB\Companies;
 use GroundhoggCompanies\DB\Company_Meta;
@@ -42,6 +43,9 @@ class Plugin extends Extension{
         $this->updater = new Updater();
         $this->roles = new Roles();
 
+        if ( is_admin() ){
+        	new Tools_Tab();
+        }
     }
 
     /**
