@@ -74,6 +74,7 @@ li.select2-search{
     padding: 0 20px 20px 20px;
     box-sizing: border-box;
     margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 
@@ -93,7 +94,7 @@ li.select2-search{
 
 .auto-copy {
     width: 100%;
-    max-width: 400px;
+    /*max-width: 400px;*/
 }
 
 .basic-details .details {

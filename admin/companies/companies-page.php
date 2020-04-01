@@ -83,7 +83,7 @@ class Companies_Page extends Admin_Page
 
     public function get_priority()
     {
-        return 55;
+        return 6;
     }
 
     public function recount()

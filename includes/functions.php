@@ -68,7 +68,16 @@ function company_section_in_contact()
                 echo dropdown_companies( [
                     'selected' => $company_ids
                 ] );
+
+                if (!empty($company_ids)) :
                 ?>
+                <p>
+                    <a href="<?php echo admin_url( sprintf( 'admin.php?page=gh_companies&action=edit&company=%s', $company_ids[0] ) ); ?> "
+                       class="button"><span
+                                title="<?php esc_attr_e( 'Copy share link', 'groundhogg' ) ?>"
+                                class="dashicons dashicons-building" style="width: auto;height: auto;vertical-align: middle;font-size: 14px;margin-right: 3px;"></span> <?php _e( 'View Company', 'groundhogg-companies' ); ?></a>
+                </p>
+                <?php endif; ?>
             </td>
         </tr>
         </tbody>
@@ -145,28 +154,6 @@ function dropdown_companies( $args ) {
     return html()->select2( $a );
 }
 
-/**
- * Given information about a contact, get any company info and create a company record.
- *
- * @param $contact_id
- * @return int|false this ID of the company created, or false if no company could be created.
- */
-function generate_company_from_contact( $contact_id )
-{
-
-    if ( ! $contact_id ){
-        return false;
-    }
-
-    // Check if the contact already has a linked company, if so return that company ID
-    // Check if the contact has the minimum number of fields to create a company record
-    // Create the company record
-    //
-
-
-
-
-}
 
 /**
  * @param $contact_id
