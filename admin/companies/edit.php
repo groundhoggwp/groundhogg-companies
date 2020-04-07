@@ -93,7 +93,8 @@ $company = new Company( absint( $id ) );
                                 <div id="company-picture-wrap" class="company-picture-wrap">
 									<?php
 
-									$file = array_pop( $company->get_picture() );
+                                    $picture  = $company->get_picture();
+									$file = array_pop(  $picture );
 
 									echo html()->e( 'img', [
 										'class' => 'company-picture ',
