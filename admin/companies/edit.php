@@ -102,7 +102,6 @@ $company = new Company( absint( $id ) );
 										'src'   => $file['file_url'],
 									] );
 
-
 									?>
                                 </div>
 								<?php
