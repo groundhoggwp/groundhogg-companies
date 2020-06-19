@@ -148,7 +148,7 @@ class Company extends Base_Object_With_Meta
 
                 $id = get_db( 'company_relationships' )->delete( [ 'company_id' => $this->get_id(), 'contact_id' => $contact_id ] );
 
-                if ( $id === 0 ) {
+                if ( $id ) {
                     do_action( 'groundhogg/company/contact_removed', $this, $contact_id );
                 }
             }
