@@ -91,7 +91,7 @@ function company_section_in_contact() {
 
                     <p>
 						<?php echo html()->dropdown( $company_ddl ) ?>
-                        <button type="submit" name="view_compnay" value="send" class="button">
+                        <button type="submit" name="view_company" value="view_company" class="button">
                             <span
                                     title="<?php esc_attr_e( 'View Company', 'groundhogg' ) ?>"
                                     class="dashicons dashicons-building"
@@ -114,7 +114,7 @@ add_action( 'groundhogg/contact/record/company_info/after', __NAMESPACE__ . '\co
  */
 function process_view_company_action() {
 	/* USE the same email priviledges */
-	if ( isset( $_POST[ 'company_id' ] ) ) {
+	if ( isset( $_POST[ 'company_id' ]  ) && isset($_POST['view_company']) ) {
 	    wp_redirect( admin_url( sprintf( 'admin.php?page=gh_companies&action=edit&company=%s', $_POST[ 'company_id' ] ) ) );
 	}
 }
