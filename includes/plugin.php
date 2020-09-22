@@ -7,6 +7,7 @@ use Groundhogg\DB\Manager;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
 use GroundhoggCompanies\Admin\Tools_Tab;
+use GroundhoggCompanies\Api\Companies_Api;
 use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
 use GroundhoggCompanies\DB\Companies;
 use GroundhoggCompanies\DB\Company_Meta;
@@ -47,8 +48,11 @@ class Plugin extends Extension{
         	new Tools_Tab();
         }
     }
+    public function register_apis( $api_manager ) {
+    	$api_manager->companies = new Companies_Api();
+    }
 
-    /**
+	/**
      * @param Manager $db_manager
      */
     public function register_dbs( $db_manager )
