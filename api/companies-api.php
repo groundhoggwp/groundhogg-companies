@@ -27,7 +27,26 @@ class Companies_Api extends Base
 	            'callback' => [ $this, 'get_companies' ],
 	            'permission_callback' => $auth_callback,
 
-            ]
+            ],  [
+		        'methods'             => WP_REST_Server::CREATABLE,
+		        'callback'            => [ $this, 'add_companies' ],
+		        'permission_callback' => $auth_callback,
+
+	        ],
+	        [
+		        'methods'             => WP_REST_Server::DELETABLE,
+		        'callback'            => [ $this, 'delete_companies' ],
+		        'permission_callback' => $auth_callback,
+
+	        ],
+	        [
+		        'methods'             => WP_REST_Server::EDITABLE,
+		        'callback'            => [ $this, 'edit_companies' ],
+		        'permission_callback' => $auth_callback,
+
+	        ]
+
+
         ] );
 
 
@@ -35,7 +54,7 @@ class Companies_Api extends Base
     }
 
     /**
-     * Get a list of sms which match a given query
+     * Get a list of companies
      *
      * @param WP_REST_Request $request
      * @return WP_Error|WP_REST_Response
@@ -45,5 +64,49 @@ class Companies_Api extends Base
 
 	    return self::SUCCESS_RESPONSE( [ 'success' ] );
     }
+
+	/**
+	 * Creates a new companies
+	 *
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function add_companies( WP_REST_Request $request ) {
+
+		return self::SUCCESS_RESPONSE();
+	}
+
+	/**
+	 *  Deletes the companies and relevant data
+	 *
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function delete_companies( WP_REST_Request $request ) {
+
+		return self::SUCCESS_RESPONSE();
+	}
+
+	/**
+	 * update the companies
+	 *
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function edit_companies( WP_REST_Request $request ) {
+
+		return self::SUCCESS_RESPONSE();
+	}
+
+
+
+
+
 
 }
