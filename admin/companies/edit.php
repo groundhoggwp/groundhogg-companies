@@ -41,16 +41,13 @@ $company = new Company( absint( $id ) );
         <div class="col-wrap">
             <div class="form-wrap">
                 <div id="company">
+                    <?php do_action( 'groundhogg/companies/admin/company/edit/before/company_details' , $company ); ?>
                     <form method="post" enctype="multipart/form-data" name="company_details">
-
                         <div class="company-details">
-
-
 							<?php
 							submit_button( null, 'primary', 'submit', false, [ 'style' => 'float:right;margin: 1em 0;' ] );
 							?>
                             <div class="wp-clearfix"></div>
-
 							<?php wp_nonce_field();
 							echo html()->input( [
 								'type'  => 'hidden',
@@ -70,7 +67,7 @@ $company = new Company( absint( $id ) );
                                         if (image) {
                                             image.style.display = "none";
                                         }
-                                        button.innerHTML =  "<?php  _e('Cancel' , 'groundhogg-companies' ) ; ?> ";
+                                        button.innerHTML = "<?php  _e( 'Cancel', 'groundhogg-companies' ); ?> ";
                                     } else {
                                         upload.style.display = "none";
                                         if (image) {
@@ -93,13 +90,13 @@ $company = new Company( absint( $id ) );
                                 <div id="company-picture-wrap" class="company-picture-wrap">
 									<?php
 
-                                    $picture  = $company->get_picture();
-									$file = array_pop(  $picture );
+									$picture = $company->get_picture();
+									$file    = array_pop( $picture );
 
 									echo html()->e( 'img', [
 										'class' => 'company-picture ',
 										'title' => __( 'Company Picture' ),
-										'src'   => $file['file_url'],
+										'src'   => $file[ 'file_url' ],
 									] );
 
 									?>
@@ -109,7 +106,7 @@ $company = new Company( absint( $id ) );
 								echo "<p style='margin-top: 10px;'>" . html()->button( [
 										"name"    => "toggle",
 										"onclick" => "myFunction()",
-										'text'    => __('Edit Image' , 'groundhogg-companies' ),
+										'text'    => __( 'Edit Image', 'groundhogg-companies' ),
 										'id'      => 'toggle'
 									] ) . "</p>";
 
@@ -203,10 +200,9 @@ $company = new Company( absint( $id ) );
 							);
 							echo Plugin::$instance->utils->html->textarea( $args );
 							?>
-
                         </div>
-
                     </form>
+	                <?php do_action( 'groundhogg/companies/admin/company/edit/after/company_details' , $company ); ?>
                 </div>
             </div>
         </div>
@@ -214,6 +210,7 @@ $company = new Company( absint( $id ) );
     <div id="col-right">
         <div class="col-wrap">
             <div id="company">
+	            <?php do_action( 'groundhogg/companies/admin/company/edit/before/contact_details' , $company ); ?>
 
                 <h3><?php _e( 'Contacts', 'groundhogg-companies' ); ?></h3>
                 <div class="contact-details">
@@ -230,8 +227,8 @@ $company = new Company( absint( $id ) );
 						?>
                     </form>
                 </div>
+	            <?php do_action( 'groundhogg/companies/admin/company/edit/before/company_files' , $company ); ?>
                 <h3><?php _e( 'Files', 'groundhogg-companies' ); ?></h3>
-
                 <div class="company-files">
 
                     <form method="post" enctype="multipart/form-data">
@@ -262,19 +259,19 @@ $company = new Company( absint( $id ) );
 
 							foreach ( $files as $key => $item ) {
 
-								$info = pathinfo( $item['file_path'] );
+								$info = pathinfo( $item[ 'file_path' ] );
 
 								$rows[] = [
-									sprintf( "<a href='%s' target='_blank'>%s</a>", esc_url( $item['file_url'] ), esc_html( $info['basename'] ) ),
-									esc_html( size_format( filesize( $item['file_path'] ) ) ),
-									esc_html( $info['extension'] ),
+									sprintf( "<a href='%s' target='_blank'>%s</a>", esc_url( $item[ 'file_url' ] ), esc_html( $info[ 'basename' ] ) ),
+									esc_html( size_format( filesize( $item[ 'file_path' ] ) ) ),
+									esc_html( $info[ 'extension' ] ),
 									html()->e( 'span', [ 'class' => 'row-actions' ], [
 										html()->e( 'span', [ 'class' => 'delete' ],
 											html()->e( 'a', [
 												'class' => 'delete',
 												'href'  => admin_page_url( 'gh_companies', [
 													'action'   => 'remove_file',
-													'file'     => $info['basename'],
+													'file'     => $info[ 'basename' ],
 													'company'  => $company->get_id(),
 													'_wpnonce' => wp_create_nonce( 'remove_file' )
 												] )
@@ -300,6 +297,7 @@ $company = new Company( absint( $id ) );
 							?>
                     </form>
                 </div>
+	            <?php do_action( 'groundhogg/companies/admin/company/edit/after/company_files' , $company ); ?>
             </div>
         </div>
     </div>
