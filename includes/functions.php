@@ -114,8 +114,8 @@ add_action( 'groundhogg/contact/record/company_info/after', __NAMESPACE__ . '\co
  */
 function process_view_company_action() {
 	/* USE the same email priviledges */
-	if ( isset( $_POST[ 'company_id' ]  ) && isset($_POST['view_company']) ) {
-	    wp_redirect( admin_url( sprintf( 'admin.php?page=gh_companies&action=edit&company=%s', $_POST[ 'company_id' ] ) ) );
+	if ( isset( $_POST[ 'company_id' ] ) && isset( $_POST[ 'view_company' ] ) ) {
+		wp_redirect( admin_url( sprintf( 'admin.php?page=gh_companies&action=edit&company=%s', $_POST[ 'company_id' ] ) ) );
 	}
 }
 
@@ -198,6 +198,10 @@ function dropdown_companies( $args ) {
 
 function add_companies_based_on_contact( $contact_id, $company_name ) {
 
+	if ( ! $company_name ) {
+		return true;
+	}
+
 	if ( get_db( 'companies' )->exists( sanitize_title( $company_name ), 'slug' ) ) {
 
 		$data    = get_db( 'companies' )->get_by( 'slug', sanitize_title( sanitize_title( $company_name ) ) );
@@ -249,9 +253,7 @@ add_action( 'groundhogg/db/post_insert/contact', __NAMESPACE__ . '\add_contact_b
 
 function add_companies_based_on_form_submission( $object_id, $meta_key, $meta_value, $prev_value ) {
 	if ( $meta_key === 'company_name' ) {
-
 		add_companies_based_on_contact( $object_id, $meta_value );
-
 	}
 
 }
