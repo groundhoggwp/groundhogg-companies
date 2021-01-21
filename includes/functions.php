@@ -1,4 +1,5 @@
 <?php
+
 namespace GroundhoggCompanies;
 
 use Groundhogg\Contact;
@@ -82,7 +83,7 @@ function company_section_in_contact() {
 						'id'          => 'company-id',
 						'class'       => 'post-data',
 						'options'     => $options,
-						'selected'    => $options[ 0 ],
+						'selected'    => $options[0],
 						'option_none' => false,
 					);
 
@@ -114,8 +115,8 @@ add_action( 'groundhogg/contact/record/company_info/after', __NAMESPACE__ . '\co
  */
 function process_view_company_action() {
 	/* USE the same email priviledges */
-	if ( isset( $_POST[ 'company_id' ] ) && isset( $_POST[ 'view_company' ] ) ) {
-		wp_redirect( admin_url( sprintf( 'admin.php?page=gh_companies&action=edit&company=%s', $_POST[ 'company_id' ] ) ) );
+	if ( isset( $_POST['company_id'] ) && isset( $_POST['view_company'] ) ) {
+		wp_redirect( admin_url( sprintf( 'admin.php?page=gh_companies&action=edit&company=%s', $_POST['company_id'] ) ) );
 	}
 }
 
@@ -182,7 +183,7 @@ function dropdown_companies( $args ) {
 
 	$companies = get_db( 'companies' )->query();
 	foreach ( $companies as $company ) {
-		$a[ 'data' ][ $company->ID ] = $company->name . '(' . $company->contact_count . ')';
+		$a['data'][ $company->ID ] = $company->name . '(' . $company->contact_count . ')';
 	}
 
 	return html()->select2( $a );
@@ -234,7 +235,7 @@ function add_companies_based_on_contact( $contact_id, $company_name ) {
  */
 function add_contact_based_on_domain( $contact_id, $data ) {
 
-	$domain_name = get_clean_domain( substr( strrchr( $data[ 'email' ], "@" ), 1 ) );
+	$domain_name = get_clean_domain( substr( strrchr( $data['email'], "@" ), 1 ) );
 
 	$companies = get_db( 'companies' )->query( [
 		'domain' => $domain_name
@@ -282,4 +283,134 @@ function get_clean_domain( $domain ) {
 }
 
 
+/**
+ * @return string Get the CSV import URL.
+ */
+
+function get_company_imports_dir( $file_path = '', $create_folders = false ) {
+	return Plugin::$instance->utils->files->get_uploads_dir( 'company-imports', $file_path, $create_folders );
+}
+
+/**
+ * @return string Get the CSV import URL.
+ */
+
+function get_company_imports_url( $file_path = '' ) {
+	return Plugin::$instance->utils->files->get_uploads_url( 'company-imports', $file_path );
+}
+
+
+/**
+ * Get a list of mappable fields as well as extra fields
+ *
+ * @param array $extra
+ *
+ * @return array
+ */
+function get_company_mappable_fields( $extra = [] ) {
+
+	$defaults = [
+		'company_name' => __( 'Company Name' ),
+		'address'      => __( 'Company Address' ),
+		'notes'        => __( 'Add To Notes' ),
+		'description'  => __( 'Description' ),
+		'website'      => __( 'Website' )
+	];
+
+	$fields = array_merge( $defaults, $extra );
+
+	return apply_filters( 'groundhogg/companies/mappable_fields', $fields );
+
+}
+
+/**
+ * Create or update company based on mapped data
+ *
+ * @param $fields
+ * @param array $map
+ *
+ * @return Company|\WP_Error
+ */
+function generate_company_with_map( $fields, $map = [] ) {
+
+	if ( empty( $map ) ) {
+		$keys = array_keys( $fields );
+		$map  = array_combine( $keys, $keys );
+	}
+
+	$notes        = [];
+	$company_name = '';
+	$args         = [];
+	$meta         = [];
+
+	foreach ( $fields as $column => $value ) {
+
+
+		// ignore if we are not mapping it.
+		if ( ! key_exists( $column, $map ) ) {
+			continue;
+		}
+
+		$value = wp_unslash( $value );
+		$field = $map[ $column ];
+		switch ( $field ) {
+			case 'company_name' :
+			    var_dump("incompant");
+				$company_name = sanitize_text_field( $value );
+				break;
+			case 'address' :
+				$meta ['address'] = sanitize_text_field( $value );
+				break;
+
+			case 'notes' :
+				$notes [] = sanitize_textarea_field( $value );
+				break;
+			case 'description'  :
+				$args['description'] = sanitize_textarea_field( $value );
+				break;
+			case 'website'   :
+				$args['domain'] = get_clean_domain( sanitize_text_field( $value ) );
+				break;
+		}
+
+	}
+
+	$company = false;
+
+	if ( get_db( 'companies' )->exists( sanitize_title( $company_name ), 'slug' ) ) {
+		$data    = get_db( 'companies' )->get_by( 'slug', sanitize_title( $company_name ) );
+		$company = new Company( $data->ID );
+	} else {
+
+		$company = new Company( [
+			'name' => $company_name,
+			'slug' => sanitize_title( $company_name ),
+
+		] );
+
+		if ( ! $company->get_id() ) {
+			return new \WP_Error( 'unable_to_add_company', "Something went wrong adding the new company." );
+		}
+	}
+
+	if ( $args ) {
+		$company->update( $args );
+	}
+
+
+	if ( $notes ) {
+		foreach ( $notes as $note ) {
+			$company->add_note( $note );
+		}
+	}
+
+	if ( $meta ) {
+		foreach ( $meta as $key => $value ) {
+			$company->update_meta( $key, sanitize_textarea_field( $value ) );
+		}
+	}
+
+	return $company;
+
+}
 
