@@ -8,6 +8,7 @@ use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
 use GroundhoggCompanies\Admin\Tools\Import_Companies_Tools;
 use GroundhoggCompanies\Admin\Tools\sync_companies_Tools;
+use GroundhoggCompanies\Api\Companies_Api;
 use GroundhoggCompanies\Bulk_Jobs\Import_companies;
 use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
 use GroundhoggCompanies\DB\Companies;
@@ -80,6 +81,10 @@ class Plugin extends Extension {
 	 */
 	public function get_download_id() {
 		return 37360;
+	}
+
+	public function register_v4_apis( $api_manager ) {
+		$api_manager->companies = new Companies_Api();
 	}
 
 	/**
