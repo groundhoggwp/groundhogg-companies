@@ -1,14 +1,14 @@
-.company-inside{
+.company-inside {
     max-width: 1000px;
 }
 
-@media screen and (max-width: 600px){
+@media screen and (max-width: 600px) {
     #wpbody {
         padding-top: 0 !important;
     }
 }
 
-.profile-picture{
+.profile-picture {
     vertical-align: middle;
 }
 
@@ -16,7 +16,7 @@
     margin-top: 0 !important;
 }
 
-li.select2-search{
+li.select2-search {
     line-height: 1em;
 }
 
@@ -31,14 +31,14 @@ li.select2-search{
 /*    min-height: 24px;*/
 /*}*/
 
-.save{
+.save {
     width: 100%;
     display: block;
     /*float: right;*/
     /*margin-right: 20px;*/
     position: relative;
     border: 1px solid #e5e5e5;
-    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
     background: #fff;
 
     padding: 0 20px 20px 20px;
@@ -57,7 +57,7 @@ li.select2-search{
     width: 48%;
 }
 
-.save{
+.save {
     padding-top: 20px;
 }
 
@@ -68,7 +68,7 @@ li.select2-search{
     /*margin-right: 20px;*/
     position: relative;
     border: 1px solid #e5e5e5;
-    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
     background: #fff;
 
     padding: 0 20px 20px 20px;
@@ -83,12 +83,12 @@ li.select2-search{
     margin-right: 20px;
     position: relative;
     /*border: 1px solid #e5e5e5;*/
-    box-shadow: 0 1px 1px rgba(0,0,0,.04);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
     background: #fff;
     max-width: 100%;
 }
 
-.company-picture-wrap{
+.company-picture-wrap {
     display: block;
 }
 
@@ -101,14 +101,15 @@ li.select2-search{
     margin: 0 0 10px 2px;
 }
 
-.company-details  {
+.company-details {
     /*margin: 0 0 10px 2px;*/
     width: 100%;
 }
 
-.contact-details textarea{
+.contact-details textarea {
     width: 100%;
 }
+
 .basic-details .details .regular-text {
     width: 20em;
 }
@@ -118,7 +119,7 @@ li.select2-search{
     padding: 0 4px 1px;
 }
 
-.basic-details .details .dashicons{
+.basic-details .details .dashicons {
     vertical-align: text-bottom;
 }
 

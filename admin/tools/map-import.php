@@ -46,15 +46,15 @@ $sample_item = $items[ $selected ];
 		'name'  => 'import',
 		'value' => $file_name
 	] ); ?>
-    <h2><?php _e( 'Map Contact Fields', 'groundhogg' ); ?></h2>
-    <p class="description"><?php _e( 'Map your CSV columns to the contact records fields below.', 'groundhogg' ); ?></p>
-    <style>
+	<h2><?php _e( 'Map Contact Fields', 'groundhogg' ); ?></h2>
+	<p class="description"><?php _e( 'Map your CSV columns to the contact records fields below.', 'groundhogg' ); ?></p>
+	<style>
         select {
             vertical-align: top !important;
         }
-    </style>
-    <div class="tablenav" style="max-width: 900px;">
-        <div class="alignright">
+	</style>
+	<div class="tablenav" style="max-width: 900px;">
+		<div class="alignright">
 			<?php
 
 			$base_admin_url = add_query_arg( [
@@ -65,37 +65,39 @@ $sample_item = $items[ $selected ];
 			], admin_url( 'admin.php' ) );
 
 			if ( $selected > 0 ) {
-				echo html()->e( 'a', [ 'href'  => add_query_arg( 'preview_item', $selected - 1, $base_admin_url ),
-				                       'class' => 'button'
+				echo html()->e( 'a', [
+					'href'  => add_query_arg( 'preview_item', $selected - 1, $base_admin_url ),
+					'class' => 'button'
 				], __( '&larr; Prev' ) );
 				echo '&nbsp;';
 			}
 
 			if ( $selected < $total_items - 1 ) {
-				echo html()->e( 'a', [ 'href'  => add_query_arg( 'preview_item', $selected + 1, $base_admin_url ),
-				                       'class' => 'button'
+				echo html()->e( 'a', [
+					'href'  => add_query_arg( 'preview_item', $selected + 1, $base_admin_url ),
+					'class' => 'button'
 				], __( 'Next &rarr;' ) );
 			}
 
 
 			?>
-        </div>
-    </div>
-    <table class="form-table">
-        <thead>
-        <tr>
-            <th><?php _e( 'Column Label', 'groundhogg' ) ?></th>
-            <td><b><?php _e( 'Example Data / Contact Record Field', 'groundhogg' ) ?></b></td>
-        </tr>
-        </thead>
-        <tbody>
+		</div>
+	</div>
+	<table class="form-table">
+		<thead>
+		<tr>
+			<th><?php _e( 'Column Label', 'groundhogg' ) ?></th>
+			<td><b><?php _e( 'Example Data / Contact Record Field', 'groundhogg' ) ?></b></td>
+		</tr>
+		</thead>
+		<tbody>
 		<?php
 
 		foreach ( $sample_item as $key => $value ):
 			?>
-            <tr>
-                <th><?php echo $key; ?></th>
-                <td>
+			<tr>
+				<th><?php echo $key; ?></th>
+				<td>
 					<?php echo Plugin::$instance->utils->html->input( [
 						'name'     => 'no_submit',
 						'value'    => $value,
@@ -111,12 +113,12 @@ $sample_item = $items[ $selected ];
 						'option_none' => '* Do Not Map *'
 					] );
 					?>
-                </td>
-            </tr>
+				</td>
+			</tr>
 		<?php
 		endforeach;
 		?>
-        </tbody>
-    </table>
+		</tbody>
+	</table>
 	<?php submit_button( __( 'Import Contacts', 'groundhogg' ) ) ?>
 </form>

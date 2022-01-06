@@ -49,7 +49,7 @@ class Import_companies extends Bulk_Job {
 	/**
 	 * Get the maximum number of items which can be processed at a time.
 	 *
-	 * @param $max int
+	 * @param $max   int
 	 * @param $items array
 	 *
 	 * @return int

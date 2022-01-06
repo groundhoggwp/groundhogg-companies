@@ -1,4 +1,5 @@
 <?php
+
 namespace GroundhoggCompanies;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -7,27 +8,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Autoloader {
 
-    /**
-     * Classes map.
-     *
-     * Maps Groundhogg classes to file names.
-     *
-     * @since 1.6.0
-     * @access private
-     * @static
-     *
-     * @var array Classes used by groundhogg.
-     */
-    private static $classes_map = [
+	/**
+	 * Classes map.
+	 *
+	 * Maps Groundhogg classes to file names.
+	 *
+	 * @since  1.6.0
+	 * @access private
+	 * @static
+	 *
+	 * @var array Classes used by groundhogg.
+	 */
+	private static $classes_map = [
 
-    ];
+	];
 
-    /**
+	/**
 	 * Run autoloader.
 	 *
 	 * Register a function as `__autoload()` implementation.
 	 *
-	 * @since 1.6.0
+	 * @since  1.6.0
 	 * @access public
 	 * @static
 	 */
@@ -40,11 +41,12 @@ class Autoloader {
 	 *
 	 * For a given class name, require the class file.
 	 *
-	 * @since 1.6.0
+	 * @param string $relative_class_name Class name.
+	 *
+	 * @since  1.6.0
 	 * @access private
 	 * @static
 	 *
-	 * @param string $relative_class_name Class name.
 	 */
 	private static function load_class( $relative_class_name ) {
 		if ( isset( self::$classes_map[ $relative_class_name ] ) ) {
@@ -60,11 +62,11 @@ class Autoloader {
 
 			$is_filename = GROUNDHOGG_COMPANIES_PATH . $filename . '.php';
 
-			if ( ! file_exists( $is_filename ) ){
-			    $filename = wp_normalize_path( GROUNDHOGG_COMPANIES_PATH . 'includes/' . $filename . '.php' );
-            } else {
-			    $filename = $is_filename;
-            }
+			if ( ! file_exists( $is_filename ) ) {
+				$filename = wp_normalize_path( GROUNDHOGG_COMPANIES_PATH . 'includes/' . $filename . '.php' );
+			} else {
+				$filename = $is_filename;
+			}
 		}
 
 		if ( is_readable( $filename ) ) {
@@ -77,11 +79,12 @@ class Autoloader {
 	 *
 	 * For a given class, check if it exist and load it.
 	 *
-	 * @since 1.6.0
+	 * @param string $class Class name.
+	 *
+	 * @since  1.6.0
 	 * @access private
 	 * @static
 	 *
-	 * @param string $class Class name.
 	 */
 	private static function autoload( $class ) {
 		if ( 0 !== strpos( $class, __NAMESPACE__ . '\\' ) ) {

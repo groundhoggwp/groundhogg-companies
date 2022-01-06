@@ -91,7 +91,7 @@ class Contacts_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_name( $contact ) {
-		if (trim($contact->get_full_name() )) {
+		if ( trim( $contact->get_full_name() ) ) {
 			return html()->e( 'a', [
 				'href' => admin_page_url( 'gh_contacts', [
 					'action'  => 'edit',
@@ -99,6 +99,7 @@ class Contacts_Table extends WP_List_Table {
 				] )
 			], $contact->get_full_name() );
 		}
+
 		return '—';
 	}
 
@@ -110,7 +111,7 @@ class Contacts_Table extends WP_List_Table {
 	 */
 	protected function column_email( $contact ) {
 		return html()->e( 'a', [
-			'href' => "mailto:"  .$contact->get_email()
+			'href' => "mailto:" . $contact->get_email()
 		], $contact->get_email() );
 	}
 
@@ -131,7 +132,7 @@ class Contacts_Table extends WP_List_Table {
 	 * @return string
 	 */
 	protected function column_phone( $contact ) {
-		return $contact->get_phone_number() ? :'—';
+		return $contact->get_phone_number() ?: '—';
 	}
 
 
@@ -146,13 +147,13 @@ class Contacts_Table extends WP_List_Table {
 
 			html()->e( 'a', [
 				'class' => 'delete',
-				'href'  =>  admin_page_url( 'gh_contacts', [
+				'href'  => admin_page_url( 'gh_contacts', [
 					'action'  => 'edit',
 					'contact' => $contact->get_id(),
 				] )
 			], __( "View", 'groundhogg-companies' ) ),
-		        '&nbsp|&nbsp',
-		        html()->e( 'span', [ 'class' => 'delete' ],
+			'&nbsp|&nbsp',
+			html()->e( 'span', [ 'class' => 'delete' ],
 				html()->e( 'a', [
 					'class' => 'delete',
 					'href'  => wp_nonce_url( admin_page_url( 'gh_companies', [
@@ -162,16 +163,16 @@ class Contacts_Table extends WP_List_Table {
 					] ) )
 				], __( "Remove", 'groundhogg-companies' ) ) ),
 
-        ] );
+		] );
 
 
-    }
+	}
 
 
 	/**
 	 * Get default column value.
 	 *
-	 * @param object $company A singular item (one full row's worth of data).
+	 * @param object $company     A singular item (one full row's worth of data).
 	 * @param string $column_name The name/slug of the column to be processed.
 	 *
 	 * @return string Text or HTML to be placed inside the column <td>.
@@ -215,7 +216,7 @@ class Contacts_Table extends WP_List_Table {
 
 		?>
 
-        <div id="add-contact-form">
+		<div id="add-contact-form">
 			<?php
 
 			wp_nonce_field();
@@ -233,12 +234,13 @@ class Contacts_Table extends WP_List_Table {
 			submit_button( 'Add Contact', 'secondary', 'submit', false, [ 'style' => 'margin-left:10px;' ] );
 
 			?>
-        </div>
+		</div>
 		<?php
 	}
 
 	/**
 	 * Prepares the list of items for displaying.
+	 *
 	 * @global wpdb $wpdb
 	 * @uses $this->_column_headers
 	 * @uses $this->items

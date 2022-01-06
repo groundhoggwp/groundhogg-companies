@@ -11,6 +11,7 @@ use GroundhoggCompanies\Admin\Tools\sync_companies_Tools;
 use GroundhoggCompanies\Api\Companies_Api;
 use GroundhoggCompanies\Bulk_Jobs\Import_companies;
 use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
+use GroundhoggCompanies\Bulk_Jobs\Migrate_Notes;
 use GroundhoggCompanies\DB\Companies;
 use GroundhoggCompanies\DB\Company_Meta;
 use GroundhoggCompanies\DB\Company_Relationships;
@@ -70,8 +71,9 @@ class Plugin extends Extension {
 
 
 	public function register_bulk_jobs( $manager ) {
-		$manager->sync_companies   = new Sync_Companies();
-		$manager->import_companies = new Import_companies();
+		$manager->company_migrate_notes = new Migrate_Notes();
+		$manager->sync_companies        = new Sync_Companies();
+		$manager->import_companies      = new Import_companies();
 	}
 
 	/**
@@ -102,8 +104,9 @@ class Plugin extends Extension {
 
 
 	public function register_admin_scripts( $is_minified, $dot_min ) {
-		wp_register_script( 'groundhogg-edit-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . '/css/companies.css', [], GROUNDHOGG_COMPANIES_VERSION );
-
+		wp_register_script( 'groundhogg-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . '/js/companies.js', [
+			'groundhogg-admin-notes'
+		], GROUNDHOGG_COMPANIES_VERSION, true );
 	}
 
 	/**
@@ -118,7 +121,7 @@ class Plugin extends Extension {
 	 *
 	 * Groundhogg autoloader loads all the classes needed to run the plugin.
 	 *
-	 * @since 1.6.0
+	 * @since  1.6.0
 	 * @access private
 	 */
 	protected function register_autoloader() {

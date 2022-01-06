@@ -5,6 +5,7 @@ namespace GroundhoggCompanies;
 use Groundhogg\Contact;
 use Groundhogg\Plugin;
 use GroundhoggCompanies\Classes\Company;
+use GroundhoggPipeline\Classes\Deal;
 use function Groundhogg\get_contactdata;
 use function Groundhogg\get_db;
 use function Groundhogg\get_request_var;
@@ -52,13 +53,13 @@ function get_job_title( $contact_id ) {
  */
 function company_section_in_contact() {
 	?>
-    <table class="form-table">
-        <tbody>
-        <tr>
-            <th>
-                <label for="companies"><?php echo _x( 'Companies', 'contact_record', 'groundhogg' ) ?></label>
-            </th>
-            <td>
+	<table class="form-table">
+		<tbody>
+		<tr>
+			<th>
+				<label for="companies"><?php echo _x( 'Companies', 'contact_record', 'groundhogg' ) ?></label>
+			</th>
+			<td>
 				<?php
 				$company_ids = wp_parse_id_list( wp_list_pluck( get_db( 'company_relationships' )->query( [
 					'contact_id' => absint( get_request_var( 'contact' ) )
@@ -90,21 +91,21 @@ function company_section_in_contact() {
 
 					?>
 
-                    <p>
+					<p>
 						<?php echo html()->dropdown( $company_ddl ) ?>
-                        <button type="submit" name="view_company" value="view_company" class="button">
+						<button type="submit" name="view_company" value="view_company" class="button">
                             <span
-                                    title="<?php esc_attr_e( 'View Company', 'groundhogg' ) ?>"
-                                    class="dashicons dashicons-building"
-                                    style="width: auto;height: auto;vertical-align: middle;font-size: 14px;margin-right: 3px;"></span> <?php _e( 'View Company', 'groundhogg-companies' ); ?>
-                        </button>
-                    </p>
+	                            title="<?php esc_attr_e( 'View Company', 'groundhogg' ) ?>"
+	                            class="dashicons dashicons-building"
+	                            style="width: auto;height: auto;vertical-align: middle;font-size: 14px;margin-right: 3px;"></span> <?php _e( 'View Company', 'groundhogg-companies' ); ?>
+						</button>
+					</p>
 
 				<?php endif; ?>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+			</td>
+		</tr>
+		</tbody>
+	</table>
 	<?php
 }
 
@@ -124,7 +125,7 @@ add_filter( 'groundhogg/admin/contact/save', __NAMESPACE__ . '\process_view_comp
 
 /**
  * @param $contact_id int
- * @param $contact Contact
+ * @param $contact    Contact
  */
 function manage_companies( $contact_id, $contact ) {
 	$companies = get_request_var( 'companies', [] );
@@ -326,7 +327,7 @@ function get_company_mappable_fields( $extra = [] ) {
 /**
  * Create or update company based on mapped data
  *
- * @param $fields
+ * @param       $fields
  * @param array $map
  *
  * @return Company|\WP_Error
@@ -355,7 +356,7 @@ function generate_company_with_map( $fields, $map = [] ) {
 		$field = $map[ $column ];
 		switch ( $field ) {
 			case 'company_name' :
-			    var_dump("incompant");
+				var_dump( "incompant" );
 				$company_name = sanitize_text_field( $value );
 				break;
 			case 'address' :
@@ -414,3 +415,21 @@ function generate_company_with_map( $fields, $map = [] ) {
 
 }
 
+/**
+ * Migrate a companies notes
+ *
+ * @param $company Company
+ */
+function migrate_notes( $company ) {
+
+	// Migrate notes
+	$notes_migrated = $company->get_meta( 'notes_migrated' );
+	$old_notes      = $company->get_meta( 'notes' );
+
+	if ( ! $notes_migrated && $old_notes ) {
+		$company->add_note( wpautop( $old_notes ) );
+		$company->delete_meta( 'notes' );
+	}
+
+	$company->update_meta( 'notes_migrated', true );
+}

@@ -83,7 +83,7 @@ class Import_Companies_Tools {
 	/**
 	 * Adds button on the top of the page for file upload
 	 *
-	 * @param $actions array
+	 * @param $actions    array
 	 * @param $tools_page Tools_Page
 	 *
 	 * @return array
@@ -112,10 +112,10 @@ class Import_Companies_Tools {
 		}
 
 		$table = new Imports_Table_Company(); ?>
-        <form method="post" class="search-form wp-clearfix">
+		<form method="post" class="search-form wp-clearfix">
 			<?php $table->prepare_items(); ?>
 			<?php $table->display(); ?>
-        </form>
+		</form>
 		<?php
 	}
 
@@ -124,23 +124,23 @@ class Import_Companies_Tools {
 	 */
 	public function render_import_add() {
 		?>
-        <div class="gh-tools-wrap">
-            <p class="tools-help"><?php _e( 'If you have a .CSV file you can upload it here!', 'groundhogg' ); ?></p>
-            <form method="post" enctype="multipart/form-data" class="gh-tools-box">
+		<div class="gh-tools-wrap">
+			<p class="tools-help"><?php _e( 'If you have a .CSV file you can upload it here!', 'groundhogg' ); ?></p>
+			<form method="post" enctype="multipart/form-data" class="gh-tools-box">
 				<?php wp_nonce_field(); ?>
 				<?php echo Plugin::$instance->utils->html->input( [
 					'type'  => 'hidden',
 					'name'  => 'action',
 					'value' => 'upload_file',
 				] ); ?>
-                <input type="file" name="import_file" id="import_file" accept=".csv">
-                <button class="button-primary" name="import_file_button"
-                        value="import_companies"><?php _ex( 'Import Companies', 'action', 'groundhogg' ); ?></button>
-            </form>
-            <p class="description" style="text-align: center"><a
-                        href="<?php echo admin_url( 'admin.php?page=gh_tools&tab=import_companies&action=view' ); ?>">&larr;&nbsp;<?php _e( 'Import from existing file.' ); ?></a>
-            </p>
-        </div>
+				<input type="file" name="import_file" id="import_file" accept=".csv">
+				<button class="button-primary" name="import_file_button"
+				        value="import_companies"><?php _ex( 'Import Companies', 'action', 'groundhogg' ); ?></button>
+			</form>
+			<p class="description" style="text-align: center"><a
+					href="<?php echo admin_url( 'admin.php?page=gh_tools&tab=import_companies&action=view' ); ?>">&larr;&nbsp;<?php _e( 'Import from existing file.' ); ?></a>
+			</p>
+		</div>
 		<?php
 
 	}
