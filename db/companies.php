@@ -3,6 +3,7 @@
 namespace GroundhoggCompanies\DB;
 
 use Groundhogg\DB\DB;
+use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\isset_not_empty;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -83,6 +84,15 @@ class Companies extends DB {
 			'domain'        => '%s',
 			'date_created'  => '%s',
 		);
+	}
+
+	/**
+	 * @param \Groundhogg\Base_Object $object
+	 *
+	 * @return Company
+	 */
+	public function create_object( $object ) {
+		return new Company( $object );
 	}
 
 	/**

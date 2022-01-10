@@ -3,6 +3,7 @@
 namespace GroundhoggCompanies\DB;
 
 use Groundhogg\DB\DB;
+use function Groundhogg\get_db;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -233,6 +234,20 @@ class Company_Relationships extends DB {
 	public function get_contacts_by_companies( $company_id = 0 ) {
 		return $this->get_relationships( $company_id, 'company_id', 'contact_id' );
 
+	}
+
+	public function migrate_to_object_relationships(){
+
+		global $wpdb;
+
+		$rel = get_db('object_relationships')->table_name;
+
+		// added two different query because single query was not working on my localhost(says: ERROR in your SQL statement please review it.)
+		// Move the events to the event queue
+		$wpdb->query( "INSERT INTO $rel (primary_object_id,primary_object_type,secondary_object_id,secondary_object_type)
+			SELECT company_id as primary_object_id, 'company' as primary_object_type, contact_id as secondary_object_id, 'contact' as secondary_object_type
+			FROM {$this->table_name}
+			WHERE 1=1" );
 	}
 
 	/**

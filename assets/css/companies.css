@@ -1,131 +1,85 @@
-.company-inside {
-    max-width: 1000px;
+.wp-heading-inline, .page-title-action {
+  display: none !important;
 }
 
-@media screen and (max-width: 600px) {
-    #wpbody {
-        padding-top: 0 !important;
-    }
+body.groundhogg_page_gh_companies {
+  background-color: #F6F9FB;
 }
 
-.profile-picture {
-    vertical-align: middle;
+.company-columns {
+  gap: 20px;
+  margin-top: 10px;
 }
 
-.col-wrap p.submit {
-    margin-top: 0 !important;
+#primary {
+  width: 400px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+#primary .company-details {
+  width: 100%;
+}
+#primary .logo {
+  max-width: 80px;
+}
+#primary .upload-image {
+  cursor: pointer;
+  border-radius: 5px;
+  width: 80px;
+  height: 80px;
+  padding: 20px;
+  background-color: #e5e5e5;
+  box-sizing: border-box;
+}
+#primary .upload-image.has-logo {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+#primary .upload-image:hover {
+  background-color: #cbcbcb;
+}
+#primary .upload-image svg {
+  width: 100%;
+  height: 100%;
 }
 
-li.select2-search {
-    line-height: 1em;
+.directory .directory-header {
+  padding: 10px 10px 10px 20px;
+  margin-bottom: 20px;
+}
+.directory .directory-header h3 {
+  margin: 0;
+}
+.directory .directory-header #search-company-contacts {
+  margin-right: 20px;
 }
 
-/*#add-contact-form .select2-container{*/
-/*    margin-top: -13px;*/
-/*}*/
-
-/*#add-contact-form .select2-container,*/
-/*input[type=search],*/
-/*.select2-container .select2-selection--multiple{*/
-/*    !*margin-top: -17px;*!*/
-/*    min-height: 24px;*/
-/*}*/
-
-.save {
-    width: 100%;
-    display: block;
-    /*float: right;*/
-    /*margin-right: 20px;*/
-    position: relative;
-    border: 1px solid #e5e5e5;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
-    background: #fff;
-
-    padding: 0 20px 20px 20px;
-    box-sizing: border-box;
-    margin-bottom: 10px;
-    /*margin-left: 300px;*/
+#directory {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr 1fr;
+  gap: 20px 20px;
+  grid-template-areas: ". ." ". .";
+}
+#directory .gh-spinner-wrap {
+  grid-column: 1/3;
+}
+#directory .contact .avatar {
+  border-radius: 5px;
+}
+#directory .contact .details {
+  width: 100%;
+}
+#directory .contact .details .name {
+  font-weight: 500;
+}
+#directory .contact .actions {
+  gap: 0;
 }
 
-#col-left-company {
-    float: left;
-    width: 48%;
-}
-
-#col-right-company {
-    float: right;
-    width: 48%;
-}
-
-.save {
-    padding-top: 20px;
-}
-
-.company-details {
-    display: inline-block;
-    /*float: left;*/
-
-    /*margin-right: 20px;*/
-    position: relative;
-    border: 1px solid #e5e5e5;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
-    background: #fff;
-
-    padding: 0 20px 20px 20px;
-    box-sizing: border-box;
-    margin-bottom: 10px;
-    margin-top: 10px;
-}
-
-
-.company-picture {
-    display: inline-block;
-    margin-right: 20px;
-    position: relative;
-    /*border: 1px solid #e5e5e5;*/
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .04);
-    background: #fff;
-    max-width: 100%;
-}
-
-.company-picture-wrap {
-    display: block;
-}
-
-.auto-copy {
-    width: 100%;
-    /*max-width: 400px;*/
-}
-
-.basic-details .details {
-    margin: 0 0 10px 2px;
-}
-
-.company-details {
-    /*margin: 0 0 10px 2px;*/
-    width: 100%;
-}
-
-.contact-details textarea {
-    width: 100%;
-}
-
-.basic-details .details .regular-text {
-    width: 20em;
-}
-
-.basic-details .details a {
-    text-decoration: none;
-    padding: 0 4px 1px;
-}
-
-.basic-details .details .dashicons {
-    vertical-align: text-bottom;
-}
-
-.company-details label {
-    display: block;
-    font-weight: 600;
-    font-size: 14px;
-    margin-bottom: 3px;
-}
+/*# sourceMappingURL=companies.css.map */

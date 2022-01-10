@@ -3,6 +3,7 @@
 namespace GroundhoggCompanies;
 
 use Groundhogg\Admin\Admin_Menu;
+use Groundhogg\Api\V4\Base_Api;
 use Groundhogg\DB\Manager;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
@@ -77,6 +78,17 @@ class Plugin extends Extension {
 	}
 
 	/**
+	 * Register the company info card
+	 *
+	 * @param \Groundhogg\Admin\Contacts\Info_Cards $cards
+	 */
+	public function register_contact_info_cards( $cards ) {
+		$cards::register( 'companies', __('Companies', 'groundhogg-companies'), function ( $contact ) {
+			include __DIR__ . '/../admin/companies-card.php';
+		}, 10, 'view_companies' );
+	}
+
+	/**
 	 * Get the ID number for the download in EDD Store
 	 *
 	 * @return int
@@ -99,13 +111,28 @@ class Plugin extends Extension {
 	}
 
 	public function register_admin_styles() {
-		wp_register_style( 'groundhogg-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . '/css/companies.css', [], GROUNDHOGG_COMPANIES_VERSION );
+		wp_register_style( 'groundhogg-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . '/css/companies.css', [
+			'groundhogg-admin-element'
+		], GROUNDHOGG_COMPANIES_VERSION );
 	}
 
 
 	public function register_admin_scripts( $is_minified, $dot_min ) {
-		wp_register_script( 'groundhogg-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . '/js/companies.js', [
-			'groundhogg-admin-notes'
+		wp_register_script( 'groundhogg-companies-data-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/data.js', [
+			'groundhogg-admin-data',
+			'groundhogg-admin-components'
+		], GROUNDHOGG_COMPANIES_VERSION );
+
+		wp_localize_script( 'groundhogg-companies-data-admin', 'GroundhoggCompanies', [
+			'route' => rest_url( Base_Api::NAME_SPACE . '/companies' )
+		] );
+
+		wp_register_script( 'groundhogg-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/companies.js', [
+			'groundhogg-companies-data-admin',
+			'groundhogg-admin-notes',
+			'groundhogg-admin-properties',
+			'groundhogg-admin-components',
+			'wp-i18n'
 		], GROUNDHOGG_COMPANIES_VERSION, true );
 	}
 

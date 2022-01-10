@@ -275,15 +275,31 @@ class Company extends Base_Object_With_Meta {
 				$file     = [
 					'file_name'     => $filename,
 					'file_path'     => $filepath,
-					'file_url'      => file_access_url( '/companies/picture//' . $this->get_upload_folder_basename() . '/' . $filename ),
+					'file_url'      => file_access_url( '/companies/picture/' . $this->get_upload_folder_basename() . '/' . $filename ),
 					'date_uploaded' => filectime( $filepath ),
 				];
 				$data[]   = $file;
 
 			}
+
+			if ( ! empty( $data ) ){
+				return $data[0]['file_url'];
+			}
 		}
 
-		return $data;
+		return false;
+	}
+
+	/**
+	 *
+	 *
+	 * @return array|void
+	 */
+	public function get_as_array() {
+		$array = parent::get_as_array();
+		$array['logo'] = $this->get_meta('logo') ?: ( $this->get_picture() ?: false );
+
+		return $array;
 	}
 
 	/**

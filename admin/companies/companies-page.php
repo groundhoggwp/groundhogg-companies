@@ -44,8 +44,9 @@ class Companies_Page extends Admin_Page {
 			wp_enqueue_media();
 			wp_enqueue_style( 'groundhogg-companies-admin' );
 			wp_enqueue_script( 'groundhogg-companies-admin' );
-			wp_localize_script( 'groundhogg-companies-admin', 'GroundhoggCompanies', [
-				'company' => new Company( get_request_var( 'company' ) )
+			wp_localize_script( 'groundhogg-companies-admin', 'GroundhoggCompany', [
+				'company'                      => new Company( get_request_var( 'company' ) ),
+				'gh_company_custom_properties' => get_option( 'gh_company_custom_properties' )
 			] );
 		}
 	}
@@ -409,6 +410,27 @@ class Companies_Page extends Admin_Page {
 			$this->wp_die_no_access();
 		}
 
-		include dirname( __FILE__ ) . '/edit.php';
+		?>
+		<div class="space-between align-top company-columns">
+			<div id="primary" class="primary">
+				<div id="form" class="gh-panel">
+					// Form
+				</div>
+				<div class="company-more"></div>
+			</div>
+			<div class="directory full-width">
+				<div class="gh-panel">
+					<div class="space-between directory-header">
+						<h3><?php _e( 'Contacts', 'groundhoggg' ) ?></h3>
+						<div class="space-between align-right no-gap directory-actions">
+						</div>
+					</div>
+				</div>
+				<div id="directory">
+					// Contacts
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 }

@@ -26,13 +26,15 @@ class Updater extends \Groundhogg\Updater {
 	 */
 	protected function get_available_updates() {
 		return [
-			'1.1.1'
+			'1.1.1',
+			'3.0'
 		];
 	}
 
 	protected function get_update_descriptions() {
 		return [
 			'1.1.1' => __( 'Migrate company notes to new format', 'groundhogg-companies' ),
+			'3.0'   => __( 'Migrate company relationships to object relations table', 'groundhogg-companies' ),
 		];
 	}
 
@@ -63,5 +65,12 @@ class Updater extends \Groundhogg\Updater {
 		foreach ( $companies as $company ) {
 			migrate_notes( $company );
 		}
+	}
+
+	/**
+	 *
+	 */
+	function version_3_0() {
+		get_db('company_relationships')->migrate_to_object_relationships();
 	}
 }

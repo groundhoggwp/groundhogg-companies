@@ -20,6 +20,7 @@ $id = absint( get_request_var( 'company' ) );
 if ( ! $id ) {
 	return;
 }
+
 $company = new Company( absint( $id ) );
 
 

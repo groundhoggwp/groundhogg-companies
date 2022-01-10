@@ -5,11 +5,33 @@ namespace GroundhoggCompanies;
 use Groundhogg\Contact;
 use Groundhogg\Plugin;
 use GroundhoggCompanies\Classes\Company;
-use GroundhoggPipeline\Classes\Deal;
 use function Groundhogg\get_contactdata;
 use function Groundhogg\get_db;
 use function Groundhogg\get_request_var;
 use function Groundhogg\html;
+
+/**
+ * Swap out the sanitization callback
+ *
+ * @param $callback callable
+ * @param $option string
+ * @param $value mixed
+ */
+function filter_option_sanitize_callback( $callback, $option, $value ){
+
+	switch ( $option ){
+		case 'gh_company_custom_properties':
+			// todo implement proper sanitization here
+			return function ( $props ) {
+				return $props;
+			};
+	}
+
+	return $callback;
+
+}
+
+add_filter( 'groundhogg/api/v4/options_sanitize_callback', __NAMESPACE__ . '\filter_option_sanitize_callback', 10, 3 );
 
 /**
  * Recount the contacts per tag...
@@ -108,8 +130,6 @@ function company_section_in_contact() {
 	</table>
 	<?php
 }
-
-add_action( 'groundhogg/contact/record/company_info/after', __NAMESPACE__ . '\company_section_in_contact' );
 
 /**
  * Code to redirect user to copany page based on the selection
