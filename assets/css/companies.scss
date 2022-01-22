@@ -1,3 +1,28 @@
+$primary-blue: rgb(0, 117, 255);
+$primary-blue-60: rgba(0, 117, 255, 0.60);
+$primary-blue-50: rgba(0, 117, 255, 0.50);
+$primary-blue-20: rgba(0, 117, 255, 0.20);
+$primary-blue-10: rgba(0, 117, 255, 0.10);
+$primary-blue-7: rgba(0, 117, 255, 0.07);
+$primary-blue-2: rgba(0, 117, 255, 0.02);
+$primary-dark: rgb(16, 38, 64);
+$primary-dark-50: rgba(16, 38, 64, 0.5);
+$primary-dark-30: rgba(16, 38, 64, 0.3);
+$primary-dark-15: rgba(16, 38, 64, 0.15);
+$primary-dark-10: rgba(16, 38, 64, 0.10);
+$primary-dark-5: rgba(16, 38, 64, 0.05);
+$error-red: rgb(233, 31, 79);
+$error-red-50: rgba(233, 31, 79, 0.5);
+$error-red-10: rgba(233, 31, 79, 0.10);
+$secondary-purple: rgb(108, 25, 173);
+$alert-yellow-50: rgba(255, 238, 88, 0.50);
+$alert-yellow: rgb(255, 238, 88);
+$benchmark-orange: rgb(245, 129, 21);
+$benchmark-orange-50: rgba(245, 129, 21, 0.50);
+$action-green: rgb(158, 206, 56);
+$action-green-50: rgba(158, 206, 56, 0.5);
+$box-shadow: 5px 5px 30px 0 rgba(24, 45, 70, 0.05);
+
 .wp-heading-inline,.page-title-action{
     display: none !important;
 }
@@ -23,10 +48,18 @@ body.groundhogg_page_gh_companies{
     .company-details{
         width: 100%;
 
+        .name{
+            margin-bottom: 10px;
+        }
+
+        .dashicons{
+            margin-right: 10px;
+        }
+
     }
 
     .logo{
-        max-width: 80px;
+        max-width: 200px;
     }
 
     .upload-image{
@@ -37,8 +70,10 @@ body.groundhogg_page_gh_companies{
         padding: 20px;
         background-color: #e5e5e5;
         box-sizing: border-box;
+        margin-bottom: 10px;
 
         &.has-logo {
+            width: auto;
             padding: 0;
             display: flex;
             align-items: center;
@@ -85,8 +120,24 @@ body.groundhogg_page_gh_companies{
     ". ."
     ". .";
 
+    .no-contacts,
     .gh-spinner-wrap{
         grid-column: 1/3;
+    }
+
+    .no-contacts{
+        display: flex;
+        justify-content: center;
+        padding: 40px;
+
+        *{
+            text-align: center
+        ;
+        }
+
+        .contact{
+            color: $primary-dark-5;
+        }
     }
 
     .contact {
@@ -100,6 +151,14 @@ body.groundhogg_page_gh_companies{
 
             .name{
                 font-weight: 500;
+            }
+
+            .dashicons {
+                margin-right: 5px;
+                font-size: 15px;
+                height: 15px;
+                width: 15px;
+                vertical-align: bottom;
             }
         }
 

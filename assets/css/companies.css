@@ -21,8 +21,14 @@ body.groundhogg_page_gh_companies {
 #primary .company-details {
   width: 100%;
 }
+#primary .company-details .name {
+  margin-bottom: 10px;
+}
+#primary .company-details .dashicons {
+  margin-right: 10px;
+}
 #primary .logo {
-  max-width: 80px;
+  max-width: 200px;
 }
 #primary .upload-image {
   cursor: pointer;
@@ -32,8 +38,10 @@ body.groundhogg_page_gh_companies {
   padding: 20px;
   background-color: #e5e5e5;
   box-sizing: border-box;
+  margin-bottom: 10px;
 }
 #primary .upload-image.has-logo {
+  width: auto;
   padding: 0;
   display: flex;
   align-items: center;
@@ -66,8 +74,20 @@ body.groundhogg_page_gh_companies {
   gap: 20px 20px;
   grid-template-areas: ". ." ". .";
 }
+#directory .no-contacts,
 #directory .gh-spinner-wrap {
   grid-column: 1/3;
+}
+#directory .no-contacts {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+#directory .no-contacts * {
+  text-align: center;
+}
+#directory .no-contacts .contact {
+  color: rgba(16, 38, 64, 0.05);
 }
 #directory .contact .avatar {
   border-radius: 5px;
@@ -77,6 +97,13 @@ body.groundhogg_page_gh_companies {
 }
 #directory .contact .details .name {
   font-weight: 500;
+}
+#directory .contact .details .dashicons {
+  margin-right: 5px;
+  font-size: 15px;
+  height: 15px;
+  width: 15px;
+  vertical-align: bottom;
 }
 #directory .contact .actions {
   gap: 0;

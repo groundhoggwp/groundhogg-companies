@@ -6,10 +6,12 @@ use Groundhogg\Base_Object_With_Meta;
 use Groundhogg\DB\DB;
 use Groundhogg\DB\Meta_DB;
 use Groundhogg\Plugin;
+use function Groundhogg\admin_page_url;
+use function Groundhogg\convert_to_local_time;
 use function Groundhogg\file_access_url;
+use function Groundhogg\get_date_time_format;
 use function Groundhogg\get_db;
 use function Groundhogg\isset_not_empty;
-use function GroundhoggCompanies\recount_company_contacts_count;
 
 class Company extends Base_Object_With_Meta {
 	protected function post_setup() {
@@ -21,7 +23,6 @@ class Company extends Base_Object_With_Meta {
 	}
 
 	protected function get_db() {
-
 		return get_db( 'companies' );
 	}
 
@@ -70,85 +71,53 @@ class Company extends Base_Object_With_Meta {
 		return implode( ', ', explode( PHP_EOL, $this->get_address() ) );
 	}
 
+	/**
+	 * For JSON
+	 *
+	 * @return array|void
+	 */
+	public function get_as_array() {
+		$array          = parent::get_as_array();
+		$array['logo']  = $this->get_meta( 'logo' ) ?: ( $this->get_picture() ?: false );
+		$array['admin'] = admin_page_url( 'gh_companies', [ 'action' => 'edit', 'company' => $this->get_id() ] );
 
-	public function get_notes() {
-		return $this->get_meta( 'notes' );
+		return $array;
 	}
 
-	/**
-	 * Add contacts to a company record
-	 *
-	 * @param $contact_id_or_array
-	 *
-	 * @return bool
-	 */
-	public function add_contacts( $contact_id_or_array ) {
+	public function update( $data = [] ) {
 
-		if ( ! is_array( $contact_id_or_array ) ) {
-			$contacts = explode( ',', $contact_id_or_array );
-		} else if ( is_array( $contact_id_or_array ) ) {
-			$contacts = $contact_id_or_array;
-		} else {
-			return false;
-		}
+		// detect name change
+		if ( isset_not_empty( $data, 'name' ) && $data['name'] !== $this->get_name() ) {
+			$data['slug'] = sanitize_title( $data['name'] );
 
-		foreach ( $contacts as $contact_id ) {
-
-			$get_id = get_db( 'company_relationships' )->query( [
-				'company_id' => $this->get_id(),
-				'contact_id' => $contact_id
-			] );
-
-			if ( empty( $get_id ) ) {
-
-				$id = get_db( 'company_relationships' )->add( $this->get_id(), $contact_id );
-
-				if ( $id === 0 ) {
-					do_action( 'groundhogg/company/contact_added', $this, $contact_id );
+			// If the new slug is different
+			if ( $data['slug'] !== $this->slug ) {
+				// detect slug in use and is not same co
+				$company = new Company( $data['slug'], 'slug' );
+				if ( $company->exists() ) {
+					return false;
 				}
 			}
 		}
 
-		return true;
+		return parent::update( $data );
 	}
 
-	/**
-	 * Remove contacts from a company record
-	 *
-	 * @param $contact_id_or_array
-	 *
-	 * @return bool
-	 */
-	public function remove_contacts( $contact_id_or_array ) {
-		if ( ! is_array( $contact_id_or_array ) ) {
-			$contacts = explode( ',', $contact_id_or_array );
-		} else if ( is_array( $contact_id_or_array ) ) {
-			$contacts = $contact_id_or_array;
-		} else {
-			return false;
-		}
+	protected function sanitize_columns( $data = [] ) {
 
-		foreach ( $contacts as $contact_id ) {
-
-			$get_id = get_db( 'company_relationships' )->query( [
-				'company_id' => $this->get_id(),
-				'contact_id' => $contact_id
-			] );
-
-			if ( $get_id ) {
-
-				$id = get_db( 'company_relationships' )->delete( [
-					'company_id' => $this->get_id(),
-					'contact_id' => $contact_id
-				] );
-
-				if ( $id ) {
-					do_action( 'groundhogg/company/contact_removed', $this, $contact_id );
-				}
+		foreach ( $data as $col => &$val ) {
+			switch ( $col ) {
+				case 'slug':
+					$val = sanitize_title( $val );
+					break;
+				case 'content':
+				case 'name':
+					$val = sanitize_text_field( $val );
+					break;
 			}
 		}
 
-		return true;
+		return $data;
 	}
 
 	/**
@@ -181,6 +150,20 @@ class Company extends Base_Object_With_Meta {
 		}
 
 		return $mfile;
+	}
+
+	/**
+	 * Delete a file
+	 *
+	 * @param $file_name string
+	 */
+	public function delete_file( $file_name ) {
+		$file_name = basename( $file_name );
+		foreach ( $this->get_files() as $file ) {
+			if ( $file_name === $file['name'] ) {
+				unlink( $file['path'] );
+			}
+		}
 	}
 
 	/**
@@ -229,7 +212,6 @@ class Company extends Base_Object_With_Meta {
 		return $dirs;
 	}
 
-
 	/**
 	 * Get a list of associated files.
 	 */
@@ -245,12 +227,13 @@ class Company extends Base_Object_With_Meta {
 			foreach ( $scanned_directory as $filename ) {
 				$filepath = $uploads_dir['path'] . '/' . $filename;
 				$file     = [
-					'file_name'     => $filename,
-					'file_path'     => $filepath,
-					'file_url'      => file_access_url( '/companies/' . $this->get_upload_folder_basename() . '/' . $filename ),
-					'date_uploaded' => filectime( $filepath ),
+					'name'          => $filename,
+					'path'          => $filepath,
+					'url'           => file_access_url( '/companies/' . $this->get_upload_folder_basename() . '/' . $filename ),
+					'date_modified' => date_i18n( get_date_time_format(), convert_to_local_time( filectime( $filepath ) ) ),
 				];
-				$data[]   = $file;
+
+				$data[] = $file;
 
 			}
 		}
@@ -282,24 +265,12 @@ class Company extends Base_Object_With_Meta {
 
 			}
 
-			if ( ! empty( $data ) ){
+			if ( ! empty( $data ) ) {
 				return $data[0]['file_url'];
 			}
 		}
 
 		return false;
-	}
-
-	/**
-	 *
-	 *
-	 * @return array|void
-	 */
-	public function get_as_array() {
-		$array = parent::get_as_array();
-		$array['logo'] = $this->get_meta('logo') ?: ( $this->get_picture() ?: false );
-
-		return $array;
 	}
 
 	/**
@@ -310,6 +281,7 @@ class Company extends Base_Object_With_Meta {
 	 * @param $file
 	 *
 	 * @return array|\WP_Error
+	 * @deprecated 3.0
 	 */
 	public function upload_picture( &$file ) {
 		$this->delete_pictures();
@@ -336,6 +308,8 @@ class Company extends Base_Object_With_Meta {
 
 	/**
 	 * get the upload folder for this contact
+	 *
+	 * @deprecated 3.0
 	 */
 	public function get_picture_folder() {
 		$paths              = [
@@ -348,6 +322,9 @@ class Company extends Base_Object_With_Meta {
 		return $paths;
 	}
 
+	/**
+	 * @deprecated 3.0
+	 */
 	public function delete_pictures() {
 		$uploads_dir = $this->get_picture_folder();
 		$this->delete_contents( $uploads_dir );

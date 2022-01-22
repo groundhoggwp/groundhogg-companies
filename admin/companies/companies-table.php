@@ -3,10 +3,12 @@
 namespace GroundhoggCompanies\Admin\Companies;
 
 use GroundhoggCompanies\Classes\Company;
+use function Groundhogg\admin_page_url;
 use function Groundhogg\get_db;
 use function Groundhogg\get_screen_option;
 use function Groundhogg\get_url_var;
 use WP_List_Table;
+use function Groundhogg\html;
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) {
@@ -41,10 +43,11 @@ class Companies_Table extends WP_List_Table {
 	 */
 	public function get_columns() {
 		$columns = array(
-			'cb'                  => '<input type="checkbox" />', // Render a checkbox instead of text.
-			'company_name'        => _x( 'Name', 'Column label', 'groundhogg' ),
-			'company_description' => _x( 'Description', 'Column label', 'groundhogg' ),
-			'contact_count'       => _x( 'Count', 'Column label', 'groundhogg' ),
+			'cb'       => '<input type="checkbox" />', // Render a checkbox instead of text.
+			'name'     => _x( 'Company', 'Column label', 'groundhogg' ),
+			'website'  => _x( 'Website', 'Column label', 'groundhogg' ),
+			'address'  => _x( 'Address', 'Column label', 'groundhogg' ),
+			'contacts' => _x( 'Contacts', 'Column label', 'groundhogg' ),
 		);
 
 		return apply_filters( 'groundhogg/admin/companies/table/get_columns', $columns );
@@ -55,9 +58,8 @@ class Companies_Table extends WP_List_Table {
 	 */
 	protected function get_sortable_columns() {
 		$sortable_columns = array(
-			'company_name'  => array( 'name', false ),
-//            'company_description' => array( 'company_description', false ),
-			'contact_count' => array( 'contact_count', false ),
+//			'company_name'  => array( 'name', false ),
+//			'contact_count' => array( 'contact_count', false ),
 		);
 
 		return $sortable_columns;
@@ -93,11 +95,33 @@ class Companies_Table extends WP_List_Table {
 	 *
 	 * @return string
 	 */
-	protected function column_company_name( $company ) {
-		$editUrl = admin_url( 'admin.php?page=gh_companies&action=edit&company=' . $company->get_id() );
-		$html    = "<a class='row-title' href='$editUrl'>" . esc_html( $company->get_name() ) . "</a>";
+	protected function column_name( $company ) {
 
-		return $html;
+		$logo = $company->get_meta( 'logo' );
+
+		?>
+		<strong>
+			<a class="row-title" href="<?php echo admin_page_url( 'gh_companies', [
+				'action'  => 'edit',
+				'company' => $company->get_id()
+			] ) ?>"><?php
+				if ( $logo ) :
+
+					echo html()->e( 'img', [
+						'src'   => $logo,
+						'alt'   => __( 'Company-logo' ),
+						'title' => $company->get_name(),
+						'style' => [
+							'float'        => 'left',
+							'margin-right' => '10px'
+						],
+						'width' => 100
+					] );
+
+				endif;
+				esc_html_e( $company->get_name() ) ?></a>
+		</strong>
+		<?php
 	}
 
 	/**
@@ -114,8 +138,11 @@ class Companies_Table extends WP_List_Table {
 	 *
 	 * @return string
 	 */
-	protected function column_company_description( $company ) {
-		return ! empty( $company->get_description() ) ? $company->get_description() : '&#x2014;';
+	protected function column_website( $company ) {
+		return ! empty( $company->get_domain() ) ? html()->e( 'a', [
+			'target' => '_blank',
+			'href'   => $company->get_domain()
+		], $company->get_domain() ) : '&#x2014;';
 	}
 
 	/**

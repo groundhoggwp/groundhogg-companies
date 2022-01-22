@@ -103,71 +103,22 @@ class Companies extends DB {
 	 */
 	public function get_column_defaults() {
 		return array(
-			'ID'            => 0,
-			'name'          => '',
-			'slug'          => '',
-			'description'   => '',
-			'contact_count' => 0,
-			'domain'        => '',
-			'date_created'  => current_time( 'mysql' ),
+			'ID'           => 0,
+			'name'         => '',
+			'slug'         => '',
+			'description'  => '',
+			'domain'       => '',
+			'date_created' => current_time( 'mysql' ),
 		);
 	}
 
-	/**
-	 * Increase the contact company count
-	 *
-	 * @param $insert_id
-	 * @param $args
-	 */
-	public function increase_contact_count( $insert_id = 0, $args = [] ) {
-		$company_id = absint( $args['company_id'] );
+	public function add( $data = array() ) {
 
-		if ( ! $this->exists( $company_id ) ) {
-			return;
+		if ( ! isset_not_empty( $data, 'slug' ) ) {
+			$data['slug'] = sanitize_title( $data['name'] );
 		}
 
-		$tag                = $this->get( $company_id );
-		$tag->contact_count = intval( $tag->contact_count ) + 1;
-		$this->update( $company_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
-	}
-
-	/**
-	 * TODO
-	 * Decrease the contact tag count
-	 *
-	 * @param $insert_id
-	 * @param $args
-	 */
-	public function decrease_contact_count( $args = [] ) {
-		if ( ! isset_not_empty( $args, 'company_id' ) ) {
-			return;
-		}
-
-		$company_id = absint( $args['company_id'] );
-
-		if ( ! $this->exists( $company_id ) ) {
-			return;
-		}
-
-		$tag                = $this->get( $company_id );
-		$tag->contact_count = intval( $tag->contact_count ) - 1;
-		$this->update( $company_id, array( 'contact_count' => $tag->contact_count ), $this->primary_key );
-	}
-
-	/**
-	 * Bulk decrease the contact count.
-	 *
-	 * @param $company_ids
-	 */
-	public function bulk_decrease_count( $company_ids ) {
-
-		if ( empty( $company_ids ) ) {
-			return;
-		}
-
-		foreach ( $company_ids as $id ) {
-			$this->decrease_contact_count( [ 'ID' => $id ] );
-		}
+		return parent::add( $data );
 	}
 
 	/**

@@ -13,13 +13,14 @@
     loadingDots,
     spinner,
     tooltip,
+    textarea,
     bold
   } = Groundhogg.element
   const { companies: CompaniesStore, contacts: ContactsStore } = Groundhogg.stores
   const { __, _x, _n, _nx, sprintf } = wp.i18n
   const { currentUser, propertiesEditor, noteEditor } = Groundhogg
   const { userHasCap } = Groundhogg.user
-  const { patch, routes } = Groundhogg.api
+  const { patch, routes, delete: _delete, get } = Groundhogg.api
   const { quickEditContactModal, selectContactModal, addContactModal } = Groundhogg.components
 
   const sendEmail = (contact) => {
@@ -74,10 +75,73 @@
 
     const companyUI = () => {
 
+      let { address = '', phone = '', industry = '' } = getCompany().meta
+
       if (editing) {
+
         // language=HTML
         return `
 			<div class="inside">
+				<div class="gh-rows-and-columns">
+					<div class="gh-row">
+						<div class="gh-col">
+							<label for="name">${__('Name')}</label>
+							${input({
+								id: 'company-name',
+								name: 'name',
+								value: getCompany().data.name,
+								dataType: 'data',
+								placeholder: __('Media Inc.')
+							})}
+						</div>
+						<div class="gh-col">
+							<label for="website">${__('Website')}</label>
+							${input({
+								id: 'website',
+								name: 'domain',
+								type: 'url',
+								value: getCompany().data.domain,
+								dataType: 'data',
+								placeholder: __('https://example.com')
+							})}
+						</div>
+					</div>
+					<div class="gh-row">
+						<div class="gh-col">
+							<label for="phone">${__('Phone')}</label>
+							${input({
+								id: 'phone',
+								name: 'phone',
+								value: phone,
+								type: 'tel',
+								dataType: 'meta',
+								placeholder: __('+1 (555) 555-5555')
+							})}
+						</div>
+						<div class="gh-col">
+							<label for="industry">${__('Industry')}</label>
+							${input({
+								id: 'industry',
+								name: 'industry',
+								value: industry,
+								dataType: 'meta',
+								placeholder: __('Agriculture', 'groundhogg')
+							})}
+						</div>
+					</div>
+					<div class="gh-row">
+						<div class="gh-col">
+							<label for="address">${__('Address')}</label>
+							${textarea({
+								id: 'address',
+								name: 'address',
+								className: 'full-width',
+								value: address,
+								dataType: 'meta',
+							})}
+						</div>
+					</div>
+				</div>
 				<p>
 					<button id="save-changes" class="gh-button primary">${__('Save Changes')}</button>
 					<button id="cancel-changes" class="gh-button danger text">${__('Cancel')}</button>
@@ -88,14 +152,21 @@
       // language=HTML
       return `
 		  <div class="inside">
-			  <div class="space-between align-left align-top gap-20">
-				  ${getCompany().logo ? `<div class="upload-image has-logo"><img class="logo" src="${getCompany().logo}" alt="${__('Company logo', 'groundhogg-companies')}" title="${getCompany().data.name}"></div>` : `<div class="upload-image">${icons.company}</div>`}
+		  ${getCompany().logo ? `<div class="upload-image has-logo"><img class="logo" src="${getCompany().logo}" alt="${__('Company logo', 'groundhogg-companies')}" title="${getCompany().data.name}"></div>` : `<div class="upload-image">${icons.company}</div>`}
+		  <div class="space-between align-left align-top gap-20">
 				  <div class="company-details">
-					  <div class="name"><b>${getCompany().data.name}</b></div>
-					  <div class="website"><a href="${getCompany().data.domain}">${getCompany().data.domain}</a></div>
-					  <div class="phone"><a href="tel:${getCompany().meta.phone}">${getCompany().meta.phone}</a></div>
+					  <div class="name"><b>${getCompany().data.name} ${industry ? `| ${industry}` : ''}</b></div>
+					  <div class="website ${getCompany().data.domain ? '' : 'hidden'}"><span
+						  class="dashicons dashicons-welcome-view-site"></span><a
+						  href="${getCompany().data.domain}">${getCompany().data.domain}</a></div>
+					  <div class="phone ${phone ? '' : 'hidden'}"><span class="dashicons dashicons-phone"></span><a
+						  href="tel:${phone}">${phone}</a></div>
+					  <div class="address ${address ? '' : 'hidden'}"><span class="dashicons dashicons-location"></span><a
+						  target="_blank" href="http://maps.google.com/?q=${address}">${address}</a>
+					  </div>
 				  </div>
-          <button id="edit-company" class="gh-button secondary text icon"><span class="dashicons dashicons-edit"></span></button>
+				  <button id="edit-company" class="gh-button secondary text icon"><span
+					  class="dashicons dashicons-edit"></span></button>
 			  </div>
 		  </div>`
     }
@@ -108,6 +179,44 @@
 
     const onMount = () => {
 
+      let changes = {
+        data: {},
+        meta: {}
+      }
+
+      const commitChanges = () => {
+        return CompaniesStore.patch(company.ID, changes)
+      }
+
+      $('#industry').autocomplete({
+        source: Groundhogg.companyIndustries
+      })
+
+      $('#company-name, #website, #address, #phone, #industry').on('input change', e => {
+        changes[e.target.dataset.type] = {
+          ...changes[e.target.dataset.type],
+          [e.target.name]: e.target.value
+        }
+      })
+
+      $('#company-name').on('change', e => {
+
+        let newName = e.target.value
+
+        if (getCompany().data.name === newName) {
+          return
+        }
+
+        CompaniesStore.fetchItems({
+          name: newName
+        }).then(items => {
+          if (items.length) {
+            alert(sprintf(__('Another company already exists with the name %s'), newName))
+          }
+        })
+
+      })
+
       tooltip('#edit-company', {
         content: __('Edit Details', 'groundhogg')
       })
@@ -117,6 +226,19 @@
         editing = true
 
         mount()
+
+      })
+
+      $('#save-changes').on('click', e => {
+
+        commitChanges().then(() => {
+          editing = false
+          dialog({
+            message: __('Changes saved!')
+          })
+
+          mount()
+        })
 
       })
 
@@ -132,7 +254,7 @@
       var file_frame
 
       tooltip('.upload-image', {
-        content: __('Change Image', 'groundhogg-companies')
+        content: __('Change Logo', 'groundhogg-companies')
       })
 
       $('.upload-image').on('click', (event) => {
@@ -171,6 +293,8 @@
     mount()
   }
 
+  let files = []
+
   const companyTabs = () => {
 
     let activeTab = 'notes'
@@ -191,9 +315,181 @@
       {
         id: 'files',
         name: __('Files'),
-        render: () => `<div class="gh-panel top-left-square"><div id="files-here" class="inside">//files</div></div>`,
-        onMount: () => {},
-      }
+        render: () => {
+          // language=HTML
+          return `
+			  <div class="gh-panel top-left-square">
+				  <div id="file-actions" class="inside">
+              <div class="gh-input-group">
+	              ${input({
+		              placeholder: __('Search files...'),
+		              type: 'search',
+		              id: 'search-files'
+	              })}
+	              <button id="upload-file" class="gh-button secondary">${__('Upload Files')}</button>
+              </div>
+				  </div>
+				  <div id="bulk-actions" class="hidden inside" style="padding-top: 0">
+					  <button id="bulk-delete-files" class="gh-button danger icon"><span
+						  class="dashicons dashicons-trash"></span></button>
+				  </div>
+				  <table class="wp-list-table widefat striped" style="border: none">
+					  <thead></thead>
+					  <tbody id="files-here">
+					  </tbody>
+				  </table>
+			  </div>`
+        },
+        onMount: () => {
+
+          let selectedFiles = []
+
+          let fileSearch = ''
+
+          $('#bulk-delete-files').on('click', () => {
+            dangerConfirmationModal({
+              confirmText: __('Delete'),
+              alert: `<p>${sprintf(_n('Are you sure you want to delete %d file?', 'Are you sure you want to delete %d files?', selectedFiles.length, 'groundhogg'), selectedFiles.length)}</p>`,
+              onConfirm: () => {
+                _delete(`${CompaniesStore.route}/${company.ID}/files`, selectedFiles).then(({ items }) => {
+                  selectedFiles = []
+                  files = items
+                  mount()
+                })
+              }
+            })
+          })
+
+          $('#search-files').on('input change', e => {
+            fileSearch = e.target.value
+            mount()
+          })
+
+          tooltip('#bulk-delete-files', {
+            content: __('Bulk delete files'),
+            position: 'right'
+          })
+
+          const renderFile = (file) => {
+            //language=HTML
+            return `
+				<tr class="file">
+					<th scope="row" class="check-column">${input({
+              type: 'checkbox',
+              name: 'select[]',
+              className: 'file-toggle',
+              value: file.name
+            })}
+					</th>
+					<td class="column-primary"><a class="row-title" href="${file.url}"
+					                              target="_blank">${file.name}</a></td>
+					<td>${file.date_modified}</td>
+					<td>
+						<div class="space-between align-right">
+							<button data-file="${file.name}" class="file-more gh-button secondary text icon">
+								${icons.verticalDots}
+							</button>
+						</div>
+					</td>
+				</tr>`
+          }
+
+          const mount = () => {
+
+            $('#files-here').html(files.filter(f => !fileSearch || f.name.match(regexp(fileSearch))).map(f => renderFile(f)).join(''))
+            onMount()
+          }
+
+          const onMount = () => {
+
+            const maybeShowBulkActions = () => {
+              if (selectedFiles.length) {
+                $('#bulk-actions').removeClass('hidden')
+              } else {
+                $('#bulk-actions').addClass('hidden')
+              }
+            }
+
+            $('.file-more').on('click', e => {
+
+              let _file = e.currentTarget.dataset.file
+
+              moreMenu(e.currentTarget, {
+
+                items: [
+                  {
+                    key: 'download',
+                    text: __('Download'),
+                  },
+                  {
+                    key: 'delete',
+                    text: `<span class="gh-text danger">${__('Delete')}</span>`,
+                  }
+                ],
+                onSelect: k => {
+                  switch (k) {
+                    case 'download':
+                      window.open(files.find(f => f.name === _file).url, '_blank').focus()
+                      break
+                    case 'delete':
+
+                      dangerConfirmationModal({
+                        confirmText: __('Delete'),
+                        alert: `<p>${sprintf(__('Are you sure you want to delete %s?', 'groundhogg'), _file)}</p>`,
+                        onConfirm: () => {
+                          _delete(`${CompaniesStore.route}/${company.ID}/files`, [
+                            _file
+                          ]).then(({ items }) => {
+                            selectedFiles = []
+                            files = items
+                            mount()
+                          })
+                        }
+                      })
+
+                      break
+                  }
+                }
+              })
+            })
+
+            $('.file-toggle').on('change', e => {
+              if (e.target.checked) {
+                selectedFiles.push(e.target.value)
+              } else {
+                selectedFiles.splice(selectedFiles.indexOf(e.target.value), 1)
+              }
+              maybeShowBulkActions()
+            })
+
+          }
+
+          $('#upload-file').on('click', e => {
+            e.preventDefault()
+
+            Groundhogg.components.fileUploader({
+              action: 'groundhogg_company_upload_file',
+              nonce: '',
+              beforeUpload: (fd) => fd.append('company', company.ID),
+              onUpload: (json, file) => {
+                // console.log( json )
+                files = json.data.files
+                mount()
+              }
+            })
+          })
+
+          if (!files.length) {
+            CompaniesStore.fetchFiles(company.ID).then(_files => {
+              files = _files
+              mount()
+            })
+          }
+
+          mount()
+
+        }
+      },
     ]
 
     let customTabState = gh_company_custom_properties || {
@@ -314,7 +610,7 @@
                           customTabState.fields = customTabState.fields.filter(f => !fields.includes(f.id))
 
                           updateTabState()
-                          activeTab = 'general'
+                          activeTab = 'notes'
                           mount()
                         }
                       })
@@ -534,7 +830,7 @@
       content: __('Add Contact', 'groundhogg')
     })
 
-    $('#add-contact-to-company').on('click', (e) => {
+    const addToCompany = (e) => {
       moreMenu(e.currentTarget, {
         items: [{
           key: 'select',
@@ -577,19 +873,28 @@
           }
         }
       })
-    })
+    }
+
+    $('#add-contact-to-company').on('click', addToCompany)
 
     const contactCardUI = (contact) => {
+
+      let { primary_phone = '', mobile_phone = '' } = contact.meta
+
       //language=HTML
       return `
 		  <div class="contact gh-panel">
-			  <div style="padding: 10px" class="align-left-space-between">
+			  <div style="padding: 10px" class="align-left space-between gap-10 align-top">
 				  <img width="40" class="avatar" src="${contact.data.gravatar}"/>
 				  <div class="details">
 					  <div class="name">${contact.data.full_name}
 						  ${contact.meta.job_title ? `| ${contact.meta.job_title}` : ''}
 					  </div>
 					  <div class="email">${contact.data.email}</div>
+					  <div class="phone ${primary_phone || mobile_phone ? '' : 'hidden'}">
+						  ${primary_phone ? `<span class="dashicons dashicons-phone"></span><a href="tel:${primary_phone}">${primary_phone}</a>` : ''}
+						  ${mobile_phone ? `<span class="dashicons dashicons-smartphone"></span><a href="tel:${mobile_phone}">${mobile_phone}</a>` : ''}
+					  </div>
 				  </div>
 				  <div class="space-between align-right no-gap actions">
 					  <button data-id="${contact.ID}" class="gh-button secondary text icon send-email">${icons.email}
@@ -602,9 +907,31 @@
 		  </div>`
     }
 
+    let fetched = false
+
+    const noContactsUI = () => {
+
+      if (!fetched) {
+        return spinner()
+      }
+
+      // language=HTML
+      return `
+		  <div class="no-contacts">
+			  <div>
+				  <div class="contact">
+					  ${icons.contact}
+				  </div>
+				  <p>${__('No related contacts')}</p>
+				  <button class="gh-button primary" id="add-to-company-none">${__('Add a contact!')}</button>
+			  </div>
+
+		  </div>`
+    }
+
     const mount = () => {
 
-      $('#directory').html(relatedContacts.length === 0 ? spinner() : relatedContacts.filter(c => {
+      $('#directory').html(relatedContacts.length === 0 ? noContactsUI() : relatedContacts.filter(c => {
 
         let __regex = regexp(search)
 
@@ -622,6 +949,8 @@
     }
 
     const onMount = () => {
+
+      $('#add-to-company-none').on('click', addToCompany)
 
       $('.send-email').on('click', (e) => {
         sendEmail(ContactsStore.get(e.currentTarget.dataset.id))
@@ -698,6 +1027,7 @@
     const fetchContacts = () => {
 
       return CompaniesStore.fetchRelationships(company.ID, { other_type: 'contact' }).then(contacts => {
+        fetched = true
         relatedContacts = contacts
         ContactsStore.itemsFetched(contacts)
       })
