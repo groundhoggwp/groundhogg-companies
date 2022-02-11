@@ -38,6 +38,11 @@ body.groundhogg_page_gh_companies{
 }
 
 #primary{
+
+    a{
+        text-decoration: none;
+    }
+
     width: 400px;
     flex-shrink: 0;
 
@@ -74,6 +79,7 @@ body.groundhogg_page_gh_companies{
 
         &.has-logo {
             width: auto;
+            height: auto;
             padding: 0;
             display: flex;
             align-items: center;
@@ -138,6 +144,10 @@ body.groundhogg_page_gh_companies{
         .contact{
             color: $primary-dark-5;
         }
+    }
+
+    a{
+        text-decoration: none;
     }
 
     .contact {

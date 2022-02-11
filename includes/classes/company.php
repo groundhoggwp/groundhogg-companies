@@ -3,15 +3,18 @@
 namespace GroundhoggCompanies\Classes;
 
 use Groundhogg\Base_Object_With_Meta;
-use Groundhogg\DB\DB;
-use Groundhogg\DB\Meta_DB;
+use Groundhogg\Contact;
 use Groundhogg\Plugin;
 use function Groundhogg\admin_page_url;
 use function Groundhogg\convert_to_local_time;
 use function Groundhogg\file_access_url;
 use function Groundhogg\get_date_time_format;
 use function Groundhogg\get_db;
+use function Groundhogg\get_email_address_hostname;
+use function Groundhogg\is_a_contact;
+use function Groundhogg\is_free_email_provider;
 use function Groundhogg\isset_not_empty;
+use function GroundhoggCompanies\sanitize_domain_name;
 
 class Company extends Base_Object_With_Meta {
 	protected function post_setup() {
@@ -62,10 +65,10 @@ class Company extends Base_Object_With_Meta {
 		return $this->get_meta( 'picture' );
 	}
 
-
 	public function get_address() {
 		return $this->get_meta( 'address' );
 	}
+
 
 	public function get_searchable_address() {
 		return implode( ', ', explode( PHP_EOL, $this->get_address() ) );
@@ -103,14 +106,104 @@ class Company extends Base_Object_With_Meta {
 		return parent::update( $data );
 	}
 
+	// store a clean version of the phone number
+	public function update_meta( $key, $value = false ) {
+
+		if ( $key === 'phone' ){
+			$_value = preg_replace( '/[^0-9]/','', $value );
+			$this->update_meta( '_phone', $_value );
+		}
+
+		return parent::update_meta( $key, $value );
+	}
+
+	/**
+	 * Update the company from the contact details
+	 *
+	 * @param $contact Contact
+	 *
+	 * @return bool
+	 */
+	public function update_from_contact( $contact ) {
+
+		if ( ! is_a_contact( $contact ) ) {
+			return false;
+		}
+
+		[
+			'company_name'    => $company_name,
+			'company_website' => $company_website,
+			'company_address' => $company_address,
+			'company_phone'   => $company_phone
+		] = $contact->meta;
+
+		$args = [];
+
+		if ( ! $company_name ) {
+			return false;
+		}
+
+		$args['name'] = $company_name;
+
+		if ( $company_website ) {
+			$args['domain'] = $company_website;
+		} else {
+			if ( ! is_free_email_provider( $contact->get_email() ) ){
+				$args['domain'] = 'https://' . get_email_address_hostname( $contact->get_email() );
+			}
+		}
+
+		if ( $company_website ) {
+			$args['domain'] = $company_website;
+		}
+
+		// update the company owner to the contact's owner
+		if ( $contact->get_ownerdata() ){
+			$args['owner_id'] = $contact->get_owner_id();
+		}
+
+		$updated = $this->update( $args );
+
+		if ( ! $updated ){
+			return false;
+		}
+
+		if ( $company_address ) {
+			$this->update_meta( 'address', $company_address );
+		}
+
+		if ( $company_phone ) {
+			$this->update_meta( 'phone', $company_address );
+		}
+
+		return $updated;
+	}
+
+	/**
+	 * @return Contact[]
+	 */
+	public function get_contacts() {
+		return $this->get_related_objects( 'contact' );
+	}
+
+	public function admin_link() {
+		return admin_page_url( 'gh_companies', [
+			$this->get_object_type() => $this->get_id(),
+			'action'                 => 'edit'
+		] );
+	}
+
 	protected function sanitize_columns( $data = [] ) {
 
 		foreach ( $data as $col => &$val ) {
 			switch ( $col ) {
+
+				case 'domain':
+					$val = sanitize_domain_name( $val );
+					break;
 				case 'slug':
 					$val = sanitize_title( $val );
 					break;
-				case 'content':
 				case 'name':
 					$val = sanitize_text_field( $val );
 					break;

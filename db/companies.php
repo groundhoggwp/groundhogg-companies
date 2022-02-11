@@ -4,6 +4,7 @@ namespace GroundhoggCompanies\DB;
 
 use Groundhogg\DB\DB;
 use GroundhoggCompanies\Classes\Company;
+use function Groundhogg\get_primary_owner;
 use function Groundhogg\isset_not_empty;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -77,10 +78,10 @@ class Companies extends DB {
 	public function get_columns() {
 		return array(
 			'ID'            => '%d',
+			'owner_id'      => '%d',
 			'name'          => '%s',
 			'slug'          => '%s',
 			'description'   => '%s',
-			'contact_count' => '%d',
 			'domain'        => '%s',
 			'date_created'  => '%s',
 		);
@@ -104,6 +105,7 @@ class Companies extends DB {
 	public function get_column_defaults() {
 		return array(
 			'ID'           => 0,
+			'owner_id'     => current_user_can( 'view_companies' ) ? get_current_user_id() : ( get_primary_owner() ? get_primary_owner()->ID : 0 ),
 			'name'         => '',
 			'slug'         => '',
 			'description'  => '',
@@ -112,7 +114,30 @@ class Companies extends DB {
 		);
 	}
 
+	/**
+	 * Add support for owners
+	 *
+	 * @param array  $data
+	 * @param string $ORDER_BY
+	 * @param bool   $from_cache
+	 *
+	 * @return array|array[]|bool|int|object|object[]|null
+	 */
+	public function query( $data = [], $ORDER_BY = '', $from_cache = true ) {
+
+		// Reps can't see others companies
+		if ( current_user_can( 'view_companies' ) && ! current_user_can( 'view_others_companies' ) ) {
+			$data['owner_id'] = get_current_user_id();
+		}
+
+		return parent::query( $data, $ORDER_BY, $from_cache );
+	}
+
 	public function add( $data = array() ) {
+
+		if ( ! isset_not_empty( $data, 'name' ) ){
+			return false;
+		}
 
 		if ( ! isset_not_empty( $data, 'slug' ) ) {
 			$data['slug'] = sanitize_title( $data['name'] );
@@ -135,12 +160,13 @@ class Companies extends DB {
 		$sql = "CREATE TABLE " . $this->table_name . " (
         ID bigint(20) unsigned NOT NULL AUTO_INCREMENT,        
         name mediumtext NOT NULL,
-        slug mediumtext NOT NULL,
-        description text NOT NULL,
-        contact_count bigint(20) unsigned NOT NULL,     
+        slug varchar({$this->get_max_index_length()}) NOT NULL,
+        description text NOT NULL,     
         domain VARCHAR(80) NOT NULL,
+        owner_id bigint(20) unsigned NOT NULL,        
         date_created datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,     
-        PRIMARY KEY (ID)        
+        PRIMARY KEY (ID),
+        KEY slug (slug)        
 		) {$this->get_charset_collate()};";
 
 		dbDelta( $sql );

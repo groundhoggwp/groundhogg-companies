@@ -18,6 +18,9 @@ body.groundhogg_page_gh_companies {
   flex-direction: column;
   gap: 20px;
 }
+#primary a {
+  text-decoration: none;
+}
 #primary .company-details {
   width: 100%;
 }
@@ -42,6 +45,7 @@ body.groundhogg_page_gh_companies {
 }
 #primary .upload-image.has-logo {
   width: auto;
+  height: auto;
   padding: 0;
   display: flex;
   align-items: center;
@@ -88,6 +92,9 @@ body.groundhogg_page_gh_companies {
 }
 #directory .no-contacts .contact {
   color: rgba(16, 38, 64, 0.05);
+}
+#directory a {
+  text-decoration: none;
 }
 #directory .contact .avatar {
   border-radius: 5px;

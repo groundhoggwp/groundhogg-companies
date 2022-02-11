@@ -7,8 +7,6 @@ use Groundhogg\Api\V4\Base_Api;
 use Groundhogg\DB\Manager;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
-use GroundhoggCompanies\Admin\Tools\Import_Companies_Tools;
-use GroundhoggCompanies\Admin\Tools\sync_companies_Tools;
 use GroundhoggCompanies\Api\Companies_Api;
 use GroundhoggCompanies\Bulk_Jobs\Import_companies;
 use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
@@ -46,10 +44,8 @@ class Plugin extends Extension {
 		$this->updater   = new Updater();
 		$this->roles     = new Roles();
 
-		if ( is_admin() ) {
-			new Sync_Companies_Tools();
-			new Import_Companies_Tools();
-		}
+		new Replacements();
+		new Search_Filters();
 	}
 
 	/**
@@ -116,6 +112,9 @@ class Plugin extends Extension {
 		], GROUNDHOGG_COMPANIES_VERSION );
 	}
 
+	public function enqueue_filter_assets() {
+		wp_enqueue_script( 'groundhogg-companies-search-filters' );
+	}
 
 	public function register_admin_scripts( $is_minified, $dot_min ) {
 		wp_register_script( 'groundhogg-companies-data-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/data.js', [
@@ -124,7 +123,8 @@ class Plugin extends Extension {
 		], GROUNDHOGG_COMPANIES_VERSION );
 
 		wp_localize_script( 'groundhogg-companies-data-admin', 'GroundhoggCompanies', [
-			'route' => rest_url( Base_Api::NAME_SPACE . '/companies' )
+			'route' => rest_url( Base_Api::NAME_SPACE . '/companies' ),
+			'fields' => get_company_mappable_fields()
 		] );
 
 		wp_register_script( 'groundhogg-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/companies.js', [
@@ -140,8 +140,14 @@ class Plugin extends Extension {
 			'groundhogg-companies-data-admin',
 			'groundhogg-admin-components',
 			'jquery-ui-autocomplete',
-			'wp-i18n'
+			'wp-i18n',
+			'papaparse'
 		], GROUNDHOGG_COMPANIES_VERSION, true );
+
+		wp_register_script( 'groundhogg-companies-search-filters', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/search-filters.js', [
+			'groundhogg-companies-data-admin',
+			'wp-i18n'
+		] );
 	}
 
 	/**

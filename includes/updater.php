@@ -68,9 +68,11 @@ class Updater extends \Groundhogg\Updater {
 	}
 
 	/**
-	 *
+	 * Migrate company relationships to the Object Relationships table
+	 * Add owner_id to the companies table
 	 */
 	function version_3_0() {
-		get_db('company_relationships')->migrate_to_object_relationships();
+		get_db( 'companies' )->create_table();
+		get_db( 'company_relationships' )->migrate_to_object_relationships();
 	}
 }

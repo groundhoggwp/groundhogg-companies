@@ -2,6 +2,7 @@
 
 namespace GroundhoggCompanies\Admin\Companies;
 
+use Groundhogg\Contact;
 use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\admin_page_url;
 use function Groundhogg\get_db;
@@ -45,8 +46,10 @@ class Companies_Table extends WP_List_Table {
 		$columns = array(
 			'cb'       => '<input type="checkbox" />', // Render a checkbox instead of text.
 			'name'     => _x( 'Company', 'Column label', 'groundhogg' ),
+			'logo'     => _x( 'Logo', 'Column label', 'groundhogg' ),
 			'website'  => _x( 'Website', 'Column label', 'groundhogg' ),
 			'address'  => _x( 'Address', 'Column label', 'groundhogg' ),
+			'owner_id'    => _x( 'Owner', 'Column label', 'groundhogg' ),
 			'contacts' => _x( 'Contacts', 'Column label', 'groundhogg' ),
 		);
 
@@ -63,17 +66,6 @@ class Companies_Table extends WP_List_Table {
 		);
 
 		return $sortable_columns;
-	}
-
-	protected function extra_tablenav( $which ) {
-		?>
-		<div class="alignleft gh-actions">
-			<a class="button action" href="<?php echo wp_nonce_url( add_query_arg( [
-				'page'   => 'gh_companies',
-				'action' => 'recount'
-			], admin_url( 'admin.php' ) ) ) ?>"><?php _ex( 'Recount Contacts', 'action', 'groundhogg-companies' ); ?></a>
-		</div>
-		<?php
 	}
 
 	/**
@@ -97,31 +89,83 @@ class Companies_Table extends WP_List_Table {
 	 */
 	protected function column_name( $company ) {
 
-		$logo = $company->get_meta( 'logo' );
-
 		?>
 		<strong>
 			<a class="row-title" href="<?php echo admin_page_url( 'gh_companies', [
 				'action'  => 'edit',
 				'company' => $company->get_id()
-			] ) ?>"><?php
-				if ( $logo ) :
-
-					echo html()->e( 'img', [
-						'src'   => $logo,
-						'alt'   => __( 'Company-logo' ),
-						'title' => $company->get_name(),
-						'style' => [
-							'float'        => 'left',
-							'margin-right' => '10px'
-						],
-						'width' => 100
-					] );
-
-				endif;
-				esc_html_e( $company->get_name() ) ?></a>
+			] ) ?>"><?php echo $company->get_name(); ?></a>
 		</strong>
 		<?php
+	}
+
+	/**
+	 * @param $company Company
+	 *
+	 * @return void
+	 */
+	protected static function column_owner_id( $company ) {
+		echo $company->owner_id ? '<a href="' . admin_page_url( 'gh_companies', [ 'owner_id' => $company->owner_id ] ) . '">' . get_userdata( $company->owner_id )->display_name . '</a>' : '&#x2014;';
+	}
+
+	/**
+	 * @param $company Company
+	 */
+	public function column_address( $company ) {
+
+		$address = $company->get_address();
+
+		if ( $address ) {
+			echo html()->e( 'a', [
+				'href'   => 'http://maps.google.com/?q=' . $company->get_searchable_address(),
+				'target' => '_blank'
+			], $address );
+		}
+
+	}
+
+	/**
+	 * @param $company Company
+	 */
+	public function column_contacts( $company ) {
+
+		$contacts = $company->get_contacts();
+
+		?>
+		<div class="avatars">
+			<?php foreach ( $contacts as $contact ): ?>
+				<img class="avatar" alt="<?php esc_attr_e( 'avatar' ); ?>"
+				     title="<?php esc_attr_e( $contact->get_full_name() ); ?>"
+				     src="<?php echo esc_url( $contact->get_profile_picture() ); ?>"/>
+			<?php endforeach; ?>
+		</div>
+		<?php
+
+	}
+
+	/**
+	 * @param $company Company
+	 *
+	 * @return string
+	 */
+	protected function column_logo( $company ) {
+
+		$logo = $company->get_meta( 'logo' );
+
+		if ( empty( $logo ) ){
+			return;
+		}
+
+		echo html()->e( 'img', [
+			'src'   => $logo,
+			'alt'   => __( 'Company-logo' ),
+			'title' => $company->get_name(),
+			'style' => [
+				'float'        => 'left',
+				'margin-right' => '10px'
+			],
+			'width' => 100
+		], '', true );
 	}
 
 	/**
