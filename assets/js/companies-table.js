@@ -1,4 +1,4 @@
-(($) => {
+( ($) => {
 
   const {
     input,
@@ -10,18 +10,21 @@
     searchOptionsWidget,
     progressModal,
     textarea,
-    bold
+    bold,
   } = Groundhogg.element
   const { ajax } = Groundhogg.api
   const { fileUploader } = Groundhogg.components
-  const { companies: CompaniesStore, contacts: ContactsStore } = Groundhogg.stores
+  const {
+    companies: CompaniesStore,
+    contacts: ContactsStore,
+  } = Groundhogg.stores
   const { __, _x, _n, _nx, sprintf } = wp.i18n
   const { formatNumber } = Groundhogg.formatting
 
   $(() => {
 
     let mappingGroups = {
-      basic: __('Basic')
+      basic: __('Basic'),
     }
 
     let mappingFields = [
@@ -52,64 +55,144 @@
       },
       {
         id: 'notes',
-        label: __('Add to notes'),
+        label: __('Add to Notes'),
         group: 'basic',
       },
-      ...GroundhoggCompanyProperties.fields.map(({ name, group, label }) => ({ id: name, group, label }))
+
+      {
+        id: 'contacts',
+        label: __('Add to Contacts'),
+        group: 'basic',
+      },
+      ...GroundhoggCompanyProperties.fields.map(
+        ({ name, group, label }) => ( { id: name, group, label } )),
     ]
 
     GroundhoggCompanyProperties.groups.forEach(g => {
       mappingGroups[g.id] = g.name
     })
 
+    $('#export-companies').on('click', e => {
+
+      progressModal({
+        beforeProgress: () => {
+          return `<h2>${ __('Exporting companies...',
+            'groundhogg-companies') }</h2><p class="gh-text danger">${ __(
+            'Do not close this window!') }</p>`
+        },
+        onOpen: ({ setProgress, close }) => {
+
+          let offset = 0
+          let limit = 500
+          let totalItems
+          let suffix = Date.now()
+
+          const _export = () => {
+
+            ajax({
+              action: 'groundhogg_export_companies',
+              offset,
+              limit,
+              suffix,
+            }).then(r => {
+
+              if (!r.success) {
+                console.log(r)
+                dialog({
+                  message: __('Something went wrong...'),
+                  type: 'error',
+                })
+                return
+              }
+
+              offset += limit
+
+              setProgress(( offset / totalItems ) * 100)
+
+              if (offset < totalItems) {
+                _export()
+                return
+              }
+
+              dialog({
+                message: __('Export complete!', 'groundhogg-companies'),
+              })
+
+              let a = document.createElement('a')
+              a.href = r.data.file
+              a.click()
+              close()
+            })
+
+          }
+
+          CompaniesStore.count().then(t => {
+            totalItems = t
+            _export()
+          })
+        },
+      })
+
+    })
+
     $('#import-companies').on('click', e => {
 
       let results, headers, file, totalItems
       let map = {}
+      let linkSimilar = false
 
       const mappingUI = () => {
         // language=HTML
         return `
-			<div class="display-flex column gap-20">
-				<h2>${__('Map your CSV fields', 'groundhogg-companies')}</h2>
-				<table class="wp-list-table widefat striped">
-					<thead>
-					<tr>
-						<th>${__('Header', 'groundhogg-companies')}</th>
-						<th>${__('Example Data', 'groundhogg-companies')}</th>
-						<th>${__('Map To', 'groundhogg-companies')}</th>
-					</tr>
-					</thead>
-					<tbody>
-					${headers.map((h, i) => {
+            <div class="display-flex column gap-20">
+                <h2>${ __('Map your CSV fields', 'groundhogg-companies') }</h2>
+                <table class="wp-list-table widefat striped">
+                    <thead>
+                    <tr>
+                        <th>${ __('Header', 'groundhogg-companies') }</th>
+                        <th>${ __('Example Data', 'groundhogg-companies') }</th>
+                        <th>${ __('Map To', 'groundhogg-companies') }</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ${ headers.map((h, i) => {
 
-						// language=HTML
-						return `<tr>
-<th>${h}</th>
-<td><code>${results[0][i]}</code></td>
+                        // language=HTML
+                        return `<tr>
+<th>${ h }</th>
+<td><code>${ results[0][i] }</code></td>
 <td class="display-flex gap-10">
-<button data-index="${h}" class="gh-button full-width small dropdown map-field">${map[h] ? mappingFields.find(f => f.id == map[h]).label : '-----'}</button>
-${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small clear-selection"><span class="dashicons dashicons-no-alt"></span></button>` : ''}
+<button data-index="${ h }" class="gh-button full-width small dropdown map-field">${ map[h]
+                                ? mappingFields.find(f => f.id == map[h]).label
+                                : '-----' }</button>
+${ map[h]
+                                ? `<button data-index="${ h }" class="gh-button secondary text icon small clear-selection"><span class="dashicons dashicons-no-alt"></span></button>`
+                                : '' }
 </td></tr>`
-					}).join('')}
-					</tbody>
-				</table>
-				${Object.values(map).includes('domain') ? `<label>${input({
-					type: 'checkbox',
-					id: 'link-similar',
-				})} ${__('Automatically associate contacts with email addresses similar to the company website?', 'groundhogg-companies')}</label>` : ''}
-				<div class="display-flex flex-end gap-10">
-					<button id="cancel-import" class="gh-button danger text">${__('Cancel')}</button>
-					<button id="start-import" class="gh-button primary">
-						${sprintf(__('Import %s companies', 'groundhogg-companies'), formatNumber(totalItems))}
-					</button>
-				</div>
-			</div>`
+                    }).join('') }
+                    </tbody>
+                </table>
+                ${ Object.values(map).includes('domain') ? `<label>${ input({
+                    type: 'checkbox',
+                    id: 'link-similar',
+                    checked: linkSimilar,
+                }) } ${ __(
+                        'Automatically associate contacts with email addresses similar to the company website?',
+                        'groundhogg-companies') }</label>` : '' }
+                <div class="display-flex flex-end gap-10">
+                    <button id="cancel-import" class="gh-button danger text">
+                        ${ __('Cancel') }
+                    </button>
+                    <button id="start-import" class="gh-button primary">
+                        ${ sprintf(__('Import %s companies',
+                                        'groundhogg-companies'),
+                                formatNumber(totalItems)) }
+                    </button>
+                </div>
+            </div>`
       }
 
       const mappingOnMount = ({ reRender, close }) => {
-
-        let linkSimilar = false
 
         $('#link-similar').on('change', e => {
           linkSimilar = e.target.checked
@@ -121,7 +204,9 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
 
           progressModal({
             beforeProgress: () => {
-              return `<h2>${__('Importing companies...', 'groundhogg-companies')}</h2><p class="gh-text danger">${__('Do not close this window!')}</p>`
+              return `<h2>${ __('Importing companies...',
+                'groundhogg-companies') }</h2><p class="gh-text danger">${ __(
+                'Do not close this window!') }</p>`
             },
             onOpen: ({ setProgress, close }) => {
 
@@ -136,21 +221,21 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
                   limit,
                   link_similar: linkSimilar,
                   map: JSON.stringify(map),
-                  file: file.file
+                  file: file.file,
                 }).then(r => {
 
                   if (!r.success) {
                     console.log(r)
                     dialog({
                       message: __('Something went wrong...'),
-                      type: 'error'
+                      type: 'error',
                     })
                     return
                   }
 
                   offset += limit
 
-                  setProgress((offset / totalItems) * 100)
+                  setProgress(( offset / totalItems ) * 100)
 
                   if (offset < totalItems) {
                     _import()
@@ -158,7 +243,7 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
                   }
 
                   dialog({
-                    message: __('Companies Imported!', 'groundhogg-companies')
+                    message: __('Companies Imported!', 'groundhogg-companies'),
                   })
 
                   window.open(adminPageURL('gh_companies'), '_self')
@@ -169,7 +254,7 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
 
               _import()
 
-            }
+            },
           })
 
         })
@@ -199,7 +284,7 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
             },
             onOpen: () => {
 
-            }
+            },
           }).mount()
 
         })
@@ -244,10 +329,10 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
               }
 
               reRender()
-            }
+            },
           })
 
-        }
+        },
       })
     })
 
@@ -258,82 +343,87 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
 
         //language=HTML
         return `
-			<div style="width: 500px">
-				<h2 id="modal-header">${__('Add Company', 'groundhogg-companies')}</h2>
-				<div id="maybe-match"></div>
-				<div class="gh-rows-and-columns">
-					<div class="gh-row">
-						<div class="gh-col">
-							<label for="name">${__('Name')}</label>
-							${input({
-								id: 'company-name',
-								name: 'name',
-								dataType: 'data',
-							})}
-						</div>
-						<div class="gh-col">
-							<label for="website">${__('Website')}</label>
-							${input({
-								id: 'company-website',
-								name: 'domain',
-								type: 'url',
-								dataType: 'data',
-							})}
-						</div>
-					</div>
-					<div class="gh-row">
-						<div class="gh-col">
-							<label for="phone">${__('Phone')}</label>
-							${input({
-								id: 'phone',
-								name: 'phone',
-								type: 'tel',
-								dataType: 'meta',
-							})}
-						</div>
-						<div class="gh-col">
-							<label for="industry">${__('Industry')}</label>
-							${input({
-								id: 'industry',
-								name: 'industry',
-								dataType: 'meta',
+            <div style="width: 500px">
+                <h2 id="modal-header">
+                    ${ __('Add Company', 'groundhogg-companies') }</h2>
+                <div id="maybe-match"></div>
+                <div class="gh-rows-and-columns">
+                    <div class="gh-row">
+                        <div class="gh-col">
+                            <label for="name">${ __('Name') }</label>
+                            ${ input({
+                                id: 'company-name',
+                                name: 'name',
+                                dataType: 'data',
+                            }) }
+                        </div>
+                        <div class="gh-col">
+                            <label for="website">${ __('Website') }</label>
+                            ${ input({
+                                id: 'company-website',
+                                name: 'domain',
+                                type: 'url',
+                                dataType: 'data',
+                            }) }
+                        </div>
+                    </div>
+                    <div class="gh-row">
+                        <div class="gh-col">
+                            <label for="phone">${ __('Phone') }</label>
+                            ${ input({
+                                id: 'phone',
+                                name: 'phone',
+                                type: 'tel',
+                                dataType: 'meta',
+                            }) }
+                        </div>
+                        <div class="gh-col">
+                            <label for="industry">${ __('Industry') }</label>
+                            ${ input({
+                                id: 'industry',
+                                name: 'industry',
+                                dataType: 'meta',
 
-							})}
-						</div>
-					</div>
-					<div class="gh-row">
-						<div class="gh-col">
-							<label for="address">${__('Address')}</label>
-							${textarea({
-								id: 'address',
-								name: 'address',
-								className: 'full-width',
-								dataType: 'meta',
-							})}
-						</div>
-					</div>
-					<div class="gh-row">
-						<div class="gh-col">
-							<label for="owner">${__('Owner')}</label>
-							${select({
-								id: 'owner',
-								name: 'owner_id',
-								dataType: 'data',
-							}, Groundhogg.filters.owners.map(u => ({
-								text: `${u.data.display_name} &lt;${u.data.user_email}&gt;`,
-								value: u.ID
-							})))}
-						</div>
-						<div class="gh-col">
+                            }) }
+                        </div>
+                    </div>
+                    <div class="gh-row">
+                        <div class="gh-col">
+                            <label for="address">${ __('Address') }</label>
+                            ${ textarea({
+                                id: 'address',
+                                name: 'address',
+                                className: 'full-width',
+                                dataType: 'meta',
+                            }) }
+                        </div>
+                    </div>
+                    <div class="gh-row">
+                        <div class="gh-col">
+                            <label for="owner">${ __('Owner') }</label>
+                            ${ select({
+                                id: 'owner',
+                                name: 'owner_id',
+                                dataType: 'data',
+                            }, Groundhogg.filters.owners.map(u => ( {
+                                text: `${ u.data.display_name } &lt;${ u.data.user_email }&gt;`,
+                                value: u.ID,
+                            } ))) }
+                        </div>
+                        <div class="gh-col">
 
-						</div>
-					</div>
-				</div>
-				<p>
-					<button id="save-changes" class="gh-button primary">${__('Add')}</button>
-					<button id="cancel-changes" class="gh-button danger text">${__('Cancel')}</button>
-				</p>
-			</div>`
+                        </div>
+                    </div>
+                </div>
+                <p>
+                    <button id="save-changes" class="gh-button primary">
+                        ${ __('Add') }
+                    </button>
+                    <button id="cancel-changes" class="gh-button danger text">
+                        ${ __('Cancel') }
+                    </button>
+                </p>
+            </div>`
       }
 
       modal({
@@ -342,7 +432,7 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
 
           let changes = {
             data: {},
-            meta: {}
+            meta: {},
           }
 
           const commitChanges = () => {
@@ -350,34 +440,43 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
           }
 
           $('#industry').autocomplete({
-            source: Groundhogg.companyIndustries
+            source: Groundhogg.companyIndustries,
           })
 
-          $('#company-name, #company-website, #address, #phone, #industry, #owner').on('input change', e => {
-            changes[e.target.dataset.type] = {
-              ...changes[e.target.dataset.type],
-              [e.target.name]: e.target.value
-            }
-          })
+          $('#company-name, #company-website, #address, #phone, #industry, #owner').
+            on('input change', e => {
+              changes[e.target.dataset.type] = {
+                ...changes[e.target.dataset.type],
+                [e.target.name]: e.target.value,
+              }
+            })
 
           $('#company-name').on('change', e => {
 
             let newName = e.target.value
 
             CompaniesStore.fetchItems({
-              s: newName
+              s: newName,
             }).then(items => {
               if (items.length) {
 
                 // language=HTML
                 let notice = `<p>
 					<span
-			  class="pill yellow">${sprintf(_n('A company with the name %2$s already exists. Would you like to edit it instead?', 'We found %1$d companies with similar names to %2$s.', items.length, 'groundhogg-companies'), items.length, bold(items.length === 1 ? items[0].data.name : newName))}
-					<a href="${items.length === 1 ? items[0].admin : adminPageURL('gh_companies', { s: newName })}">${items.length > 1 ? sprintf(__('View %d similar companies'), items.length) : sprintf(__('Edit %s'), items[0].data.name)}</a></span>
-				</p>`
+                  class="pill yellow">${ sprintf(
+                  _n('A company with the name %2$s already exists. Would you like to edit it instead?',
+                          'We found %1$d companies with similar names to %2$s.',
+                          items.length, 'groundhogg-companies'), items.length,
+                  bold(items.length === 1 ? items[0].data.name : newName)) }
+					<a href="${ items.length === 1 ? items[0].admin : adminPageURL(
+                  'gh_companies', { s: newName }) }">${ items.length > 1
+                  ? sprintf(__('View %d similar companies'), items.length)
+                  : sprintf(__('Edit %s'), items[0].data.name) }</a></span>
+                </p>`
 
                 $('#maybe-match').html(notice)
-              } else {
+              }
+              else {
                 $('#maybe-match').html('')
               }
             })
@@ -387,26 +486,38 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
           $('#company-website[name="domain"]').on('change', e => {
 
             let newDomain = e.target.value
-            let cleanDomain = newDomain.replace('https://', '').replace('http://', '').replace('www.', '')
+            let cleanDomain = newDomain.replace('https://', '').
+              replace('http://', '').
+              replace('www.', '')
 
-            if (!newDomain) return
+            if (!newDomain) {
+              return
+            }
 
             CompaniesStore.fetchItems({
               where: [
-                ['domain', 'RLIKE', cleanDomain]
-              ]
+                ['domain', 'RLIKE', cleanDomain],
+              ],
             }).then(items => {
               if (items.length) {
 
                 // language=HTML
                 let notice = `<p>
 					<span
-			  class="pill yellow">${sprintf(_n('A company with the domain %2$s already exists. Would you like to edit it instead?', 'We found %1$d companies with similar domains to %2$s.', items.length, 'groundhogg-companies'), items.length, bold(items.length === 1 ? items[0].data.domain : newDomain))}
-					<a href="${items.length === 1 ? items[0].admin : adminPageURL('gh_companies', { s: cleanDomain })}">${items.length > 1 ? sprintf(__('View %d similar companies'), items.length) : sprintf(__('Edit %s'), items[0].data.name)}</a></span>
-				</p>`
+                  class="pill yellow">${ sprintf(
+                  _n('A company with the domain %2$s already exists. Would you like to edit it instead?',
+                          'We found %1$d companies with similar domains to %2$s.',
+                          items.length, 'groundhogg-companies'), items.length,
+                  bold(items.length === 1 ? items[0].data.domain : newDomain)) }
+					<a href="${ items.length === 1 ? items[0].admin : adminPageURL(
+                  'gh_companies', { s: cleanDomain }) }">${ items.length > 1
+                  ? sprintf(__('View %d similar companies'), items.length)
+                  : sprintf(__('Edit %s'), items[0].data.name) }</a></span>
+                </p>`
 
                 $('#maybe-match').html(notice)
-              } else {
+              }
+              else {
                 $('#maybe-match').html('')
               }
             })
@@ -417,7 +528,7 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
 
             commitChanges().then((c) => {
               dialog({
-                message: __('Company created!')
+                message: __('Company created!'),
               })
 
               window.location.href = c.admin
@@ -430,9 +541,9 @@ ${map[h] ? `<button data-index="${h}" class="gh-button secondary text icon small
             close()
           })
 
-        }
+        },
       })
     })
   })
 
-})(jQuery)
+} )(jQuery)

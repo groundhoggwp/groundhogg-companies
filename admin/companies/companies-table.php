@@ -39,17 +39,19 @@ class Companies_Table extends WP_List_Table {
 	}
 
 	/**
-	 * @return array An associative array containing column information.
 	 * @see WP_List_Table::::single_row_columns()
+	 * @return array An associative array containing column information.
 	 */
 	public function get_columns() {
 		$columns = array(
 			'cb'       => '<input type="checkbox" />', // Render a checkbox instead of text.
 			'name'     => _x( 'Company', 'Column label', 'groundhogg' ),
 			'logo'     => _x( 'Logo', 'Column label', 'groundhogg' ),
+			'industry' => _x( 'Industry', 'Column label', 'groundhogg' ),
 			'website'  => _x( 'Website', 'Column label', 'groundhogg' ),
 			'address'  => _x( 'Address', 'Column label', 'groundhogg' ),
-			'owner_id'    => _x( 'Owner', 'Column label', 'groundhogg' ),
+			'phone'  => _x( 'Phone', 'Column label', 'groundhogg' ),
+			'owner_id' => _x( 'Owner', 'Column label', 'groundhogg' ),
 			'contacts' => _x( 'Contacts', 'Column label', 'groundhogg' ),
 		);
 
@@ -71,9 +73,9 @@ class Companies_Table extends WP_List_Table {
 	/**
 	 * Generates content for a single row of the table
 	 *
-	 * @param object $item The current item
-	 *
 	 * @since 3.1.0
+	 *
+	 * @param object $item The current item
 	 *
 	 */
 	public function single_row( $item ) {
@@ -90,12 +92,12 @@ class Companies_Table extends WP_List_Table {
 	protected function column_name( $company ) {
 
 		?>
-		<strong>
-			<a class="row-title" href="<?php echo admin_page_url( 'gh_companies', [
+        <strong>
+            <a class="row-title" href="<?php echo admin_page_url( 'gh_companies', [
 				'action'  => 'edit',
 				'company' => $company->get_id()
 			] ) ?>"><?php echo $company->get_name(); ?></a>
-		</strong>
+        </strong>
 		<?php
 	}
 
@@ -132,13 +134,13 @@ class Companies_Table extends WP_List_Table {
 		$contacts = $company->get_contacts();
 
 		?>
-		<div class="avatars">
+        <div class="avatars">
 			<?php foreach ( $contacts as $contact ): ?>
-				<img class="avatar" alt="<?php esc_attr_e( 'avatar' ); ?>"
-				     title="<?php esc_attr_e( $contact->get_full_name() ); ?>"
-				     src="<?php echo esc_url( $contact->get_profile_picture() ); ?>"/>
+                <img class="avatar" alt="<?php esc_attr_e( 'avatar' ); ?>"
+                     title="<?php esc_attr_e( $contact->get_full_name() ); ?>"
+                     src="<?php echo esc_url( $contact->get_profile_picture() ); ?>"/>
 			<?php endforeach; ?>
-		</div>
+        </div>
 		<?php
 
 	}
@@ -152,7 +154,7 @@ class Companies_Table extends WP_List_Table {
 
 		$logo = $company->get_meta( 'logo' );
 
-		if ( empty( $logo ) ){
+		if ( empty( $logo ) ) {
 			return;
 		}
 
@@ -187,6 +189,29 @@ class Companies_Table extends WP_List_Table {
 			'target' => '_blank',
 			'href'   => $company->get_domain()
 		], $company->get_domain() ) : '&#x2014;';
+	}
+
+	/**
+	 * @param $company Company
+	 *
+	 * @return string
+	 */
+	protected function column_industry( $company ) {
+		return esc_html( $company->get_meta( 'industry' ) ) ?: '-';
+	}
+
+	/**
+	 * @param $company Company
+	 *
+	 * @return string
+	 */
+	protected function column_phone( $company ) {
+
+		$phone = $company->get_meta( 'phone' );
+
+		return $phone ? html()->e( 'a', [
+			'href' => 'tel:' . $phone
+		], $phone ) : '-';
 	}
 
 	/**

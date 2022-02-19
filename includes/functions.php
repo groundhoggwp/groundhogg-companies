@@ -4,6 +4,7 @@ namespace GroundhoggCompanies;
 
 use Groundhogg\Contact;
 use Groundhogg\Plugin;
+use Groundhogg\Properties;
 use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\array_map_with_keys;
 use function Groundhogg\get_contactdata;
@@ -52,12 +53,27 @@ function sanitize_domain_name( $domain ) {
 	$domain = str_replace( 'www.', '', parse_url( $domain, PHP_URL_HOST ) );
 	$domain = sanitize_text_field( $domain );
 
-	if ( empty( $domain ) ){
+	if ( empty( $domain ) ) {
 		return false;
 	}
 
 	return sprintf( "https://%s", $domain );
 }
+
+/**
+ * @return string Get the CSV import URL.
+ */
+function get_company_exports_dir( $file_path = '', $create_folders = false ) {
+	return Plugin::$instance->utils->files->get_uploads_dir( 'company-imports', $file_path, $create_folders );
+}
+
+/**
+ * @return string Get the CSV import URL.
+ */
+function get_company_exports_url( $file_path = '' ) {
+	return Plugin::$instance->utils->files->get_uploads_url( 'company-imports', $file_path );
+}
+
 
 /**
  * @return string Get the CSV import URL.
@@ -107,6 +123,7 @@ function get_company_mappable_fields( $extra = [] ) {
 		'description' => __( 'Description' ),
 		'domain'      => __( 'Website' ),
 		'notes'       => __( 'Add To Notes' ),
+		'contacts'    => __( 'Add To Contacts' ),
 	];
 
 	$fields = array_merge( $defaults, $extra );
@@ -353,7 +370,7 @@ function maybe_create_company_from_contact( $contact ) {
 	// The exact slug doesn't exist
 	if ( ! $company->exists() ) {
 
-		if ( ! $_slug ){
+		if ( ! $_slug ) {
 			return;
 		}
 
@@ -397,6 +414,21 @@ function maybe_create_company_from_contact( $contact ) {
 }
 
 /**
+ * The company properties instance
+ *
+ * @return Properties
+ */
+function properties() {
+	static $props;
+
+	if ( ! $props ) {
+		$props = new Properties( 'gh_company_custom_properties' );
+	}
+
+	return $props;
+}
+
+/**
  * Create or update company based on mapped data
  *
  * @param       $fields
@@ -411,9 +443,10 @@ function generate_company_with_map( $fields, $map = [] ) {
 		$map  = array_combine( $keys, $keys );
 	}
 
-	$notes = [];
-	$args  = [];
-	$meta  = [];
+	$notes    = [];
+	$args     = [];
+	$meta     = [];
+	$contacts = [];
 
 	foreach ( $fields as $column => $value ) {
 
@@ -433,7 +466,7 @@ function generate_company_with_map( $fields, $map = [] ) {
 				break;
 			case 'address':
 				// build address from multiple fields
-				if ( key_exists( $field, $meta ) ){
+				if ( key_exists( $field, $meta ) ) {
 					$meta[ $field ] .= ', ' . sanitize_textarea_field( $value );
 				} else {
 					$meta[ $field ] = sanitize_textarea_field( $value );
@@ -446,12 +479,15 @@ function generate_company_with_map( $fields, $map = [] ) {
 			case 'notes':
 				$notes[] = sanitize_textarea_field( $value );
 				break;
+			case 'contacts':
+				$contacts = array_merge( $contacts, wp_parse_list( $value ) );
+                break;
 			default:
 
 				// check if custom field for company exists
-				$_field = Properties::instance()->get_field( $field );
+				$_field = properties()->get_field( $field );
 
-				if ( $_field ){
+				if ( $_field ) {
 					$meta[ $_field ] = $value;
 				}
 
@@ -462,7 +498,7 @@ function generate_company_with_map( $fields, $map = [] ) {
 	}
 
 	// Can't import without name
-	if ( ! key_exists( 'name', $args ) ){
+	if ( ! key_exists( 'name', $args ) ) {
 		return false;
 	}
 
@@ -470,7 +506,7 @@ function generate_company_with_map( $fields, $map = [] ) {
 
 	$company = new Company( $_slug, 'slug' );
 
-	if ( ! $company->exists() ){
+	if ( ! $company->exists() ) {
 		$company->create( $args );
 	} else {
 		$company->update( $args );
@@ -481,6 +517,25 @@ function generate_company_with_map( $fields, $map = [] ) {
 			$company->add_note( $note );
 		}
 	}
+
+    // Add relationships from contact records
+    if ( $contacts ){
+        $contacts = array_unique( $contacts );
+        foreach ( $contacts as $_id_or_email ){
+
+            $contact = get_contactdata( $_id_or_email );
+
+            if ( $contact ){
+                $company->create_relationship( $contact );
+                continue;
+            }
+
+            if ( is_email( $_id_or_email ) ){
+                $contact = new Contact(['email' => $_id_or_email ]);
+	            $company->create_relationship( $contact );
+            }
+        }
+    }
 
 	if ( $meta ) {
 		$company->update_meta( $meta );
@@ -521,23 +576,23 @@ function company_info_fields( $contact ) {
 	wp_enqueue_script( 'groundhogg-companies-data-admin' );
 
 	?>
-	<h2><?php _e( 'Work Details', 'groundhogg' ) ?></h2>
-	<div class="gh-rows-and-columns">
-		<div class="gh-row">
-			<div class="gh-col">
-				<label for="job_title"><?php _e( 'Company Name', 'groundhogg' ) ?></label>
+    <h2><?php _e( 'Work Details', 'groundhogg' ) ?></h2>
+    <div class="gh-rows-and-columns">
+        <div class="gh-row">
+            <div class="gh-col">
+                <label for="job_title"><?php _e( 'Company Name', 'groundhogg' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'company_name',
 					'name'  => 'company_name',
 					'value' => $contact->get_meta( 'company_name' ),
 				] ); ?>
-			</div>
+            </div>
 
-			<div class="gh-col">
-				<label
-					for="company_phone"><?php _e( 'Work Phone & Ext.', 'groundhogg' ) ?></label>
-				<div class="gh-input-group">
+            <div class="gh-col">
+                <label
+                        for="company_phone"><?php _e( 'Work Phone & Ext.', 'groundhogg' ) ?></label>
+                <div class="gh-input-group">
 					<?php echo html()->input( [
 						'type'        => 'tel',
 						'class'       => 'input',
@@ -557,35 +612,35 @@ function company_info_fields( $contact ) {
 						],
 						'placeholder' => __( '1234', 'groundhogg' )
 					] ); ?>
-				</div>
-			</div>
-		</div>
-		<div class="gh-row">
-			<div class="gh-col">
-				<label
-					for="job_title"><?php _e( 'Position', 'groundhogg' ) ?></label>
+                </div>
+            </div>
+        </div>
+        <div class="gh-row">
+            <div class="gh-col">
+                <label
+                        for="job_title"><?php _e( 'Position', 'groundhogg' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'job_title',
 					'name'  => 'job_title',
 					'value' => $contact->get_job_title(),
 				] ); ?>
-			</div>
-			<div class="gh-col">
-				<label
-					for="company_department"><?php _e( 'Department', 'groundhogg' ) ?></label>
+            </div>
+            <div class="gh-col">
+                <label
+                        for="company_department"><?php _e( 'Department', 'groundhogg' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'company_department',
 					'name'  => 'company_department',
 					'value' => $contact->get_meta( 'company_department' ),
 				] ); ?>
-			</div>
-		</div>
-		<div class="gh-row">
-			<div class="gh-col">
-				<label
-					for="company_website"><?php _e( 'Website', 'groundhogg' ) ?></label>
+            </div>
+        </div>
+        <div class="gh-row">
+            <div class="gh-col">
+                <label
+                        for="company_website"><?php _e( 'Website', 'groundhogg' ) ?></label>
 				<?php echo html()->input( [
 					'type'  => 'url',
 					'class' => 'full-width',
@@ -593,12 +648,12 @@ function company_info_fields( $contact ) {
 					'name'  => 'company_website',
 					'value' => $contact->get_meta( 'company_website' ),
 				] ); ?>
-			</div>
-		</div>
-		<div class="gh-row">
-			<div class="gh-col">
-				<label
-					for="company_address"><?php _e( 'Address', 'groundhogg' ) ?></label>
+            </div>
+        </div>
+        <div class="gh-row">
+            <div class="gh-col">
+                <label
+                        for="company_address"><?php _e( 'Address', 'groundhogg' ) ?></label>
 				<?php echo html()->textarea( [
 					'class' => 'full-width',
 					'id'    => 'company_address',
@@ -606,26 +661,26 @@ function company_info_fields( $contact ) {
 					'value' => $contact->get_meta( 'company_address' ),
 					'rows'  => 2,
 				] ); ?>
-			</div>
-		</div>
-	</div>
-	<script>
-      (($) => {
+            </div>
+        </div>
+    </div>
+    <script>
+      ( ($) => {
         $(() => {
 
           console.log('here')
 
           $('#company_department').autocomplete({
-            source: Groundhogg.companyDepartments
+            source: Groundhogg.companyDepartments,
           })
 
           $('#job_title').autocomplete({
-            source: Groundhogg.companyPositions
+            source: Groundhogg.companyPositions,
           })
 
         })
-      })(jQuery)
-	</script>
+      } )(jQuery)
+    </script>
 	<?php
 
 }
