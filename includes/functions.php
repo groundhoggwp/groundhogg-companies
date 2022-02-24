@@ -212,8 +212,8 @@ function export_header_name( $header, $key, $type ) {
 	return $header;
 }
 
-add_action( 'groundhogg/update_contact_with_map/default', 10, 4 );
-add_action( 'groundhogg/generate_contact_with_map/default', 10, 4 );
+add_action( 'groundhogg/update_contact_with_map/default', __NAMESPACE__ . '\handle_map_company_details', 10, 4 );
+add_action( 'groundhogg/generate_contact_with_map/default', __NAMESPACE__ . '\handle_map_company_details', 10, 4 );
 
 /**
  * During field mapping, maybe create a company record and link it to the contact
@@ -325,11 +325,9 @@ function maybe_create_company_from_contact( $contact ) {
 		return;
 	}
 
-	[
-		'company_name'    => $company_name,
-		'company_website' => $company_website,
-		'company_phone'   => $company_phone,
-	] = $contact->meta;
+	$company_name    = $contact->get_meta( 'company_name' );
+	$company_website = $contact->get_meta( 'company_website' );
+	$company_phone   = $contact->get_meta( 'company_phone' );
 
 	$_slug = sanitize_title( $company_name );
 
@@ -481,7 +479,7 @@ function generate_company_with_map( $fields, $map = [] ) {
 				break;
 			case 'contacts':
 				$contacts = array_merge( $contacts, wp_parse_list( $value ) );
-                break;
+				break;
 			default:
 
 				// check if custom field for company exists
@@ -518,24 +516,24 @@ function generate_company_with_map( $fields, $map = [] ) {
 		}
 	}
 
-    // Add relationships from contact records
-    if ( $contacts ){
-        $contacts = array_unique( $contacts );
-        foreach ( $contacts as $_id_or_email ){
+	// Add relationships from contact records
+	if ( $contacts ) {
+		$contacts = array_unique( $contacts );
+		foreach ( $contacts as $_id_or_email ) {
 
-            $contact = get_contactdata( $_id_or_email );
+			$contact = get_contactdata( $_id_or_email );
 
-            if ( $contact ){
-                $company->create_relationship( $contact );
-                continue;
-            }
+			if ( $contact ) {
+				$company->create_relationship( $contact );
+				continue;
+			}
 
-            if ( is_email( $_id_or_email ) ){
-                $contact = new Contact(['email' => $_id_or_email ]);
-	            $company->create_relationship( $contact );
-            }
-        }
-    }
+			if ( is_email( $_id_or_email ) ) {
+				$contact = new Contact( [ 'email' => $_id_or_email ] );
+				$company->create_relationship( $contact );
+			}
+		}
+	}
 
 	if ( $meta ) {
 		$company->update_meta( $meta );
