@@ -14,7 +14,6 @@ use function Groundhogg\get_post_var;
 use function Groundhogg\get_request_var;
 use function Groundhogg\html;
 use function Groundhogg\is_a_contact;
-use function Groundhogg\is_free_email_provider;
 
 add_filter( 'groundhogg/api/v4/options_sanitize_callback', __NAMESPACE__ . '\filter_option_sanitize_callback', 10, 3 );
 
@@ -744,4 +743,28 @@ add_filter( 'groundhogg/admin/contacts/exclude_meta_list', __NAMESPACE__ . '\exc
  */
 function exclude_company_fields_from_meta( $keys ) {
 	return array_merge( $keys, array_keys( get_contact_company_fields() ) );
+}
+
+/**
+ * @todo remove this in future versions once the core version is fixed
+ *
+ * If the given email is from a free inbox provider
+ *
+ * @param $email string
+ * @deprecated 3.0.1
+ */
+function is_free_email_provider( $email ) {
+
+	if ( ! is_email( $email ) ) {
+		return false;
+	}
+
+	static $providers = [];
+
+	// initialize providers
+	if ( empty( $providers ) ) {
+		$providers = json_decode( file_get_contents( GROUNDHOGG_ASSETS_PATH . 'lib/free-email-providers.json' ), true );
+	}
+
+	return apply_filters( 'groundhogg/is_free_email_provider', in_array( get_email_address_hostname( $email ), $providers ) );
 }

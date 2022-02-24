@@ -12,8 +12,8 @@ use function Groundhogg\get_date_time_format;
 use function Groundhogg\get_db;
 use function Groundhogg\get_email_address_hostname;
 use function Groundhogg\is_a_contact;
-use function Groundhogg\is_free_email_provider;
 use function Groundhogg\isset_not_empty;
+use function GroundhoggCompanies\is_free_email_provider;
 use function GroundhoggCompanies\sanitize_domain_name;
 
 class Company extends Base_Object_With_Meta {
@@ -109,8 +109,8 @@ class Company extends Base_Object_With_Meta {
 	// store a clean version of the phone number
 	public function update_meta( $key, $value = false ) {
 
-		if ( $key === 'phone' ){
-			$_value = preg_replace( '/[^0-9]/','', $value );
+		if ( $key === 'phone' ) {
+			$_value = preg_replace( '/[^0-9]/', '', $value );
 			$this->update_meta( '_phone', $_value );
 		}
 
@@ -130,12 +130,10 @@ class Company extends Base_Object_With_Meta {
 			return false;
 		}
 
-		[
-			'company_name'    => $company_name,
-			'company_website' => $company_website,
-			'company_address' => $company_address,
-			'company_phone'   => $company_phone
-		] = $contact->meta;
+		$company_name    = $contact->get_meta( 'company_name' );
+		$company_website = $contact->get_meta( 'company_website' );
+		$company_address = $contact->get_meta( 'company_address' );
+		$company_phone   = $contact->get_meta( 'company_phone' );
 
 		$args = [];
 
@@ -148,7 +146,7 @@ class Company extends Base_Object_With_Meta {
 		if ( $company_website ) {
 			$args['domain'] = $company_website;
 		} else {
-			if ( ! is_free_email_provider( $contact->get_email() ) ){
+			if ( ! is_free_email_provider( $contact->get_email() ) ) {
 				$args['domain'] = 'https://' . get_email_address_hostname( $contact->get_email() );
 			}
 		}
@@ -158,13 +156,13 @@ class Company extends Base_Object_With_Meta {
 		}
 
 		// update the company owner to the contact's owner
-		if ( $contact->get_ownerdata() ){
+		if ( $contact->get_ownerdata() ) {
 			$args['owner_id'] = $contact->get_owner_id();
 		}
 
 		$updated = $this->update( $args );
 
-		if ( ! $updated ){
+		if ( ! $updated ) {
 			return false;
 		}
 
@@ -371,10 +369,11 @@ class Company extends Base_Object_With_Meta {
 	 *
 	 * Usage: $contact->upload_file( $_FILES[ 'file_name' ] )
 	 *
+	 * @deprecated 3.0
+	 *
 	 * @param $file
 	 *
 	 * @return array|\WP_Error
-	 * @deprecated 3.0
 	 */
 	public function upload_picture( &$file ) {
 		$this->delete_pictures();

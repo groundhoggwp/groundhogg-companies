@@ -16,58 +16,56 @@ $companies = filter_object_exists( $companies );
 
 foreach ( $companies as $company ) {
 
-	if ( ! $company->exists() ){
+	if ( ! $company->exists() ) {
 		continue;
 	}
 
-	$phone = $company->get_meta('phone');
+	$phone = $company->get_meta( 'phone' );
 
 	?>
-	<div class="gh-panel company postbox outlined">
-		<div class="gh-panel-header postbox-header">
-			<h2><b><a href="<?php echo $company->admin_link() ?>"
-			          target="_blank"><?php esc_html_e( $company->get_name() ); ?></a></b></h2>
-			<div class="handle-actions hide-if-no-js">
-				<button type="button" class="handlediv" aria-expanded="true">
-					<span class="toggle-indicator" aria-hidden="true"></span>
-				</button>
-			</div>
-		</div>
-		<div class="inside">
-			<ul class="info-list">
-				<li class="<?php echo $company->get_meta( 'industry' ) ? '' : 'hidden'?>"><span
-						class="dashicons dashicons-building"></span><?php esc_html_e( $company->get_meta( 'industry' ) ?: '-' ) ?>
-				</li>
-				<li class="<?php echo $company->get_domain() ? '' : 'hidden'?>"><span
-						class="dashicons dashicons-welcome-view-site"></span><a
-						href="<?php echo esc_url( $company->get_domain() ?: '' ) ?>"
-						target="_blank"><?php esc_html_e( parse_url( $company->get_domain(), PHP_URL_HOST ) ); ?></a>
-				</li>
-				<li class="<?php echo $company->get_address() ? '' : 'hidden'?>"><span class="dashicons dashicons-location"></span><?php echo html()->e( 'a', [
+    <div class="gh-panel company outlined closed">
+        <div class="gh-panel-header">
+            <h2><b><a href="<?php echo $company->admin_link() ?>"
+                      target="_blank"><?php esc_html_e( $company->get_name() ); ?></a></b></h2>
+            <button type="button" class="toggle-indicator"></button>
+        </div>
+        <div class="inside">
+            <ul class="info-list">
+                <li class="<?php echo $company->get_meta( 'industry' ) ? '' : 'hidden' ?>"><span
+                            class="dashicons dashicons-building"></span><?php esc_html_e( $company->get_meta( 'industry' ) ?: '-' ) ?>
+                </li>
+                <li class="<?php echo $company->get_domain() ? '' : 'hidden' ?>"><span
+                            class="dashicons dashicons-welcome-view-site"></span><a
+                            href="<?php echo esc_url( $company->get_domain() ?: '' ) ?>"
+                            target="_blank"><?php esc_html_e( parse_url( $company->get_domain(), PHP_URL_HOST ) ); ?></a>
+                </li>
+                <li class="<?php echo $company->get_address() ? '' : 'hidden' ?>"><span
+                            class="dashicons dashicons-location"></span><?php echo html()->e( 'a', [
 						'href'   => 'http://maps.google.com/?q=' . $company->get_searchable_address(),
 						'target' => '_blank'
 					], $company->get_address(), false ); ?></li>
-				<li class="<?php echo $phone ? '' : 'hidden'?>"><span class="dashicons dashicons-phone"></span><?php echo $phone ? html()->e( 'a', [
-					'href' => 'tel:' . $phone
+                <li class="<?php echo $phone ? '' : 'hidden' ?>"><span
+                            class="dashicons dashicons-phone"></span><?php echo $phone ? html()->e( 'a', [
+						'href' => 'tel:' . $phone
 					], $phone ) : '-'; ?></li>
-			</ul>
-		</div>
-	</div>
+            </ul>
+        </div>
+    </div>
 	<?php
 
 }
 ?>
-<script>
-  (($) => {
-    $('.gh-panel.company button.handlediv').on('click', (e) => {
-      $(e.target).closest('.company').toggleClass('closed')
-    })
-  })(jQuery)
-</script>
+    <script>
+      ( ($) => {
+        $('.gh-panel.company .toggle-indicator').on('click', (e) => {
+          $(e.target).closest('.company').toggleClass('closed')
+        })
+      } )(jQuery)
+    </script>
 <?php
 
-if ( empty( $companies ) ){
+if ( empty( $companies ) ) {
 	?>
-	<p><?php _e( 'Not associated to a company.', 'groundhogg-companies' ) ?></p>
+    <p><?php _e( 'Not associated to a company.', 'groundhogg-companies' ) ?></p>
 	<?php
 }
