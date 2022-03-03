@@ -199,7 +199,7 @@ class Plugin extends Extension {
 		}
 
 		if ( $column_id == 'company_name' ){
-			$company = new Company( sanitize_title( $contact->get_meta( $column_id ), 'slug' ) );
+			$company = new Company( sanitize_title( $contact->get_meta( 'company_name' ) ), 'slug' );
 			if ( $company->exists() ){
 				return html()->e( 'a', [
 					'target' => '_blank',

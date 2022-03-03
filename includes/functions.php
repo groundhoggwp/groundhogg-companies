@@ -301,7 +301,7 @@ add_action( 'groundhogg/generate_contact_with_map/after', __NAMESPACE__ . '\were
  */
 function were_company_changes_made_during_mapping( $contact, $map, $fields ) {
 
-	$has_changes = array_intersect( get_contact_company_fields(), array_values( $map ) );
+	$has_changes = array_intersect( array_keys( get_contact_company_fields() ), array_values( $map ) );
 
 	if ( ! $has_changes ) {
 		return;
