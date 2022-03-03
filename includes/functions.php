@@ -225,20 +225,20 @@ add_action( 'groundhogg/generate_contact_with_map/default', __NAMESPACE__ . '\ha
 function handle_map_company_details( $field, $value, &$args, &$meta ) {
 
 	switch ( $field ) {
-
 		case 'company_name':
 		case 'company_phone':
-		case 'company_website':
 		case 'company_phone_extension':
 		case 'job_title':
 		case 'company_department':
 			$meta[ $field ] = sanitize_text_field( $value );
 			break;
+		case 'company_website':
+			$meta[ $field ] = sanitize_domain_name( $value );
+			break;
 		case 'company_address':
 			$meta[ $field ] = sanitize_textarea_field( $value );
 			break;
 	}
-
 }
 
 add_action( 'groundhogg/contact/post_create', __NAMESPACE__ . '\contact_created', 10, 3 );
@@ -638,13 +638,18 @@ function company_info_fields( $contact ) {
             <div class="gh-col">
                 <label
                         for="company_website"><?php _e( 'Website', 'groundhogg' ) ?></label>
-				<?php echo html()->input( [
-					'type'  => 'url',
-					'class' => 'full-width',
-					'id'    => 'company_website',
-					'name'  => 'company_website',
-					'value' => $contact->get_meta( 'company_website' ),
-				] ); ?>
+                <div class="gh-input-group">
+	                <?php echo html()->input( [
+		                'type'  => 'url',
+		                'class' => 'full-width',
+		                'id'    => 'company_website',
+		                'name'  => 'company_website',
+		                'value' => $contact->get_meta( 'company_website' ),
+	                ] ); ?>
+                    <button type="button" class="gh-button secondary icon" id="visit-company-site">
+                        <span class="dashicons dashicons-external"></span>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="gh-row">
@@ -665,7 +670,13 @@ function company_info_fields( $contact ) {
       ( ($) => {
         $(() => {
 
-          console.log('here')
+          $('#visit-company-site').on('click', () => {
+            let url = $('#company_website').val()
+
+            if ( url ){
+              window.open( url, '_blank' )
+            }
+          })
 
           $('#company_department').autocomplete({
             source: Groundhogg.companyDepartments,
@@ -697,7 +708,6 @@ function save_work_details( $contact_id, $contact ) {
 		'company_phone',
 		'company_phone_extension',
 		'company_department',
-		'company_website',
 		'company_address',
 		'job_title'
 	];
@@ -722,6 +732,7 @@ function save_work_details( $contact_id, $contact ) {
 	}
 
 	$contact->update_meta( 'company_address', sanitize_textarea_field( get_post_var( 'company_address' ) ) );
+	$contact->update_meta( 'company_website', sanitize_domain_name( get_post_var( 'company_website' ) ) );
 
 	/**
 	 * When the work details are saved

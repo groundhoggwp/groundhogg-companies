@@ -3,7 +3,9 @@
 namespace GroundhoggCompanies;
 
 use Groundhogg\Admin\Admin_Menu;
+use Groundhogg\Admin\Contacts\Tables\Contact_Table_Columns;
 use Groundhogg\Api\V4\Base_Api;
+use Groundhogg\Contact;
 use Groundhogg\DB\Manager;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
@@ -11,9 +13,11 @@ use GroundhoggCompanies\Api\Companies_Api;
 use GroundhoggCompanies\Bulk_Jobs\Import_companies;
 use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
 use GroundhoggCompanies\Bulk_Jobs\Migrate_Notes;
+use GroundhoggCompanies\Classes\Company;
 use GroundhoggCompanies\DB\Companies;
 use GroundhoggCompanies\DB\Company_Meta;
 use GroundhoggCompanies\DB\Company_Relationships;
+use function Groundhogg\html;
 
 class Plugin extends Extension {
 
@@ -79,7 +83,7 @@ class Plugin extends Extension {
 	 * @param \Groundhogg\Admin\Contacts\Info_Cards $cards
 	 */
 	public function register_contact_info_cards( $cards ) {
-		$cards::register( 'companies', __('Companies', 'groundhogg-companies'), function ( $contact ) {
+		$cards::register( 'companies', __( 'Companies', 'groundhogg-companies' ), function ( $contact ) {
 			include __DIR__ . '/../admin/companies-card.php';
 		}, 10, 'view_companies' );
 	}
@@ -123,7 +127,7 @@ class Plugin extends Extension {
 		], GROUNDHOGG_COMPANIES_VERSION );
 
 		wp_localize_script( 'groundhogg-companies-data-admin', 'GroundhoggCompanies', [
-			'route' => rest_url( Base_Api::NAME_SPACE . '/companies' ),
+			'route'  => rest_url( Base_Api::NAME_SPACE . '/companies' ),
 			'fields' => get_company_mappable_fields()
 		] );
 
@@ -148,6 +152,102 @@ class Plugin extends Extension {
 			'groundhogg-companies-data-admin',
 			'wp-i18n'
 		] );
+	}
+
+	/**
+	 * Table columns
+	 *
+	 * @param $contact   Contact
+	 * @param $column_id string
+	 *
+	 * @return string|void
+	 */
+	public function company_table_columns_callback( $contact, $column_id ) {
+
+		if ( ! $contact->get_meta( $column_id ) ) {
+
+			$companies = $contact->get_related_objects( 'company', false );
+
+			if ( empty( $companies ) ) {
+				return;
+			}
+
+			/**
+			 * @var $company Company
+			 */
+			$company = array_shift( $companies );
+
+			switch ( $column_id ) {
+				default:
+					return;
+				case 'company_name':
+					return html()->e( 'a', [
+						'target' => '_blank',
+						'href' => $company->admin_link()
+					], $company->get_name() );
+				case 'company_website':
+					return html()->e( 'a', [
+						'target' => '_blank',
+						'href' => $company->get_domain()
+					], parse_url( $company->get_domain(), PHP_URL_HOST ) );
+				case 'company_address':
+					return html()->e( 'a', [
+						'href'   => 'http://maps.google.com/?q=' . $company->get_searchable_address(),
+						'target' => '_blank'
+					], $company->get_searchable_address() );
+			}
+		}
+
+		if ( $column_id == 'company_name' ){
+			$company = new Company( sanitize_title( $contact->get_meta( $column_id ), 'slug' ) );
+			if ( $company->exists() ){
+				return html()->e( 'a', [
+					'target' => '_blank',
+					'href' => $company->admin_link()
+				], $company->get_name() );
+			}
+		}
+
+		switch ( $column_id ) {
+			default:
+			case 'company_name':
+			case 'job_title':
+			case 'company_department':
+			case 'company_phone_extension':
+				return $contact->get_meta( $column_id );
+			case 'company_phone':
+				return html()->e( 'a', [
+					'href' => 'tel:' . $contact->get_meta( 'company_phone' )
+				], $contact->get_meta( 'company_phone' ) );
+			case 'company_website':
+				return html()->e( 'a', [
+					'target' => '_blank',
+					'href' => $contact->get_meta( 'company_website' )
+				], parse_url( $contact->get_meta( 'company_website' ), PHP_URL_HOST ) );
+			case 'company_address':
+				return html()->e( 'a', [
+					'href'   => 'http://maps.google.com/?q=' . $contact->get_meta( 'company_address' ),
+					'target' => '_blank'
+				], $contact->get_meta( 'company_address' ) );
+		}
+	}
+
+	/**
+	 * @param $columns Contact_Table_Columns
+	 *
+	 * @return void
+	 */
+	public function register_contact_table_columns( $columns ) {
+
+		$i = 0;
+		foreach ( get_contact_company_fields() as $field_id => $field_name ) {
+			$columns::register( $field_id, $field_name, [
+				$this,
+				'company_table_columns_callback'
+			], false, 200 + $i );
+			$i ++;
+		}
+
 	}
 
 	/**
