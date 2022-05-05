@@ -567,6 +567,12 @@
       groups: [],
     }
 
+    const __groups = () =>
+      customTabState.groups.filter(g => g.tab === activeTab)
+
+    const __fields = () => customTabState.fields.filter(
+      f => __groups().find(g => g.id === f.group))
+
     let timeout
     let metaChanges = {}
     let deleteKeys = []
@@ -743,14 +749,21 @@
               },
               onPropertiesUpdated: ({ groups = [], fields = [] }) => {
 
-                customTabState.groups = [
-                  ...groups.map(g => ({ ...g, tab: activeTab })), // new items
-                  ...customTabState.groups.filter(group => !groups.find(_group => _group.id == group.id))
+                customTabState.fields = [
+                  // Filter out any fields that are part of any group belonging to
+                  // the current tab
+                  ...customTabState.fields.filter(
+                    field => !__fields().find(f => f.id === field.id)),
+                  // Any new fields
+                  ...fields,
                 ]
 
-                customTabState.fields = [
-                  ...fields, // new items
-                  ...customTabState.fields.filter(field => !fields.find(_field => _field.id == field.id))
+                customTabState.groups = [
+                  // Filter out groups that are part of the current tab
+                  ...customTabState.groups.filter(
+                    group => !__groups().find(g => g.id === group.id)),
+                  // The groups that were edited and any new groups
+                  ...groups.map(g => ( { ...g, tab: activeTab } )),
                 ]
 
                 updateTabState()

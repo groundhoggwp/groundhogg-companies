@@ -188,7 +188,7 @@ class Companies_Table extends WP_List_Table {
 		return ! empty( $company->get_domain() ) ? html()->e( 'a', [
 			'target' => '_blank',
 			'href'   => $company->get_domain()
-		], $company->get_domain() ) : '&#x2014;';
+		], parse_url( $company->get_domain(), PHP_URL_HOST ) ) : '&#x2014;';
 	}
 
 	/**
