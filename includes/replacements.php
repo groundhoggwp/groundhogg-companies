@@ -2,6 +2,8 @@
 
 namespace GroundhoggCompanies;
 
+use Groundhogg\Contact;
+use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\get_array_var;
 use function Groundhogg\get_contactdata;
 
@@ -73,7 +75,19 @@ class Replacements {
 				get_array_var( $replacement, 'default_args' )
 			);
 		}
+	}
 
+	/**
+	 * Get a related company record if available
+	 *
+	 * @param $contact Contact
+	 *
+	 * @return Company|false
+	 */
+	public function get_related_company( $contact ) {
+		$companies = $contact->get_related_objects( 'company', false );
+
+		return count( $companies ) > 0 ? $companies[0] : false;
 	}
 
 	/**
@@ -84,7 +98,11 @@ class Replacements {
 	 * @return mixed
 	 */
 	function replacement_company_name( $contact_id ) {
-		return get_contactdata( $contact_id )->get_meta( 'company_name' );
+
+		$contact = get_contactdata( $contact_id );
+		$company = $this->get_related_company( $contact );
+
+		return $company ? $company->get_name() : $contact->get_meta( 'company_name' );
 	}
 
 	/**
@@ -95,7 +113,10 @@ class Replacements {
 	 * @return mixed
 	 */
 	function replacement_company_address( $contact_id ) {
-		return get_contactdata( $contact_id )->get_meta( 'company_address' );
+		$contact = get_contactdata( $contact_id );
+		$company = $this->get_related_company( $contact );
+
+		return $company ? $company->get_address() : $contact->get_meta( 'company_address' );
 	}
 
 	/**
@@ -106,7 +127,10 @@ class Replacements {
 	 * @return mixed
 	 */
 	function replacement_company_phone( $contact_id ) {
-		return get_contactdata( $contact_id )->get_meta( 'company_phone' );
+		$contact = get_contactdata( $contact_id );
+		$company = $this->get_related_company( $contact );
+
+		return $company ? $company->get_meta( 'phone' ) : $contact->get_meta( 'company_phone' );
 	}
 
 	/**
@@ -129,7 +153,10 @@ class Replacements {
 	 * @return mixed
 	 */
 	function replacement_company_website( $contact_id ) {
-		return get_contactdata( $contact_id )->get_meta( 'company_website' );
+		$contact = get_contactdata( $contact_id );
+		$company = $this->get_related_company( $contact );
+
+		return $company ? $company->get_domain() : $contact->get_meta( 'company_website' );
 	}
 
 	/**
