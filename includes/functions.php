@@ -66,14 +66,14 @@ function sanitize_domain_name( $domain ) {
  * @return string Get the CSV import URL.
  */
 function get_company_exports_dir( $file_path = '', $create_folders = false ) {
-	return Plugin::$instance->utils->files->get_uploads_dir( 'company-imports', $file_path, $create_folders );
+	return Plugin::$instance->utils->files->get_uploads_dir( 'exports', $file_path, $create_folders );
 }
 
 /**
  * @return string Get the CSV import URL.
  */
 function get_company_exports_url( $file_path = '' ) {
-	return Plugin::$instance->utils->files->get_uploads_url( 'company-imports', $file_path );
+	return Plugin::$instance->utils->files->get_uploads_url( 'exports', $file_path );
 }
 
 
@@ -81,14 +81,14 @@ function get_company_exports_url( $file_path = '' ) {
  * @return string Get the CSV import URL.
  */
 function get_company_imports_dir( $file_path = '', $create_folders = false ) {
-	return Plugin::$instance->utils->files->get_uploads_dir( 'company-imports', $file_path, $create_folders );
+	return Plugin::$instance->utils->files->get_uploads_dir( 'imports', $file_path, $create_folders );
 }
 
 /**
  * @return string Get the CSV import URL.
  */
 function get_company_imports_url( $file_path = '' ) {
-	return Plugin::$instance->utils->files->get_uploads_url( 'company-imports', $file_path );
+	return Plugin::$instance->utils->files->get_uploads_url( 'imports', $file_path );
 }
 
 /**

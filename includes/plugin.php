@@ -5,6 +5,7 @@ namespace GroundhoggCompanies;
 use Groundhogg\Admin\Admin_Menu;
 use Groundhogg\Admin\Contacts\Tables\Contact_Table_Columns;
 use Groundhogg\Api\V4\Base_Api;
+use Groundhogg\Bulk_Jobs\Export_Companies;
 use Groundhogg\Contact;
 use Groundhogg\DB\Manager;
 use Groundhogg\Extension;

@@ -125,7 +125,7 @@ class Companies_Page extends Admin_Page {
 		fclose( $fp );
 
 		wp_send_json_success( [
-			'file' => file_access_url( '/company-imports/' . $file_name )
+			'file' => file_access_url( '/exports/' . $file_name )
 		] );
 	}
 
@@ -433,7 +433,7 @@ class Companies_Page extends Admin_Page {
 		$companies_table = new Companies_Table();
 
 		$companies_table->views();
-		$this->search_form( __( 'Search Companies', 'groundhogg' ) );
+		$this->search_form( __( 'Search', 'groundhogg' ) );
 		?>
         <form method="post" class="wp-clearfix">
 			<?php $companies_table->prepare_items(); ?>
