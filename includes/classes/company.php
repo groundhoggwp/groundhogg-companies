@@ -171,7 +171,7 @@ class Company extends Base_Object_With_Meta {
 		}
 
 		if ( $company_phone ) {
-			$this->update_meta( 'phone', $company_address );
+			$this->update_meta( 'phone', $company_phone );
 		}
 
 		return $updated;
