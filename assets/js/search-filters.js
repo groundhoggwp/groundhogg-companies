@@ -1,9 +1,9 @@
-(($) => {
+( ($) => {
 
   const {
     registerFilter,
     registerFilterGroup,
-    BasicTextFilter
+    BasicTextFilter,
   } = Groundhogg.filters.functions
 
   const {
@@ -13,6 +13,19 @@
   const { __, _n, sprintf, _x } = wp.i18n
 
   registerFilterGroup('company', _x('Contact Company', 'contact is a noun referring to a person', 'groundhogg'))
+
+  registerFilter('linked_company', 'company', __('Linked to Company', 'groundhogg'), {
+    view () {
+      return __('Linked to any company')
+    },
+    edit () {
+      // language=html
+      return ''
+    },
+    onMount (filter, updateFilter) {
+    },
+    defaults: {},
+  })
 
   registerFilter('company_name', 'company', __('Company Name', 'groundhogg'), {
     ...BasicTextFilter(__('Company Name', 'groundhogg')),
@@ -24,10 +37,10 @@
       $('#filter-compare, #filter-value').on('change', function (e) {
         const $el = $(this)
         updateFilter({
-          [$el.prop('name')]: $el.val()
+          [$el.prop('name')]: $el.val(),
         })
       })
-    }
+    },
   })
 
   registerFilter('job_title', 'company', __('Job Title', 'groundhogg'), {
@@ -35,16 +48,16 @@
     onMount (filter, updateFilter) {
 
       $(`#filter-value`).autocomplete({
-        source: Groundhogg.companyPositions
+        source: Groundhogg.companyPositions,
       })
 
       $('#filter-compare, #filter-value').on('change', function (e) {
         const $el = $(this)
         updateFilter({
-          [$el.prop('name')]: $el.val()
+          [$el.prop('name')]: $el.val(),
         })
       })
-    }
+    },
   })
 
   registerFilter('company_department', 'company', __('Department', 'groundhogg'), {
@@ -52,16 +65,16 @@
     onMount (filter, updateFilter) {
 
       $(`#filter-value`).autocomplete({
-        source: Groundhogg.companyDepartments
+        source: Groundhogg.companyDepartments,
       })
 
       $('#filter-compare, #filter-value').on('change', function (e) {
         const $el = $(this)
         updateFilter({
-          [$el.prop('name')]: $el.val()
+          [$el.prop('name')]: $el.val(),
         })
       })
-    }
+    },
   })
 
   registerFilter('company_website', 'company', __('Website', 'groundhogg'), {
@@ -71,10 +84,10 @@
       $('#filter-compare, #filter-value').on('change', function (e) {
         const $el = $(this)
         updateFilter({
-          [$el.prop('name')]: $el.val()
+          [$el.prop('name')]: $el.val(),
         })
       })
-    }
+    },
   })
 
   registerFilter('company_address', 'company', __('Address', 'groundhogg'), {
@@ -84,10 +97,10 @@
       $('#filter-compare, #filter-value').on('change', function (e) {
         const $el = $(this)
         updateFilter({
-          [$el.prop('name')]: $el.val()
+          [$el.prop('name')]: $el.val(),
         })
       })
-    }
+    },
   })
 
   registerFilter('company_phone', 'company', __('Phone', 'groundhogg'), {
@@ -97,12 +110,10 @@
       $('#filter-compare, #filter-value').on('change', function (e) {
         const $el = $(this)
         updateFilter({
-          [$el.prop('name')]: $el.val()
+          [$el.prop('name')]: $el.val(),
         })
       })
-    }
+    },
   })
 
-
-
-})(jQuery)
+} )(jQuery)

@@ -140,8 +140,11 @@ class Replacements {
 	 *
 	 * @return mixed
 	 */
-	function replacement_company_department( $contact_id ) {
-		return get_contactdata( $contact_id )->get_meta( 'company_department' );
+	function replacement_company_website( $contact_id ) {
+		$contact = get_contactdata( $contact_id );
+		$company = $this->get_related_company( $contact );
+
+		return $company ? $company->get_domain() : $contact->get_meta( 'company_website' );
 	}
 
 
@@ -152,11 +155,8 @@ class Replacements {
 	 *
 	 * @return mixed
 	 */
-	function replacement_company_website( $contact_id ) {
-		$contact = get_contactdata( $contact_id );
-		$company = $this->get_related_company( $contact );
-
-		return $company ? $company->get_domain() : $contact->get_meta( 'company_website' );
+	function replacement_company_department( $contact_id ) {
+		return get_contactdata( $contact_id )->get_meta( 'company_department' );
 	}
 
 	/**
