@@ -27,7 +27,7 @@ msgstr ""
 #. Description of the plugin
 #: groundhogg-companies.php
 msgid "Organize contacts into companies and keep track of vital company information."
-msgstr ""
+msgstr "Organisez les contacts en organisations et gardez une trace des principales informations sur l’organisation."
 
 #. Author of the plugin
 #: groundhogg-companies.php
@@ -49,7 +49,7 @@ msgstr "Nom"
 
 #: admin/companies/companies-page.php:74
 msgid "Website"
-msgstr "Site web"
+msgstr "Site"
 
 #: admin/companies/companies-page.php:75
 msgid "Address"
@@ -57,7 +57,7 @@ msgstr "Adresse"
 
 #: admin/companies/companies-page.php:76
 msgid "Phone"
-msgstr "Téléphone"
+msgstr "Tél."
 
 #: admin/companies/companies-page.php:77
 msgid "Industry"
@@ -99,7 +99,7 @@ msgstr "Export des organisations..."
 
 #: assets/js/companies-table.js:118
 msgid "Export complete!"
-msgstr "Export terminé!"
+msgstr "Export terminé !"
 
 #: assets/js/companies-table.js:148
 msgid "Map your CSV fields"
@@ -119,7 +119,7 @@ msgstr "Correspond à"
 
 #: assets/js/companies-table.js:179
 msgid "Automatically associate contacts with email addresses similar to the company website?"
-msgstr "Associer automatiquement les contacts dont l'adresse email est similaire à celle d'un site web d'organisation ?"
+msgstr "Associer automatiquement les contacts dont l'adresse email est similaire à celle du site de l'organisation ?"
 
 #: assets/js/companies-table.js:187
 msgid "Import %s companies"
@@ -131,23 +131,23 @@ msgstr "Import des organisations..."
 
 #: assets/js/companies-table.js:246
 msgid "Companies Imported!"
-msgstr "Organisations importées!"
+msgstr "Organisations importées !"
 
 #: assets/js/companies-table.js:348
 msgid "Add Company"
-msgstr "Ajouter organisation"
+msgstr "Ajouter Organisation"
 
 #: assets/js/companies-table.js:467
 msgid "A company with the name %2$s already exists. Would you like to edit it instead?"
 msgid_plural "We found %1$d companies with similar names to %2$s."
 msgstr[0] "Une organisation nommée %2$s existe déjà. Voulez-vous plutôt l'éditer ?"
-msgstr[1] "Nous avons trouvé %1$d organisations de noms similaires à %2$s."
+msgstr[1] "Nous avons trouvé %1$d organisations avec des noms similaires à %2$s."
 
 #: assets/js/companies-table.js:508
 msgid "A company with the domain %2$s already exists. Would you like to edit it instead?"
 msgid_plural "We found %1$d companies with similar domains to %2$s."
 msgstr[0] "Une organisation dans le secteur %2$s existe déjà. Voulez-vous plutôt l'éditer ?"
-msgstr[1] "Nous avons trouvé %1$d organisations avec de secteurs similaires à %2$s."
+msgstr[1] "Nous avons trouvé %1$d organisations de secteurs similaires à %2$s."
 
 #: assets/js/companies.js:181
 msgid "Company logo"
@@ -174,7 +174,7 @@ msgstr "Département"
 #: assets/js/companies.js:963
 #: assets/js/companies.js:1150
 msgid "Work Phone"
-msgstr "Téléphone professionnel"
+msgstr "Tél. professionnel"
 
 #: assets/js/companies.js:1117
 msgid "Remove from company"
