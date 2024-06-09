@@ -38,6 +38,10 @@ class Updater extends \Groundhogg\Updater {
 		];
 	}
 
+	protected function get_plugin_file() {
+		return GROUNDHOGG_COMPANIES__FILE__;
+	}
+
 	/**
 	 * Add pipeline meta table
 	 * update deals table

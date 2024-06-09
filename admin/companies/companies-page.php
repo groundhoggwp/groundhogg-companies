@@ -15,10 +15,8 @@ use function Groundhogg\get_items_from_csv;
 use function Groundhogg\get_post_var;
 use function Groundhogg\get_request_var;
 use function Groundhogg\get_url_var;
-use function Groundhogg\Ymd_His;
 use function GroundhoggCompanies\generate_company_with_map;
 use function GroundhoggCompanies\get_company_exports_dir;
-use function GroundhoggCompanies\get_company_exports_url;
 use function GroundhoggCompanies\get_company_imports_dir;
 use function GroundhoggCompanies\get_company_imports_url;
 use function GroundhoggCompanies\properties;
@@ -196,17 +194,32 @@ class Companies_Page extends Admin_Page {
 				'gh_company_custom_properties' => properties()->get_all()
 			] );
 		} else {
-			wp_enqueue_script( 'groundhogg-companies-table-admin' );
-			wp_localize_script( 'groundhogg-companies-table-admin', 'GroundhoggCompanyProperties', properties()->get_all() );
+
+			$this->enqueue_table_filters( [
+				'stringColumns' => [
+					'name'     => 'Name',
+					'address'  => 'Address',
+					'industry' => 'Industry',
+					'phone'    => 'Phone',
+					'domain'   => 'Website',
+				],
+				'dateColumns'   => [
+					'date_created' => 'Date created'
+				]
+			] );
+
+			wp_add_inline_script( 'groundhogg-companies-company-filters', 'const GroundhoggCompanyProperties = ' . wp_json_encode( properties()->get_all() ), 'before' );
+
+            wp_enqueue_script( 'groundhogg-companies-table-admin' );
 			wp_enqueue_style( 'groundhogg-admin-element' );
+			wp_enqueue_style( 'jquery-ui' );
+
 		}
 	}
 
 
 	protected function add_additional_actions() {
-		if ( isset( $_GET['recount_contacts'] ) ) {
-			add_action( 'init', array( $this, 'recount' ) );
-		}
+
 	}
 
 	public function get_slug() {
@@ -430,6 +443,8 @@ class Companies_Page extends Admin_Page {
 			include dirname( __FILE__ ) . '/companies-table.php';
 		}
 
+		$this->table_filters();
+
 		$companies_table = new Companies_Table();
 
 		$companies_table->views();
@@ -450,18 +465,10 @@ class Companies_Page extends Admin_Page {
 		?>
         <div class="space-between align-top company-columns">
             <div id="primary" class="primary">
-                <div id="form" class="gh-panel">
-                </div>
+                <div id="company-info-card" class="gh-panel"></div>
                 <div class="company-more"></div>
             </div>
             <div class="directory full-width">
-                <div class="gh-panel">
-                    <div class="space-between directory-header">
-                        <h3><?php _e( 'Contacts', 'groundhoggg' ) ?></h3>
-                        <div class="space-between align-right no-gap directory-actions">
-                        </div>
-                    </div>
-                </div>
                 <div id="directory">
                 </div>
             </div>

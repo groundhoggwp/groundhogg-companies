@@ -2,13 +2,12 @@
 
 namespace GroundhoggCompanies\Admin\Companies;
 
-use Groundhogg\Contact;
+use Groundhogg\Admin\Table;
 use GroundhoggCompanies\Classes\Company;
+use WP_List_Table;
+use function Groundhogg\action_url;
 use function Groundhogg\admin_page_url;
 use function Groundhogg\get_db;
-use function Groundhogg\get_screen_option;
-use function Groundhogg\get_url_var;
-use WP_List_Table;
 use function Groundhogg\html;
 
 // Exit if accessed directly
@@ -22,7 +21,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 }
 
-class Companies_Table extends WP_List_Table {
+class Companies_Table extends Table {
 	/**
 	 * TT_Example_List_Table constructor.
 	 *
@@ -62,26 +61,15 @@ class Companies_Table extends WP_List_Table {
 	 * @return array An associative array containing all the columns that should be sortable.
 	 */
 	protected function get_sortable_columns() {
+
 		$sortable_columns = array(
-//			'company_name'  => array( 'name', false ),
-//			'contact_count' => array( 'contact_count', false ),
+			'name'     => array( 'name', false ),
+			'contacts' => array( 'contact_count', false ),
+			'industry' => array( 'industry', false ),
+			'owner_id' => array( 'owner_id', false ),
 		);
 
 		return $sortable_columns;
-	}
-
-	/**
-	 * Generates content for a single row of the table
-	 *
-	 * @since 3.1.0
-	 *
-	 * @param object $item The current item
-	 *
-	 */
-	public function single_row( $item ) {
-		echo '<tr>';
-		$this->single_row_columns( new Company( absint( $item->ID ) ) );
-		echo '</tr>';
 	}
 
 	/**
@@ -215,32 +203,6 @@ class Companies_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Get default column value.
-	 *
-	 * @param object $company     A singular item (one full row's worth of data).
-	 * @param string $column_name The name/slug of the column to be processed.
-	 *
-	 * @return string Text or HTML to be placed inside the column <td>.
-	 */
-	protected function column_default( $company, $column_name ) {
-		return do_action( "groundhogg/admin/companies/table/{$column_name}", $company );
-	}
-
-
-	/**
-	 * @param  $company Company A singular item (one full row's worth of data).
-	 *
-	 * @return string Text to be placed inside the column <td>.
-	 */
-	protected function column_cb( $company ) {
-		return sprintf(
-			'<input type="checkbox" name="%1$s[]" value="%2$s" />',
-			$this->_args['singular'],  // Let's simply repurpose the table's singular label ("movie").
-			$company->get_id()               // The value of the checkbox should be the record's ID.
-		);
-	}
-
-	/**
 	 * @return array An associative array containing all the bulk steps.
 	 */
 	protected function get_bulk_actions() {
@@ -252,92 +214,48 @@ class Companies_Table extends WP_List_Table {
 		return apply_filters( 'groundhogg/admin/companies/table/bulk_actions', $actions );
 	}
 
-	/**
-	 * Prepares the list of items for displaying.
-	 *
-	 * @global wpdb $wpdb
-	 * @uses $this->_column_headers
-	 * @uses $this->items
-	 * @uses $this->get_columns()
-	 * @uses $this->get_sortable_columns()
-	 * @uses $this->get_pagenum()
-	 * @uses $this->set_pagination_args()
-	 */
-	function prepare_items() {
 
-		$columns  = $this->get_columns();
-		$hidden   = array(); // No hidden columns
-		$sortable = $this->get_sortable_columns();
-
-		$this->_column_headers = array( $columns, $hidden, $sortable );
-
-		$per_page = absint( get_url_var( 'limit', get_screen_option( 'per_page' ) ) );
-
-		$paged   = $this->get_pagenum();
-		$offset  = $per_page * ( $paged - 1 );
-		$search  = get_url_var( 's' );
-		$order   = strtoupper( get_url_var( 'order', 'DESC' ) );
-		$orderby = get_url_var( 'orderby', 'ID' );
-
-		$args = array(
-			'search'  => $search,
-			'limit'   => $per_page,
-			'offset'  => $offset,
-			'order'   => $order,
-			'orderby' => $orderby,
-		);
-
-		$events = get_db( 'companies' )->query( $args );
-		$total  = get_db( 'companies' )->count( $args );
-
-		$this->items = $events;
-
-		// Add condition to be sure we don't divide by zero.
-		// If $this->per_page is 0, then set total pages to 1.
-		$total_pages = $per_page ? ceil( (int) $total / (int) $per_page ) : 1;
-
-		$this->set_pagination_args( array(
-			'total_items' => $total,
-			'per_page'    => $per_page,
-			'total_pages' => $total_pages,
-		) );
+	function get_table_id() {
+		return 'companies';
 	}
 
-	/**
-	 * Generates and displays row actions.
-	 *
-	 * @param        $company     Company
-	 * @param string $column_name Current column name.
-	 * @param string $primary     Primary column name.
-	 *
-	 * @return string Row steps output for posts.
-	 */
-	protected function handle_row_actions( $company, $column_name, $primary ) {
-		if ( $primary !== $column_name ) {
-			return '';
+	function get_db() {
+		return get_db( 'companies' );
+	}
+
+    protected function parse_item( $item ) {
+	    return new Company( $item );
+    }
+
+	protected function get_row_actions( $item, $column_name, $primary ) {
+		$actions = [];
+
+		switch ( $this->get_view() ) {
+			default:
+				$actions[] = [ 'class' => 'edit', 'display' => __( 'Edit' ), 'url' => $item->admin_link() ];
+
+				$actions[] = [
+					'class'   => 'trash',
+					'display' => __( 'Trash' ),
+					'url'     => action_url( 'trash', [ 'email' => $item->get_id() ] )
+				];
+				break;
 		}
 
-		$actions = array();
-		$title   = $company->get_name();
+		return $actions;
+	}
 
-//        $actions[ 'id' ] = 'ID: ' . $company->get_id();
+	protected function get_views_setup() {
+		return [
+			[
+				'view'    => '',
+				'display' => __( 'All' ),
+				'query'   => [],
+			],
+		];
+	}
 
-		$actions['edit'] = sprintf(
-			'<a href="%s" class="editinline" aria-label="%s">%s</a>',
-			/* translators: %s: title */
-			admin_url( 'admin.php?page=gh_companies&action=edit&company=' . $company->get_id() ),
-			esc_attr( sprintf( __( 'Edit' ), $title ) ),
-			__( 'Edit' )
-		);
-
-		$actions['delete'] = sprintf(
-			'<a href="%s" class="submitdelete" aria-label="%s">%s</a>',
-			wp_nonce_url( admin_url( 'admin.php?page=gh_companies&company=' . $company->get_id() . '&action=delete' ) ),
-			/* translators: %s: title */
-			esc_attr( sprintf( __( 'Delete &#8220;%s&#8221; permanently' ), $title ) ),
-			__( 'Delete' )
-		);
-
-		return $this->row_actions( $actions );
+	function get_default_query() {
+		return [];
 	}
 }

@@ -3,20 +3,43 @@
 namespace GroundhoggCompanies;
 
 
-use Groundhogg\Contact_Query;
+use Groundhogg\DB\Query\Table_Query;
+use Groundhogg\Legacy_Contact_Query;
 use function Groundhogg\get_db;
-use function Groundhogg\get_request_var;
 
 class Search_Filters {
 
 	public function __construct() {
 		add_action( 'groundhogg/contact_query/register_filters', [ $this, 'register_filters' ] );
+
+		add_action( 'groundhogg/company/pre_get_results', [ $this, 'modify_table_query' ] );
+	}
+
+	/**
+	 * @param Table_Query $query
+	 *
+	 * @return void
+	 */
+	function modify_table_query( Table_Query &$query ) {
+
+		if ( $query->orderby === 'contact_count' ) {
+			$relQuery = new Table_Query( 'object_relationships' );
+			$relQuery->setSelect( 'primary_object_id', [ 'COUNT(secondary_object_id)', 'contact_count' ] )
+			         ->setGroupby( 'primary_object_id' )
+			         ->where()
+			         ->equals( 'primary_object_type', 'company' )
+			         ->equals( 'secondary_object_type', 'contact' );
+
+			$join = $query->addJoin( 'LEFT', [ $relQuery, 'relcount' ] );
+			$join->onColumn( 'primary_object_id', 'ID' );
+		}
+
 	}
 
 	/**
 	 * Register filters for the contact query
 	 *
-	 * @param $query Contact_Query
+	 * @param $query Legacy_Contact_Query
 	 */
 	public function register_filters( $query ) {
 
@@ -57,7 +80,7 @@ class Search_Filters {
 	 * Filter by company name
 	 *
 	 * @param $filter_vars
-	 * @param $query Contact_Query
+	 * @param $query Legacy_Contact_Query
 	 *
 	 * @return string
 	 */
@@ -77,7 +100,7 @@ class Search_Filters {
 	 * Filter website
 	 *
 	 * @param $filter_vars
-	 * @param $query Contact_Query
+	 * @param $query Legacy_Contact_Query
 	 *
 	 * @return string
 	 */
@@ -97,7 +120,7 @@ class Search_Filters {
 	 * Filter Job TITLE
 	 *
 	 * @param $filter_vars
-	 * @param $query Contact_Query
+	 * @param $query Legacy_Contact_Query
 	 *
 	 * @return string
 	 */
@@ -117,7 +140,7 @@ class Search_Filters {
 	 * Filter address
 	 *
 	 * @param $filter_vars
-	 * @param $query Contact_Query
+	 * @param $query Legacy_Contact_Query
 	 *
 	 * @return string
 	 */
@@ -137,7 +160,7 @@ class Search_Filters {
 	 * Filter department
 	 *
 	 * @param $filter_vars
-	 * @param $query Contact_Query
+	 * @param $query Legacy_Contact_Query
 	 *
 	 * @return string
 	 */
@@ -157,7 +180,7 @@ class Search_Filters {
 	 * Filter department
 	 *
 	 * @param $filter_vars
-	 * @param $query Contact_Query
+	 * @param $query Legacy_Contact_Query
 	 *
 	 * @return string
 	 */

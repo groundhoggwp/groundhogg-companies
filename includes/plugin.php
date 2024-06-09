@@ -51,6 +51,11 @@ class Plugin extends Extension {
 
 		new Replacements();
 		new Search_Filters();
+
+		add_action( 'groundhogg/enqueue_api_docs', function (){
+			wp_enqueue_script( 'groundhogg-companies-api-docs' );
+			wp_add_inline_script( 'groundhogg-companies-company-filters', 'const GroundhoggCompanyProperties = ' . wp_json_encode( properties()->get_all() ), 'before' );
+		} );
 	}
 
 	/**
@@ -118,7 +123,7 @@ class Plugin extends Extension {
 	}
 
 	public function enqueue_filter_assets() {
-		wp_enqueue_script( 'groundhogg-companies-search-filters' );
+		wp_enqueue_script( 'groundhogg-companies-contact-filters' );
 	}
 
 	public function register_admin_scripts( $is_minified, $dot_min ) {
@@ -141,16 +146,26 @@ class Plugin extends Extension {
 			'wp-i18n'
 		], GROUNDHOGG_COMPANIES_VERSION, true );
 
+		wp_register_script( 'groundhogg-companies-company-filters', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/company-filters.js', [
+			'groundhogg-admin-filters',
+		], GROUNDHOGG_COMPANIES_VERSION, true );
+
 		wp_register_script( 'groundhogg-companies-table-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/companies-table.js', [
 			'groundhogg-companies-data-admin',
+			'groundhogg-companies-company-filters',
 			'groundhogg-admin-components',
 			'jquery-ui-autocomplete',
 			'wp-i18n',
 			'papaparse'
 		], GROUNDHOGG_COMPANIES_VERSION, true );
 
-		wp_register_script( 'groundhogg-companies-search-filters', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/search-filters.js', [
+		wp_register_script( 'groundhogg-companies-api-docs', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/api-docs.js', [
+			'groundhogg-companies-company-filters',
+		], GROUNDHOGG_COMPANIES_VERSION, true );
+
+		wp_register_script( 'groundhogg-companies-contact-filters', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/contact-filters.js', [
 			'groundhogg-companies-data-admin',
+			'groundhogg-admin-filter-contacts',
 			'wp-i18n'
 		] );
 	}

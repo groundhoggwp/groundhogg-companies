@@ -100,6 +100,11 @@ class Replacements {
 	function replacement_company_name( $contact_id ) {
 
 		$contact = get_contactdata( $contact_id );
+
+		if ( ! $contact ){
+			return '';
+		}
+
 		$company = $this->get_related_company( $contact );
 
 		return $company ? $company->get_name() : $contact->get_meta( 'company_name' );
@@ -114,6 +119,11 @@ class Replacements {
 	 */
 	function replacement_company_address( $contact_id ) {
 		$contact = get_contactdata( $contact_id );
+
+		if ( ! $contact ){
+			return '';
+		}
+
 		$company = $this->get_related_company( $contact );
 
 		return $company ? $company->get_address() : $contact->get_meta( 'company_address' );
@@ -128,6 +138,11 @@ class Replacements {
 	 */
 	function replacement_company_phone( $contact_id ) {
 		$contact = get_contactdata( $contact_id );
+
+		if ( ! $contact ){
+			return '';
+		}
+
 		$company = $this->get_related_company( $contact );
 
 		return $company ? $company->get_meta( 'phone' ) : $contact->get_meta( 'company_phone' );
@@ -142,6 +157,11 @@ class Replacements {
 	 */
 	function replacement_company_website( $contact_id ) {
 		$contact = get_contactdata( $contact_id );
+
+		if ( ! $contact ){
+			return '';
+		}
+
 		$company = $this->get_related_company( $contact );
 
 		return $company ? $company->get_domain() : $contact->get_meta( 'company_website' );
@@ -156,7 +176,14 @@ class Replacements {
 	 * @return mixed
 	 */
 	function replacement_company_department( $contact_id ) {
-		return get_contactdata( $contact_id )->get_meta( 'company_department' );
+
+		$contact = get_contactdata( $contact_id );
+
+		if ( ! $contact ){
+			return '';
+		}
+
+		return $contact->get_meta( 'company_department' );
 	}
 
 	/**
@@ -167,7 +194,14 @@ class Replacements {
 	 * @return mixed
 	 */
 	function replacement_job_title( $contact_id ) {
-		return get_contactdata( $contact_id )->get_meta( 'job_title' );
+
+		$contact = get_contactdata( $contact_id );
+
+		if ( ! $contact ){
+			return '';
+		}
+
+		return $contact->get_meta( 'job_title' );
 	}
 
 }

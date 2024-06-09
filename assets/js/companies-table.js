@@ -336,7 +336,144 @@ ${ map[h]
       })
     })
 
-    $('#add-company').on('click', e => {
+    const { getOwner, getCurrentUser } = Groundhogg.user
+
+    const {
+      Modal,
+      Fragment,
+      Autocomplete,
+      Div,
+      Input,
+      Textarea,
+      ItemPicker,
+      Label,
+      Button,
+    } = MakeEl
+
+    document.getElementById('add-company').addEventListener('click', e => {
+
+      e.preventDefault()
+
+      const State = Groundhogg.createState({
+        owner_id: getCurrentUser().ID,
+        name: '',
+        industry: '',
+        phone: '',
+        address: '',
+        domain: '',
+      })
+
+      Modal({}, ({ close }) => Div({
+        className: 'display-flex column gap-10',
+      }, [
+
+        Label({ for: 'company-name' }, __('Company Name')),
+        Input({
+          id: 'company-name',
+          name: 'name',
+          value: State.name ?? '',
+          onInput: e => State.set({ name: e.target.value }),
+        }),
+
+        Label({ for: 'company-website' }, __('Website')),
+        Input({
+          id: 'company-website',
+          name: 'domain',
+          type: 'url',
+          value: State.domain ?? '',
+          onInput: e => State.set({ domain: e.target.value }),
+        }),
+
+        Label({ for: 'company-phone' }, __('Phone Number')),
+        Input({
+          id: 'company-phone',
+          name: 'phone',
+          type: 'tel',
+          value: State.phone ?? '',
+          onInput: e => State.set({ phone: e.target.value }),
+        }),
+
+        Label({ for: 'company-address' }, __('Address')),
+        Textarea({
+          id: 'company-address',
+          name: 'address',
+          value: State.address ?? '',
+          onInput: e => State.set({ address: e.target.value }),
+        }),
+
+        Label({ for: 'company-industry' }, __('Industry')),
+        Autocomplete({
+          id: 'company-industry',
+          value: State.industry ?? '',
+          fetchResults: async (search) => {
+            return Groundhogg.companyIndustries.filter(string => string.match(new RegExp(search, 'i'))).map(s => ( { id: s, text: s } ))
+          },
+          onInput: e => State.set({ industry: e.target.value }),
+        }),
+
+        Label({ for: 'select-owner' }, __('Owner')),
+        ItemPicker({
+          id: `select-owner`,
+          noneSelected: __('Select an owner...', 'groundhogg'),
+          selected: State.owner_id ? { id: State.owner_id, text: getOwner(State.owner_id).data.display_name } : [],
+          multiple: false,
+          style: {
+            flexGrow: 1,
+          },
+          fetchOptions: async (search) => {
+            search = new RegExp(search, 'i')
+
+            return Groundhogg.filters.owners.map(u => ( { id: u.ID, text: u.data.display_name } )).filter(({ text }) => text.match(search))
+          },
+          onChange: item => {
+            State.set({
+              owner_id: item.id ?? null,
+            })
+          },
+        }),
+
+        Div({
+          className: 'display-flex gap-10 flex-end',
+        }, [
+          Button({
+            id: 'cancel',
+            className: 'gh-button secondary danger',
+            onClick: close,
+          }, __('Cancel')),
+          Button({
+            id: 'create',
+            className: 'gh-button primary',
+            onClick: async e => {
+
+              const { name, industry, address, phone, domain } = State
+
+              let company = await CompaniesStore.post({
+                data: {
+                  name,
+                  domain,
+                },
+                meta: {
+                  industry,
+                  address,
+                  phone,
+                },
+              })
+
+              dialog({
+                message: 'Company created!'
+              })
+
+              window.open( company.admin )
+
+            },
+          }, __('Create Company')),
+        ]),
+
+      ]))
+
+    })
+
+    $('#-add-company').on('click', e => {
       e.preventDefault()
 
       const addCompanyUI = () => {

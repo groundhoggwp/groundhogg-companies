@@ -4,6 +4,7 @@ namespace GroundhoggCompanies\Classes;
 
 use Groundhogg\Base_Object_With_Meta;
 use Groundhogg\Contact;
+use Groundhogg\DB\Query\Table_Query;
 use Groundhogg\Plugin;
 use function Groundhogg\admin_page_url;
 use function Groundhogg\convert_to_local_time;
@@ -80,11 +81,24 @@ class Company extends Base_Object_With_Meta {
 	 * @return array|void
 	 */
 	public function get_as_array() {
+
 		$array          = parent::get_as_array();
 		$array['logo']  = $this->get_meta( 'logo' ) ?: ( $this->get_picture() ?: false );
 		$array['admin'] = admin_page_url( 'gh_companies', [ 'action' => 'edit', 'company' => $this->get_id() ] );
+		$array['totalContacts'] = $this->countRelatedContacts();
 
 		return $array;
+	}
+
+	public function countRelatedContacts(){
+
+		$query = new Table_Query( 'object_relationships' );
+		$query->where()
+		      ->equals( 'primary_object_id', $this->get_id() )
+		      ->equals( 'primary_object_type', $this->get_object_type() )
+		      ->equals( 'secondary_object_type', 'contact' );
+
+		return $query->count();
 	}
 
 	public function update( $data = [] ) {
