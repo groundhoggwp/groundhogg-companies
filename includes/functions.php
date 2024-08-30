@@ -47,10 +47,14 @@ function filter_option_sanitize_callback( $callback, $option, $value ) {
  */
 function sanitize_domain_name( $domain ) {
 
+    if ( empty( $domain ) ){
+        return '';
+    }
+
 	// convert to lower case
 	$domain = strtolower( $domain );
 
-	$__domain = str_replace( 'www.', '', parse_url( $domain, PHP_URL_HOST ) );
+	$__domain = str_replace( 'www.', '', wp_parse_url( $domain, PHP_URL_HOST ) );
 
 	$domain = $__domain ?: $domain;
 	$domain = sanitize_text_field( $domain );
@@ -477,7 +481,7 @@ function generate_company_with_map( $fields, $map = [] ) {
 				$meta[ $field ] = sanitize_text_field( $value );
 				break;
 			case 'notes':
-				$notes[] = sanitize_textarea_field( $value );
+				$notes[] = wpautop( wp_kses_post( $value ) );
 				break;
 			case 'contacts':
 				$contacts = array_merge( $contacts, wp_parse_list( $value ) );

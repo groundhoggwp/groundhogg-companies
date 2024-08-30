@@ -8,12 +8,15 @@ use Groundhogg\Api\V4\Base_Api;
 use Groundhogg\Bulk_Jobs\Export_Companies;
 use Groundhogg\Contact;
 use Groundhogg\DB\Manager;
+use Groundhogg\DB\Query\Filters;
+use Groundhogg\DB\Query\Table_Query;
+use Groundhogg\DB\Query\Where;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
 use GroundhoggCompanies\Api\Companies_Api;
 use GroundhoggCompanies\Bulk_Jobs\Import_companies;
-use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
 use GroundhoggCompanies\Bulk_Jobs\Migrate_Notes;
+use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
 use GroundhoggCompanies\Classes\Company;
 use GroundhoggCompanies\DB\Companies;
 use GroundhoggCompanies\DB\Company_Meta;
@@ -52,7 +55,7 @@ class Plugin extends Extension {
 		new Replacements();
 		new Search_Filters();
 
-		add_action( 'groundhogg/enqueue_api_docs', function (){
+		add_action( 'groundhogg/enqueue_api_docs', function () {
 			wp_enqueue_script( 'groundhogg-companies-api-docs' );
 			wp_add_inline_script( 'groundhogg-companies-company-filters', 'const GroundhoggCompanyProperties = ' . wp_json_encode( properties()->get_all() ), 'before' );
 		} );
@@ -120,6 +123,10 @@ class Plugin extends Extension {
 		wp_register_style( 'groundhogg-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . '/css/companies.css', [
 			'groundhogg-admin-element'
 		], GROUNDHOGG_COMPANIES_VERSION );
+
+		wp_register_style( 'groundhogg-companies-table-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . '/css/companies-table.css', [
+			'groundhogg-admin-element'
+		], GROUNDHOGG_COMPANIES_VERSION );
 	}
 
 	public function enqueue_filter_assets() {
@@ -153,7 +160,8 @@ class Plugin extends Extension {
 		wp_register_script( 'groundhogg-companies-table-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/companies-table.js', [
 			'groundhogg-companies-data-admin',
 			'groundhogg-companies-company-filters',
-			'groundhogg-admin-components',
+			'groundhogg-admin-send-broadcast',
+			'groundhogg-admin-funnel-scheduler',
 			'jquery-ui-autocomplete',
 			'wp-i18n',
 			'papaparse'
@@ -199,12 +207,12 @@ class Plugin extends Extension {
 				case 'company_name':
 					return html()->e( 'a', [
 						'target' => '_blank',
-						'href' => $company->admin_link()
+						'href'   => $company->admin_link()
 					], $company->get_name() );
 				case 'company_website':
 					return html()->e( 'a', [
 						'target' => '_blank',
-						'href' => $company->get_domain()
+						'href'   => $company->get_domain()
 					], parse_url( $company->get_domain(), PHP_URL_HOST ) );
 				case 'company_address':
 					return html()->e( 'a', [
@@ -214,12 +222,12 @@ class Plugin extends Extension {
 			}
 		}
 
-		if ( $column_id == 'company_name' ){
+		if ( $column_id == 'company_name' ) {
 			$company = new Company( sanitize_title( $contact->get_meta( 'company_name' ) ), 'slug' );
-			if ( $company->exists() ){
+			if ( $company->exists() ) {
 				return html()->e( 'a', [
 					'target' => '_blank',
-					'href' => $company->admin_link()
+					'href'   => $company->admin_link()
 				], $company->get_name() );
 			}
 		}
@@ -229,16 +237,18 @@ class Plugin extends Extension {
 			case 'company_name':
 			case 'job_title':
 			case 'company_department':
-			case 'company_phone_extension':
-				return $contact->get_meta( $column_id );
 			case 'company_phone':
+
+				$phone = $contact->get_meta( 'company_phone' );
+				$ext = $contact->get_meta( 'company_phone_extension' );
+
 				return html()->e( 'a', [
-					'href' => 'tel:' . $contact->get_meta( 'company_phone' )
-				], $contact->get_meta( 'company_phone' ) );
+					'href' => 'tel:' . $phone
+				], $phone . ( $ext ? " ext. $ext" : '') );
 			case 'company_website':
 				return html()->e( 'a', [
 					'target' => '_blank',
-					'href' => $contact->get_meta( 'company_website' )
+					'href'   => $contact->get_meta( 'company_website' )
 				], parse_url( $contact->get_meta( 'company_website' ), PHP_URL_HOST ) );
 			case 'company_address':
 				return html()->e( 'a', [
@@ -255,12 +265,19 @@ class Plugin extends Extension {
 	 */
 	public function register_contact_table_columns( $columns ) {
 
+		$columns::register_preset( 'company', 'Company' );
+
 		$i = 0;
 		foreach ( get_contact_company_fields() as $field_id => $field_name ) {
+
+			if ( $field_id === 'company_phone_extension' ){
+				continue;
+			}
+
 			$columns::register( $field_id, $field_name, [
 				$this,
 				'company_table_columns_callback'
-			], false, 200 + $i );
+			], false, 300, 'view_companies', 'company' );
 			$i ++;
 		}
 

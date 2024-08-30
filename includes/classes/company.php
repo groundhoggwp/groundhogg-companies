@@ -3,13 +3,11 @@
 namespace GroundhoggCompanies\Classes;
 
 use Groundhogg\Base_Object_With_Meta;
+use Groundhogg\Classes\Traits\File_Box;
 use Groundhogg\Contact;
+use Groundhogg\Contact_Query;
 use Groundhogg\DB\Query\Table_Query;
-use Groundhogg\Plugin;
 use function Groundhogg\admin_page_url;
-use function Groundhogg\convert_to_local_time;
-use function Groundhogg\file_access_url;
-use function Groundhogg\get_date_time_format;
 use function Groundhogg\get_db;
 use function Groundhogg\get_email_address_hostname;
 use function Groundhogg\is_a_contact;
@@ -18,8 +16,43 @@ use function GroundhoggCompanies\is_free_email_provider;
 use function GroundhoggCompanies\sanitize_domain_name;
 
 class Company extends Base_Object_With_Meta {
+
+	use File_Box;
+
 	protected function post_setup() {
-		// TODO: Implement post_setup() method.
+		$this->primary_contact_id = absint( $this->primary_contact_id );
+	}
+
+	/**
+	 * Gets the oldest contact from the related contacts and makes it the primary contact by default
+	 *
+	 * @return void
+	 */
+	public function set_primary_contact_to_first_created() {
+		$contactQuery = new Contact_Query( [
+			'filters' => [
+				[
+					[
+						'type'        => 'secondary_related',
+						'object_id'   => $this->ID,
+						'object_type' => 'company'
+					]
+				]
+			],
+			'orderby' => 'date_created',
+			'order'   => 'ASC',
+			'limit'   => 1
+		] );
+
+		$contacts = $contactQuery->get_objects();
+
+		if ( empty( $contacts ) ){
+			return;
+		}
+
+		$this->update([
+			'primary_contact_id' => $contacts[0]->ID
+		]);
 	}
 
 	protected function get_meta_db() {
@@ -62,6 +95,14 @@ class Company extends Base_Object_With_Meta {
 		return $this->domain;
 	}
 
+	public function get_hostname() {
+		return wp_parse_url( $this->get_domain(), PHP_URL_HOST );
+	}
+
+	public function get_owner_id() {
+		return absint( $this->owner_id );
+	}
+
 	public function get_profile_picture() {
 		return $this->get_meta( 'picture' );
 	}
@@ -82,15 +123,14 @@ class Company extends Base_Object_With_Meta {
 	 */
 	public function get_as_array() {
 
-		$array          = parent::get_as_array();
-		$array['logo']  = $this->get_meta( 'logo' ) ?: ( $this->get_picture() ?: false );
-		$array['admin'] = admin_page_url( 'gh_companies', [ 'action' => 'edit', 'company' => $this->get_id() ] );
+		$array                  = parent::get_as_array();
+		$array['admin']         = admin_page_url( 'gh_companies', [ 'action' => 'edit', 'company' => $this->get_id() ] );
 		$array['totalContacts'] = $this->countRelatedContacts();
 
 		return $array;
 	}
 
-	public function countRelatedContacts(){
+	public function countRelatedContacts() {
 
 		$query = new Table_Query( 'object_relationships' );
 		$query->where()
@@ -226,233 +266,46 @@ class Company extends Base_Object_With_Meta {
 	}
 
 	/**
-	 * Upload a file
+	 * Wrapper for create relationship to handle setting the primary contact ID
 	 *
-	 * Usage: $contact->upload_file( $_FILES[ 'file_name' ] )
+	 * @param $other
+	 * @param $is_parent
 	 *
-	 * @param $file
-	 *
-	 * @return array|\WP_Error
+	 * @return int
 	 */
-	public function upload_file( &$file ) {
+	public function create_relationship( $other, $is_parent = true ) {
+		$result = parent::create_relationship( $other, $is_parent );
 
-		$file['name'] = sanitize_file_name( $file['name'] );
-
-		$upload_overrides = array( 'test_form' => false );
-
-		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once( ABSPATH . '/wp-admin/includes/file.php' );
+		// If there is no primary contact ID, make the first assigned contact the primary
+		if ( $result !== false && is_a_contact( $other ) && $this->primary_contact_id === 0 ) {
+			$this->update( [
+				'primary_contact_id' => $other->ID
+			] );
 		}
 
+		return $result;
+	}
 
-		$this->get_uploads_folder();
-		add_filter( 'upload_dir', [ $this, 'map_upload' ] );
-		$mfile = wp_handle_upload( $file, $upload_overrides );
-		remove_filter( 'upload_dir', [ $this, 'map_upload' ] );
+	/**
+	 * Maybe remove the primary_contact_id
+	 *
+	 * @param $other
+	 * @param $is_parent
+	 *
+	 * @return false|int
+	 */
+	public function delete_relationship( $other, $is_parent = true ) {
+		$result = parent::delete_relationship( $other, $is_parent );
 
-		if ( isset_not_empty( $mfile, 'error' ) ) {
-			return new \WP_Error( 'bad_upload', __( 'Unable to upload file.', 'groundhogg' ) );
+		// If we're deleting the relationship that was the primary contact ID, set it to 0
+		if ( $result && $other->_get_object_type() === 'contact' && $this->primary_contact_id == $other->ID ) {
+			$this->set_primary_contact_to_first_created();
 		}
 
-		return $mfile;
+		return $result;
 	}
 
-	/**
-	 * Delete a file
-	 *
-	 * @param $file_name string
-	 */
-	public function delete_file( $file_name ) {
-		$file_name = basename( $file_name );
-		foreach ( $this->get_files() as $file ) {
-			if ( $file_name === $file['name'] ) {
-				unlink( $file['path'] );
-			}
-		}
+	public function get_uploads_folder_subdir() {
+		return 'companies';
 	}
-
-	/**
-	 * @var string[]
-	 */
-	protected $upload_paths;
-
-	/**
-	 * get the upload folder for this company
-	 */
-	public function get_uploads_folder() {
-		$paths = [
-			'subdir' => sprintf( '/groundhogg/companies/' ),
-			'path'   => Plugin::$instance->utils->files->get_uploads_dir( 'companies', $this->get_upload_folder_basename() ),
-			'url'    => Plugin::$instance->utils->files->get_uploads_url( 'companies', $this->get_upload_folder_basename() )
-		];
-
-		$this->upload_paths = $paths;
-
-		return $paths;
-	}
-
-
-	/**
-	 * Get the basename of the path
-	 *
-	 * @return string
-	 */
-	public function get_upload_folder_basename() {
-		return md5( Plugin::$instance->utils->encrypt_decrypt( $this->get_id() ) );
-	}
-
-
-	/**
-	 * @no_access Do not access
-	 *
-	 * @param $dirs
-	 *
-	 * @return mixed
-	 */
-	public function map_upload( $dirs ) {
-		$dirs['path']   = $this->upload_paths['path'];
-		$dirs['url']    = $this->upload_paths['url'];
-		$dirs['subdir'] = $this->upload_paths['subdir'];
-
-		return $dirs;
-	}
-
-	/**
-	 * Get a list of associated files.
-	 */
-	public function get_files() {
-		$data = [];
-
-		$uploads_dir = $this->get_uploads_folder();
-
-		if ( file_exists( $uploads_dir['path'] ) ) {
-
-			$scanned_directory = array_diff( scandir( $uploads_dir['path'] ), [ '..', '.' ] );
-
-			foreach ( $scanned_directory as $filename ) {
-				$filepath = $uploads_dir['path'] . '/' . $filename;
-				$file     = [
-					'name'          => $filename,
-					'path'          => $filepath,
-					'url'           => file_access_url( '/companies/' . $this->get_upload_folder_basename() . '/' . $filename ),
-					'date_modified' => date_i18n( get_date_time_format(), convert_to_local_time( filectime( $filepath ) ) ),
-				];
-
-				$data[] = $file;
-
-			}
-		}
-
-		return $data;
-	}
-
-	/**
-	 * Get a list of associated files.
-	 */
-	public function get_picture() {
-		$data = [];
-
-		$uploads_dir = $this->get_picture_folder();
-
-		if ( file_exists( $uploads_dir['path'] ) ) {
-
-			$scanned_directory = array_diff( scandir( $uploads_dir['path'] ), [ '..', '.' ] );
-
-			foreach ( $scanned_directory as $filename ) {
-				$filepath = $uploads_dir['path'] . '/' . $filename;
-				$file     = [
-					'file_name'     => $filename,
-					'file_path'     => $filepath,
-					'file_url'      => file_access_url( '/companies/picture/' . $this->get_upload_folder_basename() . '/' . $filename ),
-					'date_uploaded' => filectime( $filepath ),
-				];
-				$data[]   = $file;
-
-			}
-
-			if ( ! empty( $data ) ) {
-				return $data[0]['file_url'];
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Upload a file
-	 *
-	 * Usage: $contact->upload_file( $_FILES[ 'file_name' ] )
-	 *
-	 * @deprecated 3.0
-	 *
-	 * @param $file
-	 *
-	 * @return array|\WP_Error
-	 */
-	public function upload_picture( &$file ) {
-		$this->delete_pictures();
-
-		$file['name'] = sanitize_file_name( $file['name'] );
-
-		$upload_overrides = array( 'test_form' => false );
-
-		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once( ABSPATH . '/wp-admin/includes/file.php' );
-		}
-
-		$this->get_picture_folder();
-		add_filter( 'upload_dir', [ $this, 'map_upload' ] );
-		$mfile = wp_handle_upload( $file, $upload_overrides );
-		remove_filter( 'upload_dir', [ $this, 'map_upload' ] );
-
-		if ( isset_not_empty( $mfile, 'error' ) ) {
-			return new \WP_Error( 'bad_upload', __( 'Unable to upload file.', 'groundhogg' ) );
-		}
-
-		return $mfile;
-	}
-
-	/**
-	 * get the upload folder for this contact
-	 *
-	 * @deprecated 3.0
-	 */
-	public function get_picture_folder() {
-		$paths              = [
-			'subdir' => sprintf( '/groundhogg/companies/picture/' ),
-			'path'   => Plugin::$instance->utils->files->get_uploads_dir( 'companies/picture/', $this->get_upload_folder_basename() ),
-			'url'    => Plugin::$instance->utils->files->get_uploads_url( 'companies/picture/', $this->get_upload_folder_basename() )
-		];
-		$this->upload_paths = $paths;
-
-		return $paths;
-	}
-
-	/**
-	 * @deprecated 3.0
-	 */
-	public function delete_pictures() {
-		$uploads_dir = $this->get_picture_folder();
-		$this->delete_contents( $uploads_dir );
-	}
-
-	public function delete_files() {
-		$uploads_dir = $this->get_uploads_folder();
-		$this->delete_contents( $uploads_dir );
-	}
-
-	private function delete_contents( $uploads_dir ) {
-		if ( file_exists( $uploads_dir['path'] ) ) {
-
-			$scanned_directory = array_diff( scandir( $uploads_dir['path'] ), [ '..', '.' ] );
-
-			foreach ( $scanned_directory as $filename ) {
-				unlink( $filepath = $uploads_dir['path'] . '/' . $filename );
-			}
-
-			rmdir( $uploads_dir['path'] );
-		}
-	}
-
-
 }

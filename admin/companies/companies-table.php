@@ -7,6 +7,7 @@ use GroundhoggCompanies\Classes\Company;
 use WP_List_Table;
 use function Groundhogg\action_url;
 use function Groundhogg\admin_page_url;
+use function Groundhogg\contact_filters_link;
 use function Groundhogg\get_db;
 use function Groundhogg\html;
 
@@ -22,6 +23,7 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 }
 
 class Companies_Table extends Table {
+
 	/**
 	 * TT_Example_List_Table constructor.
 	 *
@@ -45,11 +47,10 @@ class Companies_Table extends Table {
 		$columns = array(
 			'cb'       => '<input type="checkbox" />', // Render a checkbox instead of text.
 			'name'     => _x( 'Company', 'Column label', 'groundhogg' ),
-			'logo'     => _x( 'Logo', 'Column label', 'groundhogg' ),
 			'industry' => _x( 'Industry', 'Column label', 'groundhogg' ),
 			'website'  => _x( 'Website', 'Column label', 'groundhogg' ),
 			'address'  => _x( 'Address', 'Column label', 'groundhogg' ),
-			'phone'  => _x( 'Phone', 'Column label', 'groundhogg' ),
+			'phone'    => _x( 'Phone', 'Column label', 'groundhogg' ),
 			'owner_id' => _x( 'Owner', 'Column label', 'groundhogg' ),
 			'contacts' => _x( 'Contacts', 'Column label', 'groundhogg' ),
 		);
@@ -64,6 +65,7 @@ class Companies_Table extends Table {
 
 		$sortable_columns = array(
 			'name'     => array( 'name', false ),
+			'website'  => array( 'domain', false ),
 			'contacts' => array( 'contact_count', false ),
 			'industry' => array( 'industry', false ),
 			'owner_id' => array( 'owner_id', false ),
@@ -79,7 +81,14 @@ class Companies_Table extends Table {
 	 */
 	protected function column_name( $company ) {
 
-		?>
+		$hostname = $company->get_hostname() ?: 'example.com';
+
+		echo html()->e( 'img', [
+			'src'    => "https://www.google.com/s2/favicons?domain={$hostname}&sz=40",
+			'width'  => 40,
+			'height' => 40,
+			'style'  => [ 'float' => 'left', 'border-radius' => '5px', 'margin-right' => '10px' ]
+		] ); ?>
         <strong>
             <a class="row-title" href="<?php echo admin_page_url( 'gh_companies', [
 				'action'  => 'edit',
@@ -119,43 +128,17 @@ class Companies_Table extends Table {
 	 */
 	public function column_contacts( $company ) {
 
-		$contacts = $company->get_contacts();
+		$contacts = $company->countRelatedContacts();
 
-		?>
-        <div class="avatars">
-			<?php foreach ( $contacts as $contact ): ?>
-                <img class="avatar" alt="<?php esc_attr_e( 'avatar' ); ?>"
-                     title="<?php esc_attr_e( $contact->get_full_name() ); ?>"
-                     src="<?php echo esc_url( $contact->get_profile_picture() ); ?>"/>
-			<?php endforeach; ?>
-        </div>
-		<?php
-
-	}
-
-	/**
-	 * @param $company Company
-	 *
-	 * @return string
-	 */
-	protected function column_logo( $company ) {
-
-		$logo = $company->get_meta( 'logo' );
-
-		if ( empty( $logo ) ) {
-			return;
-		}
-
-		echo html()->e( 'img', [
-			'src'   => $logo,
-			'alt'   => __( 'Company-logo' ),
-			'title' => $company->get_name(),
-			'style' => [
-				'float'        => 'left',
-				'margin-right' => '10px'
-			],
-			'width' => 100
-		], '', true );
+		return contact_filters_link( sprintf( '%s contacts', number_format_i18n( $contacts ) ), [
+			[
+				[
+					'type'        => 'secondary_related',
+					'object_type' => 'company',
+					'object_id'   => $company->ID
+				]
+			]
+		], $contacts );
 	}
 
 	/**
@@ -223,9 +206,9 @@ class Companies_Table extends Table {
 		return get_db( 'companies' );
 	}
 
-    protected function parse_item( $item ) {
-	    return new Company( $item );
-    }
+	protected function parse_item( $item ) {
+		return new Company( $item );
+	}
 
 	protected function get_row_actions( $item, $column_name, $primary ) {
 		$actions = [];
@@ -233,11 +216,14 @@ class Companies_Table extends Table {
 		switch ( $this->get_view() ) {
 			default:
 				$actions[] = [ 'class' => 'edit', 'display' => __( 'Edit' ), 'url' => $item->admin_link() ];
-
 				$actions[] = [
-					'class'   => 'trash',
-					'display' => __( 'Trash' ),
-					'url'     => action_url( 'trash', [ 'email' => $item->get_id() ] )
+					'class'     => 'trash',
+					'linkProps' => [
+						'class'     => 'danger-delete',
+						'data-name' => $item->get_name(),
+					],
+					'display'   => __( 'Delete' ),
+					'url'       => action_url( 'delete', [ 'email' => $item->get_id() ] )
 				];
 				break;
 		}

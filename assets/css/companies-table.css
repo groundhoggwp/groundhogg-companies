@@ -1,0 +1,21 @@
+@charset "UTF-8";
+table.wp-list-table.companies th#name {
+  width: 200px;
+}
+table.wp-list-table.companies td.column-phone {
+  width: max-content;
+}
+
+.more-actions:after {
+  content: "";
+  display: inline-block;
+  font: normal 18px/1 dashicons;
+  vertical-align: middle;
+  margin-left: 5px;
+  speak: never;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-decoration: none;
+}
+
+/*# sourceMappingURL=companies-table.css.map */

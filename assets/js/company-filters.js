@@ -5,18 +5,8 @@
   } = Groundhogg.stores
   const { __, _x, _n, _nx, sprintf } = wp.i18n
   const {
-    input,
-    select,
-    dialog,
-    modal,
-    adminPageURL,
-    regexp,
-    searchOptionsWidget,
-    progressModal,
-    textarea,
     bold,
     orList,
-    andList
   } = Groundhogg.element
 
   const { createFilter } = Groundhogg.filters

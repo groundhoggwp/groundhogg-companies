@@ -10,22 +10,44 @@
     metaValuePicker,
   } = Groundhogg.pickers
 
+  const {
+    bold
+  } = Groundhogg.element
+
+  const {
+    companies: CompaniesStore,
+  } = Groundhogg.stores
+
   const { __, _n, sprintf, _x } = wp.i18n
 
-  registerFilterGroup('company', _x('Contact Company', 'contact is a noun referring to a person', 'groundhogg'))
+  const { ContactFilterRegistry, createFilter } = Groundhogg.filters
 
-  registerFilter('linked_company', 'company', __('Linked to Company', 'groundhogg'), {
-    view () {
-      return __('Linked to any company')
-    },
-    edit () {
-      // language=html
-      return ''
-    },
-    onMount (filter, updateFilter) {
-    },
-    defaults: {},
-  })
+  registerFilterGroup('company', _x('Company'))
+
+  ContactFilterRegistry.registerFilter( createFilter( 'company_primary_contacts', 'Primary contact', 'company', {
+    edit: () => 'This filter has no settings',
+    display: ({totalItems = 0}) => totalItems ? sprintf( 'Is the primary contact for any of %s companies', bold( totalItems ) ) : 'Is the primary contact of any company',
+    preload: () => {}
+  } ) )
+
+  ContactFilterRegistry.registerFilter( createFilter( 'company_all_contacts', 'Related contact', 'company', {
+    edit: () => 'This filter has no settings',
+    display: ({totalItems = 0 }) => totalItems ? sprintf( 'Is related to any of %s companies', bold( totalItems ) ) : 'Is related to any company',
+    preload: () => {}
+  } ) )
+
+  // registerFilter('linked_company', 'company', __('Linked to Company', 'groundhogg'), {
+  //   view () {
+  //     return __('Linked to any company')
+  //   },
+  //   edit () {
+  //     // language=html
+  //     return ''
+  //   },
+  //   onMount (filter, updateFilter) {
+  //   },
+  //   defaults: {},
+  // })
 
   registerFilter('company_name', 'company', __('Company Name', 'groundhogg'), {
     ...BasicTextFilter(__('Company Name', 'groundhogg')),
@@ -115,5 +137,7 @@
       })
     },
   })
+
+
 
 } )(jQuery)

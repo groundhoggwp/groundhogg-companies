@@ -3,20 +3,21 @@
 namespace GroundhoggCompanies\Admin\Companies;
 
 use Groundhogg\Admin\Admin_Page;
-use Groundhogg\Contact_Query;
+use Groundhogg\Background_Tasks;
 use Groundhogg\Plugin;
+use GroundhoggCompanies\Background\Export_Companies;
+use GroundhoggCompanies\Background\Import_Companies;
 use GroundhoggCompanies\Classes\Company;
-use function Groundhogg\array_map_to_class;
-use function Groundhogg\array_map_to_method;
-use function Groundhogg\file_access_url;
+use function Groundhogg\admin_page_url;
+use function Groundhogg\count_csv_rows;
+use function Groundhogg\files;
 use function Groundhogg\get_array_var;
-use function Groundhogg\get_db;
 use function Groundhogg\get_items_from_csv;
 use function Groundhogg\get_post_var;
 use function Groundhogg\get_request_var;
 use function Groundhogg\get_url_var;
-use function GroundhoggCompanies\generate_company_with_map;
-use function GroundhoggCompanies\get_company_exports_dir;
+use function Groundhogg\notices;
+use function Groundhogg\Ymd;
 use function GroundhoggCompanies\get_company_imports_dir;
 use function GroundhoggCompanies\get_company_imports_url;
 use function GroundhoggCompanies\properties;
@@ -43,141 +44,7 @@ class Companies_Page extends Admin_Page {
 		add_action( 'wp_ajax_groundhogg_company_upload_file', [ $this, 'ajax_upload_file' ] );
 		add_action( 'wp_ajax_groundhogg_company_upload_import_file', [ $this, 'ajax_upload_import_file' ] );
 		add_action( 'wp_ajax_groundhogg_import_companies', [ $this, 'handle_import_companies' ] );
-		add_action( 'wp_ajax_groundhogg_export_companies', [ $this, 'handle_export_companies' ] );
 	}
-
-	/**
-	 * Generate CSV list of all companies
-	 *
-	 * @return void
-	 */
-	public function handle_export_companies() {
-
-		if ( ! current_user_can( 'export_companies' ) ) {
-//			wp_send_json_error();
-		}
-
-		$offset      = absint( get_post_var( 'offset' ) );
-		$limit       = absint( get_post_var( 'limit' ) );
-		$file_suffix = sanitize_key( get_post_var( 'suffix' ) );
-		$fields      = properties()->get_fields();
-		$file_name   = 'companies-' . $file_suffix . '.csv';
-
-		$path = get_company_exports_dir( $file_name, true );
-
-		if ( ! file_exists( $path ) || filesize( $path ) === 0 ) {
-
-			$headers = [
-				__( 'Name', 'groundhogg-companies' ),
-				__( 'Website', 'groundhogg-companies' ),
-				__( 'Address', 'groundhogg-companies' ),
-				__( 'Phone', 'groundhogg-companies' ),
-				__( 'Industry', 'groundhogg-companies' ),
-				__( 'Owner', 'groundhogg-companies' ),
-				__( 'Contacts', 'groundhogg-companies' ),
-			];
-
-			foreach ( $fields as $field ) {
-				$headers[] = $field['label'];
-			}
-
-			$fp = fopen( $path, 'w' );
-			fputcsv( $fp, $headers );
-		} else {
-			$fp = fopen( $path, 'a' );
-		}
-
-		$companies = get_db( 'companies' )->query( [
-			'offset' => $offset,
-			'limit'  => $limit
-		] );
-
-		array_map_to_class( $companies, Company::class );
-
-		/**
-		 * @var $company Company
-		 */
-		foreach ( $companies as $company ) {
-
-			$contacts = $company->get_related_objects( 'contact' );
-
-			$row = [
-				$company->get_name(),
-				$company->get_domain(),
-				$company->get_address(),
-				$company->get_meta( 'phone' ),
-				$company->get_meta( 'industry' ),
-				$company->owner_id,
-				implode( ', ', array_map_to_method( $contacts, 'get_email' ) ),
-			];
-
-			foreach ( $fields as $field ) {
-				$val   = $company->get_meta( $field['name'] );
-				$val   = is_array( $val ) ? implode( ', ', $val ) : $val;
-				$row[] = $val;
-			}
-
-			fputcsv( $fp, $row );
-		}
-
-		fclose( $fp );
-
-		wp_send_json_success( [
-			'file' => file_access_url( '/exports/' . $file_name )
-		] );
-	}
-
-	public function handle_import_companies() {
-
-		if ( ! current_user_can( 'add_companies' ) ) {
-			wp_send_json_error();
-		}
-
-		$file               = get_post_var( 'file' );
-		$map                = json_decode( get_post_var( 'map' ), true );
-		$offset             = absint( get_post_var( 'offset' ) );
-		$limit              = absint( get_post_var( 'limit' ) );
-		$link_with_contacts = get_post_var( 'link_similar' );
-
-		if ( ! file_exists( $file ) ) {
-			wp_send_json_error( new \WP_Error( 'error', 'Import file not found', [ 'file' => $file ] ) );
-		}
-
-		// Headers are not returned when associative is true!
-		$items = get_items_from_csv( $file );
-
-		// Do not import all companies at once
-		$items = array_slice( $items, $offset, $limit );
-
-		foreach ( $items as $item ) {
-			$company = generate_company_with_map( $item, $map );
-
-			// Link contacts with email addresses that match this company's domain
-			if ( $link_with_contacts && $company->get_domain() ) {
-
-				// Find contacts with email address ending with the hostname of the company
-				$query    = new Contact_Query();
-				$contacts = $query->query( [
-					'filters' => [
-						[
-							[
-								'type'    => 'email',
-								'compare' => 'ends_with',
-								'value'   => '@' . parse_url( $company->get_domain(), PHP_URL_HOST )
-							]
-						]
-					]
-				], true );
-
-				foreach ( $contacts as $contact ) {
-					$company->create_relationship( $contact );
-				}
-			}
-		}
-
-		wp_send_json_success();
-	}
-
 
 	public function help() {
 	}
@@ -209,12 +76,92 @@ class Companies_Page extends Admin_Page {
 			] );
 
 			wp_add_inline_script( 'groundhogg-companies-company-filters', 'const GroundhoggCompanyProperties = ' . wp_json_encode( properties()->get_all() ), 'before' );
-
-            wp_enqueue_script( 'groundhogg-companies-table-admin' );
+			wp_enqueue_script( 'groundhogg-companies-table-admin' );
 			wp_enqueue_style( 'groundhogg-admin-element' );
-			wp_enqueue_style( 'jquery-ui' );
-
+			wp_enqueue_style( 'groundhogg-companies-table-admin' );
 		}
+	}
+
+	/**
+	 * Generate CSV list of all companies
+	 *
+	 * @return string
+	 */
+	public function process_export() {
+
+		if ( ! current_user_can( 'export_contacts' ) ) {
+			$this->wp_die_no_access();
+		}
+
+		$headers = [
+			__( 'Name', 'groundhogg-companies' ),
+			__( 'Website', 'groundhogg-companies' ),
+			__( 'Address', 'groundhogg-companies' ),
+			__( 'Phone', 'groundhogg-companies' ),
+			__( 'Industry', 'groundhogg-companies' ),
+			__( 'Owner', 'groundhogg-companies' ),
+			__( 'Contacts', 'groundhogg-companies' ),
+			__( 'Primary Contact', 'groundhogg-companies' ),
+			__( 'Primary Contact Email', 'groundhogg-companies' ),
+		];
+
+		// so that they are organized by group
+		$groups = properties()->get_groups();
+
+		foreach ( $groups as $group ){
+			$fields = properties()->get_fields( $group['id'] );
+
+			foreach ( $fields as $field ){
+				$headers[] = $field['label'];
+			}
+		}
+
+		$query     = get_request_var( 'query', [] );
+
+        unset( $query['limit']);
+        unset( $query['offset']);
+
+		$file_name = sanitize_file_name( 'companies-' . Ymd() . '.csv' );
+		$file_name = wp_unique_filename( files()->get_csv_exports_dir(), $file_name );
+		$file_path = files()->get_csv_exports_dir( $file_name, true );
+
+		// Add headers to the file first
+		$pointer = fopen( $file_path, 'w' );
+		fputcsv( $pointer, array_values( $headers ) );
+		fclose( $pointer );
+
+		Background_Tasks::add( new Export_Companies( $query, $file_name, [] ) );
+
+		notices()->add_user_notice( __( 'We\'re generating your export in the background. We\'ll let you know when it\'s ready for download.', 'groundhogg' ) );
+
+		return admin_page_url( 'gh_companies' );
+	}
+
+	public function handle_import_companies() {
+
+		if ( ! current_user_can( 'add_companies' ) ) {
+			wp_send_json_error();
+		}
+
+		$file_name    = sanitize_file_name( get_post_var( 'file' ) );
+		$map          = json_decode( get_post_var( 'map' ), true );
+		$link_similar = boolval( get_post_var( 'link_similar' ) );
+		$added        = Background_Tasks::add( new Import_Companies( $file_name, [
+			'link_similar' => $link_similar,
+			'field_map'    => $map
+		] ) );
+
+		$rows = count_csv_rows( files()->get_csv_imports_dir( $file_name ) );
+
+		$time = human_time_diff( time(), time() + ( ceil( $rows / 1000 ) * MINUTE_IN_SECONDS ) );
+
+		$this->add_notice( 'success', sprintf( __( 'Your CSV is being imported in the background! <i>We\'re estimating it will take ~%s.</i> We\'ll let you know when it\'s done!', 'groundhogg-companies' ), $time ) );
+
+		if ( $added ) {
+			wp_send_json_success();
+		}
+
+		wp_send_json_error();
 	}
 
 
@@ -274,12 +221,6 @@ class Companies_Page extends Admin_Page {
 				'link'   => '#',
 				'action' => __( 'Import', 'groundhogg' ),
 				'id'     => 'import-companies',
-				'target' => '_self',
-			],
-			[
-				'link'   => '#',
-				'action' => __( 'Export', 'groundhogg' ),
-				'id'     => 'export-companies',
 				'target' => '_self',
 			]
 		];
@@ -346,9 +287,9 @@ class Companies_Page extends Admin_Page {
 
 	public function ajax_upload_import_file() {
 
-//		if ( ! current_user_can( 'add_companies' ) ){
-//			return;
-//		}
+		if ( ! current_user_can( 'add_companies' ) ) {
+			return;
+		}
 
 		$file = $_FILES['file-upload'];
 
@@ -358,10 +299,7 @@ class Companies_Page extends Admin_Page {
 			wp_send_json_error( new \WP_Error( 'invalid_csv', sprintf( 'Please upload a valid CSV. Expected mime type of <i>text/csv</i> but got <i>%s</i>', esc_html( $file['type'] ) ) ) );
 		}
 
-		$file_name = str_replace( '.csv', '', $file['name'] );
-		$file_name .= '-' . current_time( 'mysql' ) . '.csv';
-
-		$file['name'] = sanitize_file_name( $file_name );
+		$file['name'] = wp_unique_filename( files()->get_csv_imports_dir(), sanitize_file_name( $file['name'] ) );
 
 		$result = $this->handle_file_upload( $file );
 
@@ -374,14 +312,14 @@ class Companies_Page extends Admin_Page {
 			wp_send_json_error( $result );
 		}
 
-		$items       = get_items_from_csv( $result['file'], false, false );
-		$headers     = $items[0];
-		$total_items = count( $items ) - 1;
+		$items       = get_items_from_csv( $result['file'], 20 );
+		$headers     = array_keys( $items[0] );
+		$total_items = count_csv_rows( $result['file'] );
 
 		wp_send_json_success( [
-			'file'        => $result,
+			'file'        => basename( $result['file'] ),
 			'headers'     => $headers,
-			'results'     => array_slice( $items, 1, 20 ),
+			'results'     => $items,
 			'total_items' => $total_items
 		] );
 
@@ -463,14 +401,12 @@ class Companies_Page extends Admin_Page {
 		}
 
 		?>
-        <div class="space-between align-top company-columns">
+        <div class="display-flex gap-20 align-top company-columns">
             <div id="primary" class="primary">
-                <div id="company-info-card" class="gh-panel"></div>
+                <div id="company-info-card"></div>
                 <div class="company-more"></div>
             </div>
-            <div class="directory full-width">
-                <div id="directory">
-                </div>
+            <div id="tabs-secondary">
             </div>
         </div>
 		<?php
