@@ -864,9 +864,9 @@ ${ map[h]
         },
         {
           key     : 'delete',
-          cap     : 'delete_contacts',
+          cap     : 'delete_companies',
           text    : `<span class="gh-text danger">${ sprintf(
-            __('Delete %s contacts', 'groundhogg'),
+            __('Delete %s companies', 'groundhogg'),
             totalItemsFormatted) }</span>`,
           onSelect: () => {
 
