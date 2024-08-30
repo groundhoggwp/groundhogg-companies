@@ -361,8 +361,6 @@ class Companies_Page extends Admin_Page {
 
 		foreach ( $this->get_items() as $id ) {
 			$company = new Company( $id );
-			$company->delete_pictures();
-			$company->delete_files();
 			$company->delete();
 		}
 
