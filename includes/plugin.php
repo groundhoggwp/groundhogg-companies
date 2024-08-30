@@ -8,9 +8,6 @@ use Groundhogg\Api\V4\Base_Api;
 use Groundhogg\Bulk_Jobs\Export_Companies;
 use Groundhogg\Contact;
 use Groundhogg\DB\Manager;
-use Groundhogg\DB\Query\Filters;
-use Groundhogg\DB\Query\Table_Query;
-use Groundhogg\DB\Query\Where;
 use Groundhogg\Extension;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
 use GroundhoggCompanies\Api\Companies_Api;
@@ -20,7 +17,6 @@ use GroundhoggCompanies\Bulk_Jobs\Sync_Companies;
 use GroundhoggCompanies\Classes\Company;
 use GroundhoggCompanies\DB\Companies;
 use GroundhoggCompanies\DB\Company_Meta;
-use GroundhoggCompanies\DB\Company_Relationships;
 use function Groundhogg\html;
 
 class Plugin extends Extension {
@@ -67,7 +63,6 @@ class Plugin extends Extension {
 	public function register_dbs( $db_manager ) {
 		$db_manager->companies             = new Companies();
 		$db_manager->company_meta          = new Company_Meta();
-		$db_manager->company_relationships = new Company_Relationships();
 	}
 
 	/**

@@ -65,11 +65,6 @@ class Companies extends DB {
 	}
 
 	protected function add_additional_actions() {
-
-		//done using recount method where operation are supported
-		add_action( 'groundhogg/db/post_insert/company_relationship', [ $this, 'increase_contact_count' ], 10, 2 );
-		add_action( 'groundhogg/db/post_delete/company_relationship', [ $this, 'decrease_contact_count' ], 10 );
-		add_action( 'groundhogg/db/pre_bulk_delete/company_relationships', [ $this, 'bulk_decrease_count' ], 10 );
 	}
 
 	protected function maybe_register_filters() {
