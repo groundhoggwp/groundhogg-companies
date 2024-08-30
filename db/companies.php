@@ -89,6 +89,18 @@ class Companies extends DB {
 			});
 		}
 
+		$this->query_filters->register( 'num_contacts', function ( $filter, Where $where ){
+
+			$relQuery = new Table_Query( 'object_relationships' );
+			$relQuery->setSelect( ['COUNT(secondary_object_id)', 'total_contacts'], 'primary_object_id' )->setGroupby( 'primary_object_id' )
+			         ->where( 'primary_object_type', 'company' )
+			         ->equals( 'secondary_object_type', 'contact' );
+
+			$join = $where->query->addJoin( 'LEFT', $relQuery );
+			$join->onColumn( 'primary_object_id', 'ID' );
+			Filters::number( "$join->alias.total_contacts", $filter, $where );
+		} );
+
 		$this->query_filters->register( 'contacts', function ( $filter, Where $where ) {
 
 			$filter = wp_parse_args( $filter, [

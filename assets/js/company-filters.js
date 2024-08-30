@@ -9,7 +9,7 @@
     orList,
   } = Groundhogg.element
 
-  const { createFilter } = Groundhogg.filters
+  const { createFilter, createNumberFilter } = Groundhogg.filters
 
   const {
     Fragment,
@@ -55,6 +55,8 @@
         }
       },
     }))
+
+    Registry.registerFilter(createNumberFilter('num_contacts', 'Number of contacts', group ))
 
     Registry.registerFilter(createFilter('industry', 'Industry', group, {
       display: ({ industry = '' }) => {
