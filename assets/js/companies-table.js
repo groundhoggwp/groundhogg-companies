@@ -283,7 +283,7 @@ ${ map[h]
       ItemPicker,
       Label,
       Button,
-      Dashicon
+      Dashicon,
     } = MakeEl
 
     document.getElementById('add-company').addEventListener('click', e => {
@@ -291,28 +291,29 @@ ${ map[h]
       e.preventDefault()
 
       const State = Groundhogg.createState({
-        owner_id: getCurrentUser().ID,
-        name    : '',
-        industry: '',
-        phone   : '',
-        address : '',
-        domain  : '',
+        owner_id : getCurrentUser().ID,
+        name     : '',
+        industry : '',
+        phone    : '',
+        address  : '',
+        domain   : '',
+        duplicate: null,
       })
 
       Modal({
         closeButton: false,
-      }, ({ close }) => Fragment([
+      }, ({ close, morph }) => Fragment([
         Div({
-          className: 'gh-header modal-header'
-        },[
+          className: 'gh-header modal-header',
+        }, [
           `<h3>Add Company</h3>`,
-          Div({ className: 'actions align-right-space-between'}, [
+          Div({ className: 'actions align-right-space-between' }, [
             Button({
               className: 'gh-button dashicon no-border icon text quick-add-cancel',
-              id: 'close-quick-add',
-              onClick: e => close()
-            }, Dashicon('no-alt'))
-          ])
+              id       : 'close-quick-add',
+              onClick  : e => close(),
+            }, Dashicon('no-alt')),
+          ]),
         ]),
         Div({
           className: 'display-grid gap-10',
@@ -322,7 +323,7 @@ ${ map[h]
         }, [
 
           Div({
-            className: 'full display-flex column gap-5'
+            className: 'full display-flex column gap-5',
           }, [
             Label({ for: 'company-name' }, __('Company Name')),
             Input({
@@ -334,20 +335,43 @@ ${ map[h]
           ]),
 
           Div({
-            className: 'half display-flex column gap-5'
+            className: 'half display-flex column gap-5',
           }, [
-            Label({ for: 'company-website' }, __('Website')),
+            Label({ for: 'company-website' }, __('Website <i>(with https://)</i>')),
             Input({
-              id     : 'company-website',
-              name   : 'domain',
-              type   : 'url',
-              value  : State.domain ?? '',
-              onInput: e => State.set({ domain: e.target.value }),
+              id      : 'company-website',
+              name    : 'domain',
+              type    : 'url',
+              value   : State.domain ?? '',
+              onInput : e => State.set({
+                domain: e.target.value.trim().replace( /\/$/, '' ),
+                duplicate: null,
+              }),
+              onChange: e => {
+
+                if ( State.domain === '' ){
+                  morph()
+                  return
+                }
+
+                CompaniesStore.fetchItems({
+                  domain: State.domain,
+                }).then(items => {
+                  if (items.length) {
+                    State.set({ duplicate: items[0] })
+                  }
+                  else {
+                    State.set({ duplicate: null })
+                  }
+
+                  morph()
+                })
+              },
             }),
           ]),
 
           Div({
-            className: 'half display-flex column gap-5'
+            className: 'half display-flex column gap-5',
           }, [
             Label({ for: 'company-industry' }, __('Industry')),
             Autocomplete({
@@ -364,8 +388,15 @@ ${ map[h]
             }),
           ]),
 
+
+          ! State.duplicate ? null : Div({
+            className: 'full',
+          }, [
+            `The domain <a href="${State.domain}">${State.domain}</a> is already being used by <a href="${State.duplicate.admin}">${State.duplicate.data.name}</a>.`
+          ]),
+
           Div({
-            className: 'full display-flex column gap-5'
+            className: 'full display-flex column gap-5',
           }, [
             Label({ for: 'company-phone' }, __('Phone Number')),
             Input({
@@ -377,7 +408,7 @@ ${ map[h]
             }),
           ]),
           Div({
-            className: 'full display-flex column gap-5'
+            className: 'full display-flex column gap-5',
           }, [
             Label({ for: 'company-address' }, __('Address')),
             Textarea({
@@ -388,7 +419,7 @@ ${ map[h]
             }),
           ]),
           Div({
-            className: 'full display-flex column gap-5'
+            className: 'full display-flex column gap-5',
           }, [
             Label({ for: 'select-owner' }, __('Owner')),
             ItemPicker({
@@ -427,6 +458,7 @@ ${ map[h]
               onClick  : close,
             }, __('Cancel')),
             Button({
+              // disabled : State.duplicate !== null,
               id       : 'create',
               className: 'gh-button primary',
               onClick  : async e => {

@@ -1819,32 +1819,30 @@
       ],
     }).then(contacts => {
 
-      if (contacts.length) {
-
-        confirmationModal({
-          width      : 500,
-          alert      : `<p>${ sprintf(_n('We found %s contact that has an email address ending with %s. Would you like to relate them to this company?',
-            'We found %s contacts that have an email address ending with %s. Would you like to relate them to this company?', contacts.length,
-            'groundhogg-companies'), bold(formatNumber(contacts.length)), bold('@' + domain)) }</p>`,
-          confirmText: __('Yes, add them!'),
-          cancelText : __('No'),
-          onConfirm  : () => {
-
-            CompaniesStore.createRelationships(company.ID, contacts.map(c => ( {
-              child_id  : c.ID,
-              child_type: 'contact',
-            } ))).then(() => {
-              ContactsStore.clearResultsCache()
-              maybeFetchContactsAndMorph()
-            })
-
-          },
-        })
-
+      if (!contacts.length) {
+        return
       }
 
-    })
+      confirmationModal({
+        width      : 500,
+        alert      : `<p>${ sprintf(_n('We found %s contact that has an email address ending with %s. Would you like to relate them to this company?',
+          'We found %s contacts that have an email address ending with %s. Would you like to associate them with this company?', contacts.length,
+          'groundhogg-companies'), bold(formatNumber(contacts.length)), bold('@' + domain)) }</p>`,
+        confirmText: __('Yes, add them!'),
+        cancelText : __('No'),
+        onConfirm  : () => {
 
+          CompaniesStore.createRelationships(company.ID, contacts.map(c => ( {
+            child_id  : c.ID,
+            child_type: 'contact',
+          } ))).then(() => {
+            ContactsStore.clearResultsCache()
+            maybeFetchContactsAndMorph()
+          })
+
+        },
+      })
+    })
   }
 
   const morphDirectory = () => morphdom(document.getElementById('directory'), Directory())

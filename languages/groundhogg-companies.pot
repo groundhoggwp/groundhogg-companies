@@ -1,187 +1,798 @@
-# Copyright (C) 2024 Groundhogg Inc.
-# This file is distributed under the same license as the Groundhogg - Companies plugin.
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Groundhogg - Companies 3.1.4\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/groundhogg-companies\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Project-Id-Version: Groundhogg - Companies\n"
+"POT-Creation-Date: 2024-08-30 14:46-0400\n"
+"PO-Revision-Date: 2024-08-30 14:46-0400\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-06-05T16:29:47+00:00\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.10.0\n"
-"X-Domain: groundhogg-companies\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Poedit 3.5\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: groundhogg-companies.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
 
-#. Plugin Name of the plugin
-#: groundhogg-companies.php
-msgid "Groundhogg - Companies"
+#: admin/companies-card.php:77 assets/js/companies.js:790
+#, javascript-format, php-format
+msgid "%s contact"
+msgid_plural "%s contacts"
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/companies-card.php:89
+msgid "Are you sure you want to remove this association?"
 msgstr ""
 
-#. Plugin URI of the plugin
-#: groundhogg-companies.php
-msgid "https://www.groundhogg.io/downloads/companies/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash"
+#: admin/companies-card.php:96 assets/js/companies.js:1312
+msgid "Remove"
 msgstr ""
 
-#. Description of the plugin
-#: groundhogg-companies.php
-msgid "Organize contacts into companies and keep track of vital company information."
-msgstr ""
-
-#. Author of the plugin
-#: groundhogg-companies.php
-msgid "Groundhogg Inc."
-msgstr ""
-
-#. Author URI of the plugin
-#: groundhogg-companies.php
-msgid "https://www.groundhogg.io/?utm_source=wp-plugins&utm_campaign=author-uri&utm_medium=wp-dash"
-msgstr ""
-
-#: admin/companies-card.php:69
+#: admin/companies-card.php:105
 msgid "Not associated to a company."
 msgstr ""
 
-#: admin/companies/companies-page.php:73
+#: admin/companies/companies-page.php:97 assets/js/companies-table.js:43
+#: assets/js/companies-table.js:483 assets/js/companies.js:178
+#: assets/js/companies.js:1019 assets/js/companies.js:1207
+#: includes/functions.php:125
 msgid "Name"
 msgstr ""
 
-#: admin/companies/companies-page.php:74
+#: admin/companies/companies-page.php:98 assets/js/companies-table.js:48
+#: assets/js/companies-table.js:339 assets/js/companies-table.js:491
+#: assets/js/companies.js:219 assets/js/contact-filters.js:102
+#: assets/js/contact-filters.js:103 includes/functions.php:130
+#: includes/functions.php:647
 msgid "Website"
 msgstr ""
 
-#: admin/companies/companies-page.php:75
+#: admin/companies/companies-page.php:99 assets/js/companies-table.js:53
+#: assets/js/companies-table.js:382 assets/js/companies-table.js:522
+#: assets/js/companies.js:301 assets/js/contact-filters.js:115
+#: assets/js/contact-filters.js:116 includes/functions.php:128
+#: includes/functions.php:665 includes/replacements.php:56
 msgid "Address"
 msgstr ""
 
-#: admin/companies/companies-page.php:76
+#: admin/companies/companies-page.php:100 assets/js/companies-table.js:58
+#: assets/js/companies-table.js:502 assets/js/companies.js:248
+#: assets/js/companies.js:1021 assets/js/contact-filters.js:128
+#: assets/js/contact-filters.js:129 includes/functions.php:127
+#: includes/replacements.php:63
 msgid "Phone"
 msgstr ""
 
-#: admin/companies/companies-page.php:77
+#: admin/companies/companies-page.php:101 assets/js/companies-table.js:63
+#: assets/js/companies-table.js:352 assets/js/companies-table.js:511
+#: assets/js/companies.js:195 includes/functions.php:126
 msgid "Industry"
 msgstr ""
 
-#: admin/companies/companies-page.php:78
+#: admin/companies/companies-page.php:102 assets/js/companies-table.js:393
+#: assets/js/companies-table.js:533 assets/js/companies.js:266
 msgid "Owner"
 msgstr ""
 
-#: admin/companies/companies-page.php:79
+#: admin/companies/companies-page.php:103
 msgid "Contacts"
 msgstr ""
 
-#: admin/companies/companies-page.php:217
+#: admin/companies/companies-page.php:104
+msgid "Primary Contact"
+msgstr ""
+
+#: admin/companies/companies-page.php:105
+msgid "Primary Contact Email"
+msgstr ""
+
+#: admin/companies/companies-page.php:135
+msgid ""
+"We're generating your export in the background. We'll let you know when it's "
+"ready for download."
+msgstr ""
+
+#: admin/companies/companies-page.php:158
+#, php-format
+msgid ""
+"Your CSV is being imported in the background! <i>We're estimating it will "
+"take ~%s.</i> We'll let you know when it's done!"
+msgstr ""
+
+#: admin/companies/companies-page.php:177
 msgctxt "page_title"
 msgid "Companies"
 msgstr ""
 
-#: admin/companies/companies-table.php:249
+#: admin/companies/companies-page.php:207
+msgctxt "page_title"
+msgid "Edit Company"
+msgstr ""
+
+#: admin/companies/companies-page.php:216
+msgid "Add New"
+msgstr ""
+
+#: admin/companies/companies-page.php:222
+msgid "Import"
+msgstr ""
+
+#: admin/companies/companies-page.php:279
+msgctxt "error"
+msgid "Could not upload file."
+msgstr ""
+
+#: admin/companies/companies-page.php:369
+#, php-format
+msgctxt "notice"
+msgid "%d company deleted."
+msgid_plural "%d companies deleted."
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/companies/companies-page.php:387
+msgid "Search"
+msgstr ""
+
+#: admin/companies/companies-table.php:49
+msgctxt "Column label"
+msgid "Company"
+msgstr ""
+
+#: admin/companies/companies-table.php:50
+msgctxt "Column label"
+msgid "Industry"
+msgstr ""
+
+#: admin/companies/companies-table.php:51
+msgctxt "Column label"
+msgid "Website"
+msgstr ""
+
+#: admin/companies/companies-table.php:52
+msgctxt "Column label"
+msgid "Address"
+msgstr ""
+
+#: admin/companies/companies-table.php:53
+msgctxt "Column label"
+msgid "Phone"
+msgstr ""
+
+#: admin/companies/companies-table.php:54
+msgctxt "Column label"
+msgid "Owner"
+msgstr ""
+
+#: admin/companies/companies-table.php:55
+msgctxt "Column label"
+msgid "Contacts"
+msgstr ""
+
+#: admin/companies/companies-table.php:194
 msgctxt "List table bulk action"
 msgid "Delete"
 msgstr ""
 
-#: includes/plugin.php:87
+#: admin/companies/companies-table.php:218
+msgid "Edit"
+msgstr ""
+
+#: admin/companies/companies-table.php:225 assets/js/companies.js:450
+#: assets/js/companies.js:460 assets/js/companies.js:1366
+#: assets/js/companies.js:1444 assets/js/companies.js:1455
+#: assets/js/companies.js:1759
+msgid "Delete"
+msgstr ""
+
+#: admin/companies/companies-table.php:238
+msgid "All"
+msgstr ""
+
+#: assets/js/api-docs.js:31 includes/plugin.php:90
 msgid "Companies"
 msgstr ""
 
-#: includes/updater.php:36
-msgid "Migrate company notes to new format"
+#: assets/js/api-docs.js:37
+msgid "companies"
 msgstr ""
 
-#: includes/updater.php:37
-msgid "Migrate company relationships to object relations table"
+#: assets/js/api-docs.js:38
+msgid "company"
 msgstr ""
 
-#: assets/js/companies-table.js:79
-msgid "Exporting companies..."
+#: assets/js/api-docs.js:90
+msgid "The name of the company."
 msgstr ""
 
-#: assets/js/companies-table.js:118
-msgid "Export complete!"
+#: assets/js/api-docs.js:96
+msgid ""
+"A unique slug to identify the company. If one is not provided it will be "
+"generated from the name."
 msgstr ""
 
-#: assets/js/companies-table.js:148
+#: assets/js/api-docs.js:101
+msgid "What the company \"does\" or anything else relevant."
+msgstr ""
+
+#: assets/js/api-docs.js:106
+msgid "The URL of the company. Must start with <code>https://</code>."
+msgstr ""
+
+#: assets/js/api-docs.js:111
+msgid "The ID of the user to assign to the company."
+msgstr ""
+
+#: assets/js/api-docs.js:116
+msgid "The ID of the primary contact for the company."
+msgstr ""
+
+#: assets/js/api-docs.js:125
+msgid "The company's industry."
+msgstr ""
+
+#: assets/js/api-docs.js:130
+msgid "The company's full address."
+msgstr ""
+
+#: assets/js/api-docs.js:135
+msgid "The company's phone number."
+msgstr ""
+
+#: assets/js/companies-table.js:37
+msgid "Basic"
+msgstr ""
+
+#: assets/js/companies-table.js:68
+msgid "Add to Notes"
+msgstr ""
+
+#: assets/js/companies-table.js:74
+msgid "Add to Contacts"
+msgstr ""
+
+#: assets/js/companies-table.js:103
 msgid "Map your CSV fields"
 msgstr ""
 
-#: assets/js/companies-table.js:152
+#: assets/js/companies-table.js:107
 msgid "Header"
 msgstr ""
 
-#: assets/js/companies-table.js:153
+#: assets/js/companies-table.js:108
 msgid "Example Data"
 msgstr ""
 
-#: assets/js/companies-table.js:154
+#: assets/js/companies-table.js:109
 msgid "Map To"
 msgstr ""
 
-#: assets/js/companies-table.js:179
-msgid "Automatically associate contacts with email addresses similar to the company website?"
+#: assets/js/companies-table.js:135
+msgid ""
+"Automatically associate contacts with email addresses similar to the company "
+"website?"
 msgstr ""
 
-#: assets/js/companies-table.js:187
+#: assets/js/companies-table.js:139 assets/js/companies-table.js:428
+#: assets/js/companies-table.js:553 assets/js/companies.js:423
+msgid "Cancel"
+msgstr ""
+
+#: assets/js/companies-table.js:142
+#, javascript-format
 msgid "Import %s companies"
 msgstr ""
 
-#: assets/js/companies-table.js:207
-msgid "Importing companies..."
+#: assets/js/companies-table.js:171
+msgid "Something went wrong..."
 msgstr ""
 
-#: assets/js/companies-table.js:246
-msgid "Companies Imported!"
+#: assets/js/companies-table.js:178
+msgid "Companies are being imported!"
 msgstr ""
 
-#: assets/js/companies-table.js:348
+#: assets/js/companies-table.js:327 assets/js/contact-filters.js:52
+#: assets/js/contact-filters.js:53 includes/functions.php:105
+#: includes/functions.php:587 includes/replacements.php:28
+msgid "Company Name"
+msgstr ""
+
+#: assets/js/companies-table.js:370
+msgid "Phone Number"
+msgstr ""
+
+#: assets/js/companies-table.js:396 assets/js/companies.js:270
+msgid "Select an owner..."
+msgstr ""
+
+#: assets/js/companies-table.js:461
+msgid "Create Company"
+msgstr ""
+
+#: assets/js/companies-table.js:478
 msgid "Add Company"
 msgstr ""
 
-#: assets/js/companies-table.js:467
-msgid "A company with the name %2$s already exists. Would you like to edit it instead?"
+#: assets/js/companies-table.js:550
+msgid "Add"
+msgstr ""
+
+#: assets/js/companies-table.js:597
+#, javascript-format
+msgid ""
+"A company with the name %2$s already exists. Would you like to edit it "
+"instead?"
 msgid_plural "We found %1$d companies with similar names to %2$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/companies-table.js:508
-msgid "A company with the domain %2$s already exists. Would you like to edit it instead?"
+#: assets/js/companies-table.js:603 assets/js/companies-table.js:648
+#, javascript-format
+msgid "View %d similar companies"
+msgstr ""
+
+#: assets/js/companies-table.js:604 assets/js/companies-table.js:649
+#, javascript-format
+msgid "Edit %s"
+msgstr ""
+
+#: assets/js/companies-table.js:642
+#, javascript-format
+msgid ""
+"A company with the domain %2$s already exists. Would you like to edit it "
+"instead?"
 msgid_plural "We found %1$d companies with similar domains to %2$s."
 msgstr[0] ""
 msgstr[1] ""
 
-#: assets/js/companies.js:181
-msgid "Company logo"
+#: assets/js/companies-table.js:665
+msgid "Company created!"
 msgstr ""
 
-#: assets/js/companies.js:285
+#: assets/js/companies-table.js:690
+msgid "More Actions"
+msgstr ""
+
+#: assets/js/companies-table.js:730
+msgid "View primary contacts"
+msgstr ""
+
+#: assets/js/companies-table.js:740
+msgid "View all related contacts"
+msgstr ""
+
+#: assets/js/companies-table.js:750
+#, javascript-format
+msgid "Edit %s companies"
+msgstr ""
+
+#: assets/js/companies-table.js:757
+#, javascript-format
+msgid "Export %s companies"
+msgstr ""
+
+#: assets/js/companies-table.js:781
+#, javascript-format
+msgid "Send a broadcast to %s companies"
+msgstr ""
+
+#: assets/js/companies-table.js:787
+msgid "Send a broadcast"
+msgstr ""
+
+#: assets/js/companies-table.js:795 assets/js/companies-table.js:832
+#, javascript-format
+msgid "Primary contacts for the selected %s companies"
+msgstr ""
+
+#: assets/js/companies-table.js:802 assets/js/companies-table.js:846
+#, javascript-format
+msgid "All associated contacts for the selected %s companies"
+msgstr ""
+
+#: assets/js/companies-table.js:817
+#, javascript-format
+msgid "Add %s companies to a funnel"
+msgstr ""
+
+#: assets/js/companies-table.js:823
+msgid "Add companies to a funnel"
+msgstr ""
+
+#: assets/js/companies-table.js:869
+#, javascript-format
+msgid "Delete %s companies"
+msgstr ""
+
+#: assets/js/companies-table.js:876
+#, javascript-format
+msgid ""
+"Are you sure you want to delete %s companies? This cannot be undone. "
+"Consider <i>exporting</i> first!"
+msgstr ""
+
+#: assets/js/companies-table.js:888
+#, javascript-format
+msgid ""
+"🗑️ %s companies are being deleted in the background. <i>It may take a while.</"
+"i> We'll let you know when it's done!"
+msgstr ""
+
+#: assets/js/companies-table.js:891
+msgid "Sounds good!"
+msgstr ""
+
+#: assets/js/companies.js:160
+msgid "General"
+msgstr ""
+
+#: assets/js/companies.js:332 assets/js/companies.js:382
+#: assets/js/companies.js:405
+msgid "Changes saved!"
+msgstr ""
+
+#: assets/js/companies.js:341 assets/js/companies.js:424
+msgid "Save Changes"
+msgstr ""
+
+#: assets/js/companies.js:445
+msgid "Rename"
+msgstr ""
+
+#: assets/js/companies.js:461 assets/js/companies.js:1456
+#, javascript-format
 msgid "Are you sure you want to delete %s?"
 msgstr ""
 
-#: assets/js/companies.js:326
-msgid "Change Logo"
+#: assets/js/companies.js:486
+msgid "Rename tab"
 msgstr ""
 
-#: assets/js/companies.js:951
-#: assets/js/companies.js:1135
+#: assets/js/companies.js:491 assets/js/companies.js:636
+msgid "Tab name"
+msgstr ""
+
+#: assets/js/companies.js:494
+msgid "Save"
+msgstr ""
+
+#: assets/js/companies.js:621
+msgid "Add Tab"
+msgstr ""
+
+#: assets/js/companies.js:632
+msgid "Add a new tab"
+msgstr ""
+
+#: assets/js/companies.js:639
+msgid "Create"
+msgstr ""
+
+#: assets/js/companies.js:696 assets/js/companies.js:1022
+#: assets/js/companies.js:1209 includes/functions.php:625
 msgid "Position"
 msgstr ""
 
-#: assets/js/companies.js:957
-#: assets/js/companies.js:1142
+#: assets/js/companies.js:703 assets/js/companies.js:1023
+#: assets/js/companies.js:1210 assets/js/contact-filters.js:85
+#: assets/js/contact-filters.js:86 includes/functions.php:111
+#: includes/functions.php:635 includes/replacements.php:49
 msgid "Department"
 msgstr ""
 
-#: assets/js/companies.js:963
-#: assets/js/companies.js:1150
+#: assets/js/companies.js:715
 msgid "Work Phone"
 msgstr ""
 
-#: assets/js/companies.js:1117
-msgid "Remove from company"
+#: assets/js/companies.js:724
+msgid "Ext."
 msgstr ""
 
-#: assets/js/companies.js:1256
-msgid "We found %s contact that has an email address ending with %s. Would you like to relate them to this company?"
-msgid_plural "We found %s contacts that have an email address ending with %s. Would you like to relate them to this company?"
+#: assets/js/companies.js:773
+msgid "Contact updated!"
+msgstr ""
+
+#: assets/js/companies.js:981
+#, javascript-format
+msgid "%s contact removed"
+msgid_plural "%s contacts removed"
 msgstr[0] ""
 msgstr[1] ""
+
+#: assets/js/companies.js:998
+msgid "There are no contacts associated with this company yet."
+msgstr ""
+
+#: assets/js/companies.js:1004
+msgid "Add contacts!"
+msgstr ""
+
+#: assets/js/companies.js:1020
+msgid "Email"
+msgstr ""
+
+#: assets/js/companies.js:1060
+#, javascript-format
+msgid "Are you sure you want to remove %s contacts from %s?"
+msgstr ""
+
+#: assets/js/companies.js:1208
+msgid "Contact Info"
+msgstr ""
+
+#: assets/js/companies.js:1261
+msgid "View"
+msgstr ""
+
+#: assets/js/companies.js:1272
+msgid "Quick Edit"
+msgstr ""
+
+#: assets/js/companies.js:1288
+msgid "Primary contact changed!"
+msgstr ""
+
+#: assets/js/companies.js:1294
+msgid "Set Primary"
+msgstr ""
+
+#: assets/js/companies.js:1303
+#, javascript-format
+msgid "Are you sure you want to remove %s from %s?"
+msgstr ""
+
+#: assets/js/companies.js:1368
+#, javascript-format
+msgid "Are you sure you want to delete %d file?"
+msgid_plural "Are you sure you want to delete %d files?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/companies.js:1386
+msgid "Bulk delete files"
+msgstr ""
+
+#: assets/js/companies.js:1440
+msgid "Download"
+msgstr ""
+
+#: assets/js/companies.js:1518
+msgid "Search files..."
+msgstr ""
+
+#: assets/js/companies.js:1522
+msgid "Upload Files"
+msgstr ""
+
+#: assets/js/companies.js:1581
+msgid "Select an existing contact"
+msgstr ""
+
+#: assets/js/companies.js:1600
+msgid "Create a new contact"
+msgstr ""
+
+#: assets/js/companies.js:1700
+msgid "Add a new contact"
+msgstr ""
+
+#: assets/js/companies.js:1707
+msgid "Call this business"
+msgstr ""
+
+#: assets/js/companies.js:1740
+msgid "Send an email"
+msgstr ""
+
+#: assets/js/companies.js:1751
+msgid "Merge"
+msgstr ""
+
+#: assets/js/companies.js:1773
+msgid "More options"
+msgstr ""
+
+#: assets/js/companies.js:1826
+#, javascript-format
+msgid ""
+"We found %s contact that has an email address ending with %s. Would you like "
+"to relate them to this company?"
+msgid_plural ""
+"We found %s contacts that have an email address ending with %s. Would you "
+"like to relate them to this company?"
+msgstr[0] ""
+msgstr[1] ""
+
+#: assets/js/companies.js:1829
+msgid "Yes, add them!"
+msgstr ""
+
+#: assets/js/companies.js:1830
+msgid "No"
+msgstr ""
+
+#: assets/js/company-filters.js:34
+msgid "Select a contact..."
+msgstr ""
+
+#: assets/js/company-filters.js:63
+#, javascript-format
+msgid "Industry is %s"
+msgstr ""
+
+#: assets/js/company-filters.js:68
+msgid "Select an industry..."
+msgstr ""
+
+#: assets/js/contact-filters.js:68 assets/js/contact-filters.js:69
+#: includes/functions.php:110 includes/replacements.php:42
+msgid "Job Title"
+msgstr ""
+
+#: groundhogg-companies.php:86
+#, php-format
+msgid ""
+"%s requires Groundhogg version %s+. Because you are using an earlier "
+"version, the plugin is currently NOT RUNNING."
+msgstr ""
+
+#: groundhogg-companies.php:106
+#, php-format
+msgid ""
+"%s requires WordPress version %s+. Because you are using an earlier version, "
+"the plugin is currently NOT RUNNING."
+msgstr ""
+
+#: groundhogg-companies.php:126
+#, php-format
+msgid "%s requires PHP version %s+, plugin is currently NOT RUNNING."
+msgstr ""
+
+#: groundhogg-companies.php:144
+#, php-format
+msgid "Groundhogg is not currently active, it must be active for %s to work."
+msgstr ""
+
+#: includes/background/export-companies.php:70
+#, php-format
+msgid "Your companies export %s is ready for download!"
+msgstr ""
+
+#: includes/background/export-companies.php:77
+#, php-format
+msgid "[%s] Export ready!"
+msgstr ""
+
+#: includes/background/import-companies.php:58
+#, php-format
+msgid "All companies have been imported from %s!"
+msgstr ""
+
+#: includes/background/import-companies.php:62
+#, php-format
+msgid "[%s] Companies imported!"
+msgstr ""
+
+#: includes/functions.php:106 includes/replacements.php:35
+msgid "Company Website"
+msgstr ""
+
+#: includes/functions.php:107
+msgid "Company Address"
+msgstr ""
+
+#: includes/functions.php:108
+msgid "Company Phone Number"
+msgstr ""
+
+#: includes/functions.php:109
+msgid "Company Phone Number Extension"
+msgstr ""
+
+#: includes/functions.php:129
+msgid "Description"
+msgstr ""
+
+#: includes/functions.php:131
+msgid "Add To Notes"
+msgstr ""
+
+#: includes/functions.php:132
+msgid "Add To Contacts"
+msgstr ""
+
+#: includes/functions.php:151 includes/functions.php:165
+#: includes/replacements.php:21
+msgid "Company"
+msgstr ""
+
+#: includes/functions.php:176
+msgid "Pretty Name"
+msgstr ""
+
+#: includes/functions.php:177
+msgid "Field ID"
+msgstr ""
+
+#: includes/functions.php:583
+msgid "Work Details"
+msgstr ""
+
+#: includes/functions.php:598
+msgid "Work Phone & Ext."
+msgstr ""
+
+#: includes/functions.php:606
+msgid "+1 (555) 555-5555"
+msgstr ""
+
+#: includes/functions.php:617
+msgid "1234"
+msgstr ""
+
+#: includes/replacements.php:29
+msgctxt "replacement"
+msgid "The contact's company name."
+msgstr ""
+
+#: includes/replacements.php:36
+msgctxt "replacement"
+msgid "The contact's company website."
+msgstr ""
+
+#: includes/replacements.php:43
+msgctxt "replacement"
+msgid "The contact's job title."
+msgstr ""
+
+#: includes/replacements.php:50
+msgctxt "replacement"
+msgid "The contact's department."
+msgstr ""
+
+#: includes/replacements.php:57
+msgctxt "replacement"
+msgid "The contact's company address."
+msgstr ""
+
+#: includes/replacements.php:64
+msgctxt "replacement"
+msgid "The contact's company phone number."
+msgstr ""
+
+#: includes/updater.php:36
+msgid "Update the company database tables."
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Groundhogg - Companies"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid ""
+"https://www.groundhogg.io/downloads/companies/?utm_source=wp-"
+"plugins&utm_campaign=plugin-uri&utm_medium=wp-dash"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Organize contacts into companies and keep track of vital company information."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Groundhogg Inc."
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid ""
+"https://www.groundhogg.io/?utm_source=wp-plugins&utm_campaign=author-"
+"uri&utm_medium=wp-dash"
+msgstr ""
