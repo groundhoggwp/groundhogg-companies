@@ -25,14 +25,26 @@ class Roles extends \Groundhogg\Roles {
 	public function map_meta_cap( $caps, $cap, $user_id, $args ) {
 
 		switch ( $cap ) {
+			case 'edit_companys':
+				$caps = [ 'edit_companies' ];
+				break;
+			case 'delete_companys':
+				$caps = [ 'delete_companies' ];
+				break;
+			case 'add_companys':
+				$caps = [ 'add_companies' ];
+				break;
+			case 'view_companys':
+				$caps = [ 'view_companies' ];
+				break;
 			case 'edit_company':
 			case 'view_company':
 			case 'delete_company':
 
 				$caps = [];
 
-				$parts       = explode( '_', $cap );
-				$action      = $parts[0];
+				$parts  = explode( '_', $cap );
+				$action = $parts[0];
 
 				$caps[] = $action . '_companies';
 
@@ -69,7 +81,7 @@ class Roles extends \Groundhogg\Roles {
 
 				$path = explode( '/', $file_path );
 
-				if ( $path[0] !== 'companies' ){
+				if ( $path[0] !== 'companies' ) {
 					return $caps;
 				}
 
