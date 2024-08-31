@@ -79,17 +79,17 @@
   const emailAll = async () => {
 
     let contacts = await fetchContacts({
-      limit: 999,
+      limit : 999,
       offset: 0,
       search: '',
     })
 
-    if ( ! contacts.length ){
+    if (!contacts.length) {
       dialog({
         message: 'No associated contacts',
-        type: 'error'
+        type   : 'error',
       })
-      return;
+      return
     }
 
     let email = {
@@ -324,7 +324,7 @@
                     meta: MetaChanges.get(),
                   })
 
-                  if ( DataChanges.domain ){
+                  if (DataChanges.domain) {
                     checkForPotentialContactMatches()
                   }
 
@@ -787,7 +787,8 @@
     order   : 'DESC',
   })
 
-  const TotalItems = () => Span({ className: 'total-items displaying-num' }, sprintf(_n('%s contact', '%s contacts', DirectoryState.total), formatNumber(DirectoryState.total)))
+  const TotalItems = () => Span({ className: 'total-items displaying-num' },
+    sprintf(_n('%s contact', '%s contacts', DirectoryState.total), formatNumber(DirectoryState.total)))
 
   const Pagination = () => {
 
@@ -992,59 +993,61 @@
       return Div({ id: 'directory' }, spinner())
     }
 
-    // no contacts
-    if ( ! DirectoryState.contacts.length ){
-      return Div({ id: 'directory' }, [
-        Pg({}, __( 'There are no contacts associated with this company yet.' )),
-        Button({
-          className: 'gh-button med primary icon display-flex gap-10',
-          onClick: e => {
-            addContactsMenu(e.currentTarget)
-          }
-        }, [ icons.createContact, __( 'Add contacts!' ) ])
-      ])
-    }
-
     return Div({
       id       : 'directory',
       className: 'display-flex column gap-10',
     }, [
       `<p></p>`,
       Div({
-        className: 'display-flex flex-end',
-      }, InputGroup([
-        Select({
-          name    : 'filter',
-          options : {
-            name      : __('Name'),
-            email     : __('Email'),
-            phone     : __('Phone'),
-            position  : __('Position'),
-            department: __('Department'),
-          },
-          selected: DirectoryState.filter ?? '',
-          onChange: e => {
-            DirectoryState.set({
-              filter: e.target.value,
-            })
+        className: 'display-flex space-between',
+      }, [
+        Div({
+          className: 'display-flex gap-10',
+        }, [
+          Button({
+            className: 'gh-button secondary icon small display-flex gap-10',
+            onClick  : e => {
+              addContactsMenu(e.currentTarget)
+            },
+          }, [
+            icons.createContact,
+            __('Add contacts!'),
+          ]),
+        ]),
+        InputGroup([
+          Select({
+            name    : 'filter',
+            options : {
+              name      : __('Name'),
+              email     : __('Email'),
+              phone     : __('Phone'),
+              position  : __('Position'),
+              department: __('Department'),
+            },
+            selected: DirectoryState.filter ?? '',
+            onChange: e => {
+              DirectoryState.set({
+                filter: e.target.value,
+              })
 
-            if (DirectoryState.search) {
+              if (DirectoryState.search) {
+                maybeFetchContactsAndMorph()
+              }
+            },
+          }),
+          Input({
+            type   : 'search',
+            name   : 'search',
+            value  : DirectoryState.search ?? '',
+            onInput: e => {
+              DirectoryState.set({
+                search: e.target.value,
+              })
               maybeFetchContactsAndMorph()
-            }
-          },
-        }),
-        Input({
-          type   : 'search',
-          name   : 'search',
-          value  : DirectoryState.search ?? '',
-          onInput: e => {
-            DirectoryState.set({
-              search: e.target.value,
-            })
-            maybeFetchContactsAndMorph()
-          },
-        }),
-      ])),
+            },
+          }),
+        ]),
+      ]),
       Div({
         className: 'tablenav space-between',
       }, [
@@ -1619,17 +1622,17 @@
 
   const ParentState = Groundhogg.createState({
     loaded: false,
-    parent: 0
+    parent: 0,
   })
 
   const ParentCompany = () => {
 
-    if ( ! ParentState.loaded ){
-      CompaniesStore.fetchRelationships( getCompany().ID, {
-        parent_type: 'company'
-      }).then( items => {
+    if (!ParentState.loaded) {
+      CompaniesStore.fetchRelationships(getCompany().ID, {
+        parent_type: 'company',
+      }).then(items => {
         // they are companies after all
-        CompaniesStore.itemsFetched( items )
+        CompaniesStore.itemsFetched(items)
         ParentState.set({
           parent: items[0].ID,
           loaded: true,
@@ -1639,7 +1642,7 @@
       return Div({})
     }
 
-    if ( ! ParentState.parent ){
+    if (!ParentState.parent) {
       return ItemPicker()
     }
 
@@ -1666,7 +1669,7 @@
       content,
     ])
 
-    let address = getCompany().meta.address.split('\n').join(', ')
+    let address = getCompany().meta.address?.split('\n').join(', ')
 
     return Div({}, [
       makeEl('img', {
@@ -1717,12 +1720,12 @@
                   text    : 'Email the primary contact',
                   onSelect: () => {
 
-                    if ( ! getCompany().data.primary_contact_id ){
+                    if (!getCompany().data.primary_contact_id) {
                       dialog({
                         message: 'No primary contact set',
-                        type: 'error'
+                        type   : 'error',
                       })
-                      return;
+                      return
                     }
 
                     sendEmail(ContactsStore.get(getCompany().data.primary_contact_id))
@@ -1741,33 +1744,33 @@
           ]),
 
           Button({
-            id: 'company-more',
+            id       : 'company-more',
             className: 'gh-button secondary text icon',
-            onClick: e => {
-              moreMenu( e.currentTarget, [
+            onClick  : e => {
+              moreMenu(e.currentTarget, [
                 {
-                  key: 'merge',
-                  cap: 'delete_companies',
-                  text: __('Merge'),
+                  key     : 'merge',
+                  cap     : 'delete_companies',
+                  text    : __('Merge'),
                   onSelect: () => {
-                    alert( 'Merging is not available yet' )
-                  }
+                    alert('Merging is not available yet')
+                  },
                 },
                 {
-                  key: 'delete',
-                  cap: 'delete_companies',
-                  text: `<span class="gh-text danger">${__('Delete')}</span>`,
+                  key     : 'delete',
+                  cap     : 'delete_companies',
+                  text    : `<span class="gh-text danger">${ __('Delete') }</span>`,
                   onSelect: () => {
                     dangerDeleteModal({
-                      name: bold( getCompany().data.name ),
+                      name     : bold(getCompany().data.name),
                       onConfirm: () => {
-                        window.location.href = adminPageURL( 'gh_companies' );
+                        window.location.href = adminPageURL('gh_companies')
                       },
                     })
-                  }
-                }
-              ].filter( ({cap}) => userHasCap( cap )) )
-            }
+                  },
+                },
+              ].filter(({ cap }) => userHasCap(cap)))
+            },
           }, [
             icons.verticalDots,
             ToolTip(__('More options')),
@@ -1778,7 +1781,7 @@
           getCompany().data.domain ? Detail('admin-site', `<a href="${ getCompany().data.domain }" target="_blank">${ hostname }</a>`) : null,
           getCompany().meta.phone ? Detail('phone', `<a href="tel:${ getCompany().meta.phone }">${ getCompany().meta.phone }</a>`) : null,
           getCompany().meta.industry ? Detail('store', `<span>${ getCompany().meta.industry }</span>`) : null,
-          getCompany().meta.address ? Detail('location', makeEl( 'a', { href: `http://maps.google.com/?q=${address}`}, address ) )  : null,
+          getCompany().meta.address ? Detail('location', makeEl('a', { href: `http://maps.google.com/?q=${ address }` }, address)) : null,
         ]),
       ]),
     ])

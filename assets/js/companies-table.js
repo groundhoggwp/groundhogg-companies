@@ -302,7 +302,10 @@ ${ map[h]
 
       Modal({
         closeButton: false,
-      }, ({ close, morph }) => Fragment([
+      }, ({
+        close,
+        morph,
+      }) => Fragment([
         Div({
           className: 'gh-header modal-header',
         }, [
@@ -344,15 +347,10 @@ ${ map[h]
               type    : 'url',
               value   : State.domain ?? '',
               onInput : e => State.set({
-                domain: e.target.value.trim().replace( /\/$/, '' ),
+                domain   : e.target.value.trim().replace(/\/$/, ''),
                 duplicate: null,
               }),
               onChange: e => {
-
-                if ( State.domain === '' ){
-                  morph()
-                  return
-                }
 
                 CompaniesStore.fetchItems({
                   domain: State.domain,
@@ -363,7 +361,6 @@ ${ map[h]
                   else {
                     State.set({ duplicate: null })
                   }
-
                   morph()
                 })
               },
@@ -376,6 +373,7 @@ ${ map[h]
             Label({ for: 'company-industry' }, __('Industry')),
             Autocomplete({
               id          : 'company-industry',
+              name: 'industry',
               value       : State.industry ?? '',
               fetchResults: async (search) => {
                 return Groundhogg.companyIndustries.filter(string => string.match(new RegExp(search, 'i'))).
@@ -384,15 +382,15 @@ ${ map[h]
                     text: s,
                   } ))
               },
-              onInput     : e => State.set({ industry: e.target.value }),
+              // onInput     : e => State.set({ industry: e.target.value }),
+              onChange    : e => State.set({ industry: e.target.value }),
             }),
           ]),
 
-
-          ! State.duplicate ? null : Div({
-            className: 'full',
+          !State.duplicate ? null : Div({
+            className: 'full pill yellow',
           }, [
-            `The domain <a href="${State.domain}">${State.domain}</a> is already being used by <a href="${State.duplicate.admin}">${State.duplicate.data.name}</a>.`
+            `The domain <a href="${ State.domain }">${ State.domain }</a> is already being used by <a href="${ State.duplicate.admin }">${ State.duplicate.data.name }</a>.`,
           ]),
 
           Div({
@@ -469,12 +467,14 @@ ${ map[h]
                   address,
                   phone,
                   domain,
+                  owner_id
                 } = State
 
                 let company = await CompaniesStore.post({
                   data: {
                     name,
                     domain,
+                    owner_id
                   },
                   meta: {
                     industry,

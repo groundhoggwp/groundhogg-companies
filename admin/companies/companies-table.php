@@ -67,7 +67,7 @@ class Companies_Table extends Table {
 			'name'     => array( 'name', false ),
 			'website'  => array( 'domain', false ),
 			'contacts' => array( 'contact_count', false ),
-			'industry' => array( 'industry', false ),
+			'industry' => array( 'meta.industry', false ),
 			'owner_id' => array( 'owner_id', false ),
 		);
 
@@ -223,7 +223,7 @@ class Companies_Table extends Table {
 						'data-name' => $item->get_name(),
 					],
 					'display'   => __( 'Delete' ),
-					'url'       => action_url( 'delete', [ 'email' => $item->get_id() ] )
+					'url'       => action_url( 'delete', [ 'company' => $item->get_id() ] )
 				];
 				break;
 		}

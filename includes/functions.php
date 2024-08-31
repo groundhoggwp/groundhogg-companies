@@ -11,7 +11,6 @@ use function Groundhogg\get_contactdata;
 use function Groundhogg\get_db;
 use function Groundhogg\get_email_address_hostname;
 use function Groundhogg\get_post_var;
-use function Groundhogg\get_request_var;
 use function Groundhogg\html;
 use function Groundhogg\is_a_contact;
 
@@ -47,9 +46,9 @@ function filter_option_sanitize_callback( $callback, $option, $value ) {
  */
 function sanitize_domain_name( $domain ) {
 
-    if ( empty( $domain ) ){
-        return '';
-    }
+	if ( empty( $domain ) ) {
+		return '';
+	}
 
 	// convert to lower case
 	$domain = strtolower( $domain );
@@ -579,30 +578,52 @@ function company_info_fields( $contact ) {
 
 	wp_enqueue_script( 'groundhogg-companies-data-admin' );
 
+	$related         = $contact->get_related_objects( 'company', false );
+	$company_name    = $contact->get_meta( 'company_name' );
+	$company_phone   = $contact->get_meta( 'company_phone' );
+	$company_website = $contact->get_meta( 'company_website' );
+	$company_address = $contact->get_meta( 'company_address' );
+
+	if ( ! empty( $related ) ) {
+		$company = $related[0];
+		if ( empty( $company_name ) ) {
+			$company_name = $company->name;
+		}
+		if ( empty( $company_phone ) ) {
+			$company_phone = $company->phone;
+		}
+		if ( empty( $company_website ) ) {
+			$company_website = $company->domain;
+		}
+		if ( empty( $company_address ) ) {
+			$company_address = $company->address;
+		}
+	}
+
 	?>
-	<h2><?php _e( 'Work Details', 'groundhogg' ) ?></h2>
-	<div class="gh-rows-and-columns">
-		<div class="gh-row">
-			<div class="gh-col">
-				<label for="job_title"><?php _e( 'Company Name', 'groundhogg' ) ?></label>
+    <h2><?php _e( 'Work Details', 'groundhogg' ) ?></h2>
+    <div class="gh-rows-and-columns">
+        <div class="gh-row">
+            <div class="gh-col">
+                <label for="job_title"><?php _e( 'Company Name', 'groundhogg' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'company_name',
 					'name'  => 'company_name',
-					'value' => $contact->get_meta( 'company_name' ),
+					'value' => $company_name,
 				] ); ?>
-			</div>
+            </div>
 
-			<div class="gh-col">
-				<label
-					for="company_phone"><?php _e( 'Work Phone & Ext.', 'groundhogg' ) ?></label>
-				<div class="gh-input-group">
+            <div class="gh-col">
+                <label
+                        for="company_phone"><?php _e( 'Work Phone & Ext.', 'groundhogg' ) ?></label>
+                <div class="gh-input-group">
 					<?php echo html()->input( [
 						'type'        => 'tel',
 						'class'       => 'input',
 						'id'          => 'company_phone',
 						'name'        => 'company_phone',
-						'value'       => $contact->get_meta( 'company_phone' ),
+						'value'       => $company_phone,
 						'placeholder' => __( '+1 (555) 555-5555', 'groundhogg' )
 					] ); ?>
 					<?php echo html()->input( [
@@ -616,65 +637,66 @@ function company_info_fields( $contact ) {
 						],
 						'placeholder' => __( '1234', 'groundhogg' )
 					] ); ?>
-				</div>
-			</div>
-		</div>
-		<div class="gh-row">
-			<div class="gh-col">
-				<label
-					for="job_title"><?php _e( 'Position', 'groundhogg' ) ?></label>
+
+                </div>
+            </div>
+        </div>
+        <div class="gh-row">
+            <div class="gh-col">
+                <label
+                        for="job_title"><?php _e( 'Position', 'groundhogg' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'job_title',
 					'name'  => 'job_title',
 					'value' => $contact->get_job_title(),
 				] ); ?>
-			</div>
-			<div class="gh-col">
-				<label
-					for="company_department"><?php _e( 'Department', 'groundhogg' ) ?></label>
+            </div>
+            <div class="gh-col">
+                <label
+                        for="company_department"><?php _e( 'Department', 'groundhogg' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'company_department',
 					'name'  => 'company_department',
 					'value' => $contact->get_meta( 'company_department' ),
 				] ); ?>
-			</div>
-		</div>
-		<div class="gh-row">
-			<div class="gh-col">
-				<label
-					for="company_website"><?php _e( 'Website', 'groundhogg' ) ?></label>
-				<div class="gh-input-group">
+            </div>
+        </div>
+        <div class="gh-row">
+            <div class="gh-col">
+                <label
+                        for="company_website"><?php _e( 'Website', 'groundhogg' ) ?></label>
+                <div class="gh-input-group">
 					<?php echo html()->input( [
 						'type'  => 'url',
 						'class' => 'full-width',
 						'id'    => 'company_website',
 						'name'  => 'company_website',
-						'value' => $contact->get_meta( 'company_website' ),
+						'value' => $company_website,
 					] ); ?>
-					<button type="button" class="gh-button secondary icon" id="visit-company-site">
-						<span class="dashicons dashicons-external"></span>
-					</button>
-				</div>
-			</div>
-		</div>
-		<div class="gh-row">
-			<div class="gh-col">
-				<label
-					for="company_address"><?php _e( 'Address', 'groundhogg' ) ?></label>
+                    <button type="button" class="gh-button secondary icon" id="visit-company-site">
+                        <span class="dashicons dashicons-external"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="gh-row">
+            <div class="gh-col">
+                <label
+                        for="company_address"><?php _e( 'Address', 'groundhogg' ) ?></label>
 				<?php echo html()->textarea( [
 					'class' => 'full-width',
 					'id'    => 'company_address',
 					'name'  => 'company_address',
-					'value' => $contact->get_meta( 'company_address' ),
+					'value' => $company_address,
 					'rows'  => 2,
 				] ); ?>
-			</div>
-		</div>
-	</div>
-	<script>
-      (($) => {
+            </div>
+        </div>
+    </div>
+    <script>
+      ( ($) => {
         $(() => {
 
           $('#visit-company-site').on('click', () => {
@@ -694,8 +716,8 @@ function company_info_fields( $contact ) {
           })
 
         })
-      })(jQuery)
-	</script>
+      } )(jQuery)
+    </script>
 	<?php
 
 }
@@ -764,13 +786,14 @@ function exclude_company_fields_from_meta( $keys ) {
 }
 
 /**
+ * @deprecated 3.0.1
+ *
  * @param $email string
  *
  * @todo       remove this in future versions once the core version is fixed
  *
  * If the given email is from a free inbox provider
  *
- * @deprecated 3.0.1
  */
 function is_free_email_provider( $email ) {
 
