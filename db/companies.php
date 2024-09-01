@@ -2,6 +2,7 @@
 
 namespace GroundhoggCompanies\DB;
 
+use Groundhogg\Contact;
 use Groundhogg\DB\DB;
 use Groundhogg\DB\Query\Filters;
 use Groundhogg\DB\Query\Table_Query;
@@ -20,12 +21,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Store Companies
  *
- * @package     Includes
+ * @since       File available since Release 1.0
  * @subpackage  includes/DB
  * @author      Adrian Tobey <info@groundhogg.io>
  * @copyright   Copyright (c) 2020, Groundhogg Inc.
  * @license     https://opensource.org/licenses/GPL-3.0 GNU Public License v3
- * @since       File available since Release 1.0
+ * @package     Includes
  */
 class Companies extends DB {
 	/**
@@ -64,7 +65,20 @@ class Companies extends DB {
 		return 'company';
 	}
 
-	protected function add_additional_actions() {
+	/**
+	 * Swap primary contact IDs
+	 *
+	 * @param $contact Contact
+	 * @param $other   Contact
+	 */
+	public function contact_merged( $contact, $other ) {
+
+		$this->update( [
+			'primary_contact_id' => $other->get_id(),
+		],
+		[
+			'primary_contact_id' => $contact->get_id()
+		] );
 	}
 
 	protected function maybe_register_filters() {
@@ -77,17 +91,17 @@ class Companies extends DB {
 
 		$this->query_filters->register_from_properties( properties()->get_fields() );
 
-		foreach ( [ 'industry', 'address', 'phone' ] as $meta_key ){
+		foreach ( [ 'industry', 'address', 'phone' ] as $meta_key ) {
 			$this->query_filters->register( $meta_key, function ( $filter, Where $where ) use ( $meta_key ) {
 				$alias = $where->query->joinMeta( $meta_key );
 				Filters::string( "$alias.meta_value", $filter, $where );
-			});
+			} );
 		}
 
-		$this->query_filters->register( 'num_contacts', function ( $filter, Where $where ){
+		$this->query_filters->register( 'num_contacts', function ( $filter, Where $where ) {
 
 			$relQuery = new Table_Query( 'object_relationships' );
-			$relQuery->setSelect( ['COUNT(secondary_object_id)', 'total_contacts'], 'primary_object_id' )->setGroupby( 'primary_object_id' )
+			$relQuery->setSelect( [ 'COUNT(secondary_object_id)', 'total_contacts' ], 'primary_object_id' )->setGroupby( 'primary_object_id' )
 			         ->where( 'primary_object_type', 'company' )
 			         ->equals( 'secondary_object_type', 'contact' );
 
@@ -137,14 +151,14 @@ class Companies extends DB {
 	 */
 	public function get_columns() {
 		return [
-			'ID'            => '%d',
-			'owner_id'      => '%d',
+			'ID'                 => '%d',
+			'owner_id'           => '%d',
 			'primary_contact_id' => '%d',
-			'name'          => '%s',
-			'slug'          => '%s',
-			'description'   => '%s',
-			'domain'        => '%s',
-			'date_created'  => '%s',
+			'name'               => '%s',
+			'slug'               => '%s',
+			'description'        => '%s',
+			'domain'             => '%s',
+			'date_created'       => '%s',
 		];
 	}
 
@@ -165,14 +179,14 @@ class Companies extends DB {
 	 */
 	public function get_column_defaults() {
 		return [
-			'ID'           => 0,
-			'owner_id'     => current_user_can( 'view_companies' ) ? get_current_user_id() : ( get_primary_owner() ? get_primary_owner()->ID : 0 ),
+			'ID'                 => 0,
+			'owner_id'           => current_user_can( 'view_companies' ) ? get_current_user_id() : ( get_primary_owner() ? get_primary_owner()->ID : 0 ),
 			'primary_contact_id' => 0,
-			'name'         => '',
-			'slug'         => '',
-			'description'  => '',
-			'domain'       => '',
-			'date_created' => current_time( 'mysql' ),
+			'name'               => '',
+			'slug'               => '',
+			'description'        => '',
+			'domain'             => '',
+			'date_created'       => current_time( 'mysql' ),
 		];
 	}
 
@@ -197,7 +211,7 @@ class Companies extends DB {
 
 	public function add( $data = array() ) {
 
-		if ( ! isset_not_empty( $data, 'name' ) ){
+		if ( ! isset_not_empty( $data, 'name' ) ) {
 			return false;
 		}
 
