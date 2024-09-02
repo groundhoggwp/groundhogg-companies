@@ -190,7 +190,7 @@ class Companies_Page extends Admin_Page {
 	}
 
 	public function get_priority() {
-		return 6;
+		return 20;
 	}
 
 	/**
