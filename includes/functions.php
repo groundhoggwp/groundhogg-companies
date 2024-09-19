@@ -37,6 +37,19 @@ function filter_option_sanitize_callback( $callback, $option, $value ) {
 
 }
 
+// Support for the tasks widget
+add_filter( 'groundhogg/task/associated_context', function ( $context, $object ){
+
+	if ( is_a( $object, Company::class ) ){
+		$context['link'] = $object->admin_link();
+		$context['name'] = $object->get_name();
+		$context['type'] = 'type';
+		$context['icon']  = 'store';
+	}
+
+	return $context;
+}, 10, 2 );
+
 /**
  * Normalize domain to store in the database
  *

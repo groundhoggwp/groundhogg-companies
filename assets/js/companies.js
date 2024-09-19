@@ -20,6 +20,7 @@
     dangerDeleteModal,
     loadingDots,
     spinner,
+    skeleton,
     tooltip,
     textarea,
     bold,
@@ -138,6 +139,7 @@
     Tr,
     Span,
     ToolTip,
+    Skeleton
   } = MakeEl
 
   // language=HTML
@@ -1015,7 +1017,22 @@
     // not loaded
     if (!DirectoryState.loaded) {
       fetchContacts().then(morphDirectory)
-      return Div({ id: 'directory' }, spinner())
+      return Div({ id: 'directory' }, Skeleton({}, [
+        'span-6',
+        'span-6',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+        'span-3',
+      ]))
     }
 
     return Div({
@@ -1382,6 +1399,14 @@
     },
   }))
 
+  const Tasks = () => Div({
+    className: 'gh-panel top-left-square',
+  }, Groundhogg.ObjectTasks({
+    object_id: getCompany().ID,
+    object_type: 'company',
+    title: ''
+  }) )
+
   const Files = () => Div({
     onCreate: () => {
       setTimeout(() => {
@@ -1576,6 +1601,11 @@
         view: () => Notes(),
       },
       {
+        id  : 'tasks',
+        name: 'Tasks',
+        view: () => Tasks(),
+      },
+      {
         id  : 'files',
         name: 'Files',
         view: () => Files(),
@@ -1746,7 +1776,7 @@
         Div({
           className: 'inside full display-flex gap-10',
           style: {
-            paddingLeft: logo ? '0' : 'initial'
+            paddingLeft: logo ? '0' : '20px'
           }
         }, [
 
@@ -1865,7 +1895,7 @@
                             fetchItemsDebounced()
                           },
                         })),
-                        !MergeState.loaded ? spinner() : Div({
+                        !MergeState.loaded ? skeleton() : Div({
                           id: 'search-results',
                         }, [
                           Table({}, TBody({}, MergeState.items.map(co => Tr({
