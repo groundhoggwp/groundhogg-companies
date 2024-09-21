@@ -55,6 +55,10 @@ class Plugin extends Extension {
 			wp_enqueue_script( 'groundhogg-companies-api-docs' );
 			wp_add_inline_script( 'groundhogg-companies-company-filters', 'const GroundhoggCompanyProperties = ' . wp_json_encode( properties()->get_all() ), 'before' );
 		} );
+
+		add_action( 'groundhogg/admin/gh_contacts/edit/scripts', function (){
+			wp_enqueue_script( 'groundhogg-companies-admin' );
+		}, 99 );
 	}
 
 	/**

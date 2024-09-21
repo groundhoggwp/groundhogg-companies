@@ -1,12 +1,9 @@
 ( ($) => {
 
   const {
-    company,
-    gh_company_custom_properties,
-  } = GroundhoggCompany
-  const {
     debounce,
   } = Groundhogg.functions
+
   const {
     icons,
     regexp,
@@ -28,10 +25,12 @@
     confirmationModal,
     loadingModal,
   } = Groundhogg.element
+
   const {
     companies: CompaniesStore,
     contacts : ContactsStore,
   } = Groundhogg.stores
+
   const {
     __,
     _x,
@@ -39,32 +38,59 @@
     _nx,
     sprintf,
   } = wp.i18n
+
   const {
     currentUser,
     propertiesEditor,
     noteEditor,
   } = Groundhogg
+
   const {
     userHasCap,
     getOwner,
   } = Groundhogg.user
+
   const {
     patch,
     routes,
     delete: _delete,
     get,
   } = Groundhogg.api
+
   const {
     quickEditContactModal,
     selectContactModal,
     addContactModal,
+    ContactListItem,
+    Panels,
+    Panel,
+    Relationships,
   } = Groundhogg.components
+
   const { formatNumber } = Groundhogg.formatting
+  const { base64_json_encode } = Groundhogg.functions
 
   const {
     ImageInput,
-    ImagePicker,
   } = Groundhogg.components
+
+  let customTabState = {}
+
+  if ( typeof GroundhoggCompany !== 'undefined' ){
+
+    const {
+      company,
+      gh_company_custom_properties,
+    } = GroundhoggCompany
+
+    CompaniesStore.itemsFetched([company])
+
+    customTabState = gh_company_custom_properties || {
+      tabs  : [],
+      fields: [],
+      groups: [],
+    }
+  }
 
   const State = Groundhogg.createState({
     primaryTab  : 'general',
@@ -114,12 +140,14 @@
     Groundhogg.components.emailModal(email)
   }
 
-  CompaniesStore.itemsFetched([company])
-
   const {
     Fragment,
     Autocomplete,
     Div,
+    H2,
+    Img,
+    Bold,
+    An,
     Input,
     Select,
     InputGroup,
@@ -139,7 +167,7 @@
     Tr,
     Span,
     ToolTip,
-    Skeleton
+    Skeleton,
   } = MakeEl
 
   // language=HTML
@@ -156,7 +184,12 @@
       </svg>`
 
   const getCompany = () => {
-    return CompaniesStore.get(company.ID)
+
+    if ( typeof GroundhoggCompany === 'undefined' ){
+      return {};
+    }
+
+    return CompaniesStore.get(GroundhoggCompany.company.ID)
   }
 
   let files = []
@@ -335,7 +368,7 @@
                     })
                   },
                 }),
-                makeEl('i',{}, __('For best results use a square image.' ) )
+                makeEl('i', {}, __('For best results use a square image.')),
               ]),
             ]),
             Div({
@@ -373,12 +406,6 @@
         },
       },
     ]
-
-    let customTabState = gh_company_custom_properties || {
-      tabs  : [],
-      fields: [],
-      groups: [],
-    }
 
     const __groups = () =>
       customTabState.groups.filter(g => g.tab === activeTab)
@@ -1053,7 +1080,7 @@
             },
           }, [
             icons.createContact,
-            __('Add contacts!'),
+            __('Add contacts'),
           ]),
         ]),
         InputGroup([
@@ -1250,7 +1277,7 @@
             }),
           ]),
           SortableColumn('first_name', __('Name')),
-          SortableColumn('email', __('Contact Info')),
+          // SortableColumn('email', __('Contact Info')),
           SortableColumn('cm.job_title', __('Position')),
           SortableColumn('cm.department', __('Department')),
         ]),
@@ -1286,22 +1313,11 @@
             },
           })),
           Td({}, [
-            makeEl('a', { href: contact.admin }, makeEl('img', {
-              src   : contact.data.gravatar,
-              width : 40,
-              height: 40,
-              style : {
-                borderRadius: '5px',
-                float       : 'left',
-                marginRight : '10px',
-              },
-            })),
-            makeEl('a', {
-              className: 'row-title',
-              href     : contact.admin,
-            }, contact.data.full_name.trim() || contact.data.email),
-            contact.ID == getCompany().data.primary_contact_id ? ' — ' : null,
-            contact.ID == getCompany().data.primary_contact_id ? Span({ className: 'post-state' }, 'Primary') : null,
+
+            ContactListItem(contact, {}),
+
+            // contact.ID == getCompany().data.primary_contact_id ? ' — ' : null,
+            // contact.ID == getCompany().data.primary_contact_id ? Span({ className: 'post-state' }, 'Primary') : null,
             Div({ className: 'row-actions' }, [
               makeEl('a', { href: contact.admin }, __('View')),
               ' | ',
@@ -1357,24 +1373,6 @@
               }, __('Remove')),
             ]),
           ]),
-          Td({
-            className: 'display-flex column contact-methods',
-          }, [
-            ContactMethod('email-alt', makeEl('a', {
-              href   : '#',
-              onClick: e => {
-                e.preventDefault()
-                sendEmail(contact)
-              },
-            }, contact.data.email)),
-            contact.meta.primary_phone ? ContactMethod('phone', makeEl('a', { href: `tel:${ contact.meta.primary_phone }` },
-              `${ contact.meta.primary_phone }${ contact.meta.primary_phone_extension ? ` ext. ${ contact.meta.primary_phone_extension }` : '' }`)) : null,
-            contact.meta.mobile_phone
-            ? ContactMethod('smartphone', makeEl('a', { href: `tel:${ contact.meta.mobile_phone }` }, contact.meta.mobile_phone))
-            : null,
-            contact.meta.company_phone ? ContactMethod('building', makeEl('a', { href: `tel:${ contact.meta.company_phone }` },
-              `${ contact.meta.company_phone }${ contact.meta.company_phone_extension ? ` ext. ${ contact.meta.company_phone_extension }` : '' }`)) : null,
-          ]),
           Td({}, contact.meta.job_title ?? '-'),
           Td({}, contact.meta.company_department ?? '-'),
         ])),
@@ -1402,10 +1400,10 @@
   const Tasks = () => Div({
     className: 'gh-panel top-left-square',
   }, Groundhogg.ObjectTasks({
-    object_id: getCompany().ID,
+    object_id  : getCompany().ID,
     object_type: 'company',
-    title: ''
-  }) )
+    title      : '',
+  }))
 
   const Files = () => Div({
     onCreate: () => {
@@ -1675,36 +1673,6 @@
     },
   ].filter(i => userHasCap(i.cap)))
 
-  const ParentState = Groundhogg.createState({
-    loaded: false,
-    parent: 0,
-  })
-
-  const ParentCompany = () => {
-
-    if (!ParentState.loaded) {
-      CompaniesStore.fetchRelationships(getCompany().ID, {
-        parent_type: 'company',
-      }).then(items => {
-        // they are companies after all
-        CompaniesStore.itemsFetched(items)
-        ParentState.set({
-          parent: items[0].ID,
-          loaded: true,
-        })
-        // todo morph
-      })
-      return Div({})
-    }
-
-    if (!ParentState.parent) {
-      return ItemPicker()
-    }
-
-    return Div({})
-
-  }
-
   const getHostname = company => {
     let hostname, url = ''
     try {
@@ -1716,19 +1684,130 @@
     }
   }
 
+  const QuickSearchCompanies = ({
+    onSelect = item => {},
+    onCancel = () => {},
+    exclude = []
+  }) => {
+
+    const State = Groundhogg.createState({
+      search: '',
+      loaded: false,
+      items : [],
+    })
+
+    Modal({
+      dialogClasses: 'no-padding',
+      onClose      : onCancel,
+    }, ({
+      close,
+      morph,
+    }) => {
+
+      const fetchItems = () => CompaniesStore.fetchItems({
+        exclude,
+        search : State.search,
+      }).then(items => {
+        State.set({
+          items,
+          loaded: true,
+        })
+
+        morph()
+      })
+
+      const fetchItemsDebounced = debounce(() => {
+        State.set({ loaded: false })
+        morph()
+        return fetchItems()
+      }, 300)
+
+      if (!State.loaded) {
+        fetchItems()
+      }
+
+      return Fragment([
+        Div({
+          id   : 'search-form',
+          style: {
+            width: '400px',
+          },
+        }, Input({
+          type       : 'search',
+          placeholder: 'Search by name',
+          value      : State.search,
+          onInput    : e => {
+            State.set({
+              search: e.target.value,
+            })
+            fetchItemsDebounced()
+          },
+        })),
+        !State.loaded ? skeleton() : Div({
+          id: 'search-results',
+        }, [
+          Table({}, TBody({}, State.items.map(co => Tr({
+            dataId: co.ID,
+          }, [
+            Td({}, makeEl('img', { src: `https://www.google.com/s2/favicons?domain=${ getHostname(co) }&sz=40` })),
+            Td({}, [
+              `<b>${ co.data.name }</b><br/>${ getHostname(co) }`,
+            ]),
+            Td({}, Button({
+              className: 'gh-button primary text',
+              id       : `select-${ co.ID }`,
+              onClick  : e => {
+                onSelect(co)
+                close()
+              },
+            }, 'Select')),
+          ])))),
+        ]),
+      ])
+    })
+  }
+
+  const Detail = (icon, content) => Div({
+    className: 'display-flex gap-10',
+  }, [
+    Dashicon(icon),
+    content,
+  ])
+
+  const CompanyDetails = (company, content = null ) => {
+
+    let totalContacts = sprintf('%s contacts', formatNumber(company.totalContacts))
+
+    if (company.totalContacts > 0) {
+      totalContacts = An({
+        href: adminPageURL('gh_contacts', {
+          filters: base64_json_encode([
+            [
+              {
+                type       : 'secondary_related',
+                object_type: 'company',
+                object_id  : company.ID,
+              },
+            ],
+          ]),
+        }),
+      }, totalContacts)
+    }
+
+    return Div({ className: 'inside display-flex gap-5 column' }, [
+      company.data.domain ? Detail('admin-site', `<a href="${ company.data.domain }" target="_blank">${ getHostname(company) }</a>`) : null,
+      company.meta.phone ? Detail('phone', `<a href="tel:${ company.meta.phone }">${ company.meta.phone }</a>`) : null,
+      company.meta.industry ? Detail('store', `<span>${ company.meta.industry }</span>`) : null,
+      company.meta.address ? Detail('location', makeEl('a', { href: `http://maps.google.com/?q=${ company.meta.address }` }, company.meta.address)) : null,
+      Detail('groups', totalContacts),
+      content
+    ])
+  }
+
   const CompanyInfo = () => {
 
     let hostname, url = ''
     hostname = getHostname(getCompany()) || 'example.com'
-
-    const Detail = (icon, content) => Div({
-      className: 'display-flex gap-10',
-    }, [
-      Dashicon(icon),
-      content,
-    ])
-
-    let address = getCompany().meta.address?.split('\n').join(', ')
 
     let { logo = '' } = getCompany().meta
     let img
@@ -1736,19 +1815,19 @@
       img = Div({
         className: 'has-box-shadow border-radius-5',
         style    : {
-          backgroundColor: '#ffffff',
+          backgroundColor   : '#ffffff',
           backgroundImage   : `url(${ logo })`,
           backgroundSize    : 'contain',
           aspectRatio       : '1 / 1',
           backgroundPosition: 'center',
           backgroundOrigin  : 'content-box',
           backgroundRepeat  : 'no-repeat',
-          padding: '5px',
-          float : 'left',
-          margin: '0 20px 16px 20px',
-          width : '100px',
-          height: '100px',
-          boxSizing: 'border-box'
+          padding           : '5px',
+          float             : 'left',
+          margin            : '0 20px 16px 20px',
+          width             : '100px',
+          height            : '100px',
+          boxSizing         : 'border-box',
         },
       })
     }
@@ -1775,9 +1854,9 @@
       }, [
         Div({
           className: 'inside full display-flex gap-10',
-          style: {
-            paddingLeft: logo ? '0' : '20px'
-          }
+          style    : {
+            paddingLeft: logo ? '0' : '20px',
+          },
         }, [
 
           Button({
@@ -1843,101 +1922,33 @@
                   text    : __('Merge'),
                   onSelect: () => {
 
-                    const MergeState = Groundhogg.createState({
-                      search: '',
-                      loaded: false,
-                      items : [],
-                    })
+                    QuickSearchCompanies({
+                      exclude: [getCompany().ID],
+                      onSelect: co => {
+                        confirmationModal({
+                          confirmText: __('Merge'),
+                          width      : 500,
+                          // language=HTML
+                          alert    : `<p>${ sprintf(
+                                  __('Are you sure you want to merge %1$s with %2$s? This action cannot be undone.',
+                                          'groundhogg'),
+                                  bold(co.data.name),
+                                  bold(getCompany().data.name)) }</p>`,
+                          onConfirm: () => {
 
-                    Modal({
-                      dialogClasses: 'no-padding',
-                    }, ({
-                      close,
-                      morph,
-                    }) => {
+                            loadingModal()
 
-                      const fetchItems = () => CompaniesStore.fetchItems({
-                        exclude: [getCompany().ID],
-                        search : MergeState.search,
-                      }).then(items => {
-                        MergeState.set({
-                          items,
-                          loaded: true,
-                        })
-
-                        morph()
-                      })
-
-                      const fetchItemsDebounced = debounce(() => {
-                        MergeState.set({ loaded: false })
-                        morph()
-                        return fetchItems()
-                      }, 300)
-
-                      if (!MergeState.loaded) {
-                        fetchItems()
-                      }
-
-                      return Fragment([
-                        Div({
-                          id   : 'search-form',
-                          style: {
-                            width: '400px',
-                          },
-                        }, Input({
-                          type       : 'search',
-                          placeholder: 'Search by name',
-                          value      : MergeState.search,
-                          onInput    : e => {
-                            MergeState.set({
-                              search: e.target.value,
+                            Groundhogg.api.post(`${ CompaniesStore.route }/${ getCompany().ID }/merge`, [
+                              co.ID,
+                            ]).then(() => {
+                              dialog({
+                                message: 'Company merged!',
+                              })
+                              location.reload()
                             })
-                            fetchItemsDebounced()
                           },
-                        })),
-                        !MergeState.loaded ? skeleton() : Div({
-                          id: 'search-results',
-                        }, [
-                          Table({}, TBody({}, MergeState.items.map(co => Tr({
-                            dataId: co.ID,
-                          }, [
-                            Td({}, makeEl('img', { src: `https://www.google.com/s2/favicons?domain=${ getHostname(co) }&sz=40` })),
-                            Td({}, [
-                              `<b>${ co.data.name }</b><br/>${ getHostname(co) }`,
-                            ]),
-                            Td({}, Button({
-                              className: 'gh-button primary text',
-                              id       : `select-${ co.ID }`,
-                              onClick  : e => {
-                                close()
-                                confirmationModal({
-                                  confirmText: __('Merge'),
-                                  width      : 500,
-                                  // language=HTML
-                                  alert    : `<p>${ sprintf(
-                                          __('Are you sure you want to merge %1$s with %2$s? This action cannot be undone.',
-                                                  'groundhogg'),
-                                          bold(co.data.name),
-                                          bold(getCompany().data.name)) }</p>`,
-                                  onConfirm: () => {
-
-                                    loadingModal()
-
-                                    Groundhogg.api.post(`${ CompaniesStore.route }/${ getCompany().ID }/merge`, [
-                                      co.ID,
-                                    ]).then(() => {
-                                      dialog({
-                                        message: 'Company merged!',
-                                      })
-                                      location.reload()
-                                    })
-                                  },
-                                })
-                              },
-                            }, 'Select')),
-                          ])))),
-                        ]),
-                      ])
+                        })
+                      },
                     })
                   },
                 },
@@ -1967,12 +1978,7 @@
           ]),
 
         ]),
-        Div({ className: 'inside display-flex gap-10 column' }, [
-          getCompany().data.domain ? Detail('admin-site', `<a href="${ getCompany().data.domain }" target="_blank">${ hostname }</a>`) : null,
-          getCompany().meta.phone ? Detail('phone', `<a href="tel:${ getCompany().meta.phone }">${ getCompany().meta.phone }</a>`) : null,
-          getCompany().meta.industry ? Detail('store', `<span>${ getCompany().meta.industry }</span>`) : null,
-          getCompany().meta.address ? Detail('location', makeEl('a', { href: `http://maps.google.com/?q=${ address }` }, address)) : null,
-        ]),
+        CompanyDetails(getCompany()),
       ]),
     ])
   }
@@ -2025,7 +2031,7 @@
         cancelText : __('No'),
         onConfirm  : () => {
 
-          CompaniesStore.createRelationships(company.ID, contacts.map(c => ( {
+          CompaniesStore.createRelationships(getCompany().ID, contacts.map(c => ( {
             child_id  : c.ID,
             child_type: 'contact',
           } ))).then(() => {
@@ -2042,11 +2048,127 @@
   const morphSecondaryTabs = () => morphdom(document.getElementById('tabs-secondary'), SecondaryTabs(), { childrenOnly: true })
   const morphInfoCard = () => morphdom(document.getElementById('company-info-card'), Div({}, CompanyInfo()), { childrenOnly: true })
 
+  const RenderCompany = ({ onDelete = false, ...item }) => Div({
+    className: 'gh-panel outlined closed',
+    id       : `company-${ item.ID }`,
+  }, [
+    Div({
+      className: 'gh-panel-header',
+    }, [
+      H2({
+        className: 'display-flex gap-5 align-center',
+      }, [
+        Img({
+          width: 20,
+          src  : `https://www.google.com/s2/favicons?domain=${ getHostname(item) }&sz=40`,
+        }),
+        An({ href: item.admin }, item.data.name),
+      ]),
+      Button({
+        className: 'toggle-indicator',
+        onClick  : e => e.target.closest('.gh-panel').classList.toggle('closed'),
+      }),
+    ]),
+    CompanyDetails(item, Fragment([
+      onDelete ? An({
+        href: '#',
+        className: 'danger',
+        onClick: e => {
+          e.preventDefault()
+          onDelete( item.ID )
+        }
+      }, __( 'Remove' ) ) : null
+    ])),
+  ])
+
+  let InfoCards
+
+  if ( typeof GroundhoggCompany !== 'undefined' ){
+    InfoCards = Panels({})
+
+    InfoCards.add('related', {
+      name   : 'Related Companies',
+      content: () => Div({
+        style: {
+          padding: '10px',
+        },
+      }, [
+        Relationships({
+          title: __('Parents'),
+          id        : getCompany().ID,
+          parent_type: 'company',
+          store     : CompaniesStore,
+          renderItem: item => RenderCompany(item),
+          onAddItem : (res, rej, state) => {
+
+            QuickSearchCompanies({
+              exclude: [ ...state.items.map( c => c.ID ), getCompany().ID ],
+              onSelect: company => res(company),
+              onCancel: rej,
+            })
+
+          },
+        }),
+        Relationships({
+          title: __('Subsidiaries'),
+          id        : getCompany().ID,
+          child_type: 'company',
+          store     : CompaniesStore,
+          renderItem: item => RenderCompany(item),
+          onAddItem : (res, rej, state) => {
+
+            QuickSearchCompanies({
+              exclude: [ ...state.items.map( c => c.ID ), getCompany().ID ],
+              onSelect: company => res(company),
+              onCancel: rej,
+            })
+
+          },
+        }),
+      ]),
+    })
+
+    Groundhogg.companies.InfoCards = InfoCards
+  }
+
   $(() => {
-    morphInfoCard()
-    morphSecondaryTabs()
-    companyTabs()
-    checkForPotentialContactMatches()
+
+    if ( typeof GroundhoggCompany !== 'undefined' ){
+      morphInfoCard()
+      morphSecondaryTabs()
+      companyTabs()
+      checkForPotentialContactMatches()
+
+      document.getElementById('info-cards').append(InfoCards.Panels())
+    }
+
+    if (typeof ContactEditor !== 'undefined') {
+      let el = document.getElementById('contact-companies')
+      if (el) {
+        morphdom( el.parentNode, Div({
+          className: 'inside',
+          style: {
+            padding: '10px'
+          }
+        }, Relationships({
+          id        : ContactEditor.contact_id,
+          parent_type: 'company',
+          store     : ContactsStore,
+          renderItem: item => RenderCompany(item),
+          onAddItem : (res, rej, state) => {
+
+            QuickSearchCompanies({
+              exclude: [ ...state.items.map( c => c.ID ) ],
+              onSelect: company => res(company),
+              onCancel: rej,
+            })
+
+          },
+        }) ))
+      }
+    }
+
+
   })
 
 } )(jQuery)

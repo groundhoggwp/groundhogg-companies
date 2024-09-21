@@ -9,6 +9,10 @@
     },
   })
 
+  if ( ! Groundhogg.companies ){
+    Groundhogg.companies = {}
+  }
+
   Groundhogg.companyDepartments = [
     'Accounting & Finance',
     'Administration',
@@ -21,6 +25,8 @@
     'Purchasing',
     'Sales',
   ]
+
+  Groundhogg.companies.deparments = Groundhogg.companyDepartments
 
   Groundhogg.companyPositions = [
     'Account Collector',
@@ -630,4 +636,8 @@
     'Wireless',
     'Writing & Editing'
   ]
+
+  Groundhogg.companies.positions = Groundhogg.companyPositions
+
+
 })()

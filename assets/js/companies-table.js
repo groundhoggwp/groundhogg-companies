@@ -487,7 +487,7 @@ ${ map[h]
                   message: 'Company created!',
                 })
 
-                window.open(company.admin)
+                window.open(company.admin, '_self')
 
               },
             }, __('Create Company')),
