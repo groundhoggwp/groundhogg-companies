@@ -93,6 +93,7 @@ class Export_Companies extends Export_Contacts {
 			$contact = new Contact( $item->primary_contact_id );
 
 			$line = [
+				$item->ID,
 				$item->name,
 				$item->domain,
 				$item->address,

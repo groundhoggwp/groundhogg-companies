@@ -94,6 +94,7 @@ class Companies_Page extends Admin_Page {
 		}
 
 		$headers = [
+			__( 'ID', 'groundhogg-companies' ),
 			__( 'Name', 'groundhogg-companies' ),
 			__( 'Website', 'groundhogg-companies' ),
 			__( 'Address', 'groundhogg-companies' ),
@@ -405,6 +406,8 @@ class Companies_Page extends Admin_Page {
                 <div class="company-more"></div>
             </div>
             <div id="tabs-secondary">
+            </div>
+            <div id="info-cards">
             </div>
         </div>
 		<?php
