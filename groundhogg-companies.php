@@ -46,7 +46,7 @@ define( 'GROUNDHOGG_COMPANIES_TEXT_DOMAIN', 'groundhogg-companies' );
 
 define( 'GROUNDHOGG_COMPANIES_REQUIRED_WP_VERSION', '5.0' );
 define( 'GROUNDHOGG_COMPANIES_REQUIRED_PHP_VERSION', '7.1' );
-define( 'GROUNDHOGG_COMPANIES_REQUIRED_CORE_VERSION', '3.6' );
+define( 'GROUNDHOGG_COMPANIES_REQUIRED_CORE_VERSION', '3.7' );
 
 // Check PHP and WP are up to date!
 if ( check_wp_version() && check_php_version() ){
