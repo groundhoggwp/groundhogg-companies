@@ -1339,7 +1339,7 @@
                 onClick  : e => {
                   e.preventDefault()
 
-                  CompaniesStore.patch(company.ID, {
+                  CompaniesStore.patch(getCompany().ID, {
                     data: {
                       primary_contact_id: contact.ID,
                     },
@@ -1389,7 +1389,7 @@
     onCreate : el => {
       setTimeout(() => {
         noteEditor('#notes-here', {
-          object_id  : company.ID,
+          object_id  : getCompany().ID,
           object_type: 'company',
           title      : '',
         })
@@ -1419,7 +1419,7 @@
               _n('Are you sure you want to delete %d file?', 'Are you sure you want to delete %d files?', selectedFiles.length, 'groundhogg'),
               selectedFiles.length) }</p>`,
             onConfirm  : () => {
-              _delete(`${ CompaniesStore.route }/${ company.ID }/files`, selectedFiles).then(({ items }) => {
+              _delete(`${ CompaniesStore.route }/${ getCompany().ID }/files`, selectedFiles).then(({ items }) => {
                 selectedFiles = []
                 files = items
                 mount()
@@ -1506,7 +1506,7 @@
                       confirmText: __('Delete'),
                       alert      : `<p>${ sprintf(__('Are you sure you want to delete %s?', 'groundhogg'), _file) }</p>`,
                       onConfirm  : () => {
-                        _delete(`${ CompaniesStore.route }/${ company.ID }/files`, [
+                        _delete(`${ CompaniesStore.route }/${ getCompany().ID }/files`, [
                           _file,
                         ]).then(({ items }) => {
                           selectedFiles = []
@@ -1540,7 +1540,7 @@
           Groundhogg.components.fileUploader({
             action      : 'groundhogg_company_upload_file',
             nonce       : '',
-            beforeUpload: (fd) => fd.append('company', company.ID),
+            beforeUpload: (fd) => fd.append('company', getCompany().ID),
             onUpload    : (json, file) => {
               // console.log( json )
               files = json.data.files
@@ -1550,7 +1550,7 @@
         })
 
         if (!files.length) {
-          CompaniesStore.fetchFiles(company.ID).then(_files => {
+          CompaniesStore.fetchFiles(getCompany().ID).then(_files => {
             files = _files
             mount()
           })
@@ -1639,7 +1639,7 @@
         selectContactModal({
           exclude : DirectoryState.contacts,
           onSelect: (contact) => {
-            CompaniesStore.createRelationships(company.ID, {
+            CompaniesStore.createRelationships(getCompany().ID, {
               child_type: 'contact',
               child_id  : contact.ID,
             }).then(() => {
@@ -1659,7 +1659,7 @@
         addContactModal({
           ...QuickAddEditParts,
           onCreate: (contact) => {
-            CompaniesStore.createRelationships(company.ID, {
+            CompaniesStore.createRelationships(getCompany().ID, {
               child_type: 'contact',
               child_id  : contact.ID,
             }).then(() => {
@@ -1786,7 +1786,7 @@
               {
                 type       : 'secondary_related',
                 object_type: 'company',
-                object_id  : company.ID,
+                object_id  : getCompany().ID,
               },
             ],
           ]),
