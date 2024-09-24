@@ -1287,95 +1287,97 @@
           colspan  : 6,
           className: 'colspanchange',
         }, 'No contacts found.')) : null,
-        ...contacts.map(contact => Tr({}, [
-          Th({ className: 'check-column' }, Input({
-            type    : 'checkbox',
-            value   : contact.ID,
-            name    : 'contacts[]',
-            checked : DirectoryState.selected.includes(contact.ID),
-            id      : `contact-check-${ contact.ID }`,
-            onChange: e => {
-              if (e.target.checked) {
-                DirectoryState.set({
-                  selected: [
-                    ...DirectoryState.selected,
-                    contact.ID,
-                  ],
-                })
-              }
-              else {
-                DirectoryState.set({
-                  selected: DirectoryState.selected.filter(id => id != contact.ID),
-                })
-              }
+        ...contacts.map(contact => {
+          const isPrimary = () => contact.ID == getCompany().data.primary_contact_id
 
-              morphDirectory()
-            },
-          })),
-          Td({}, [
-
-            ContactListItem(contact, {}),
-
-            // contact.ID == getCompany().data.primary_contact_id ? ' — ' : null,
-            // contact.ID == getCompany().data.primary_contact_id ? Span({ className: 'post-state' }, 'Primary') : null,
-            Div({ className: 'row-actions' }, [
-              makeEl('a', { href: contact.admin }, __('View')),
-              ' | ',
-              makeEl('a', {
-                id     : `quick-edit-${ contact.ID }`,
-                href   : '#',
-                onClick: e => {
-                  e.preventDefault()
-                  companyQuickEdit(contact, c => {
-                    morphDirectory()
+          return Tr({}, [
+            Th({ className: 'check-column' }, Input({
+              type    : 'checkbox',
+              value   : contact.ID,
+              name    : 'contacts[]',
+              checked : DirectoryState.selected.includes(contact.ID),
+              id      : `contact-check-${ contact.ID }`,
+              onChange: e => {
+                if (e.target.checked) {
+                  DirectoryState.set({
+                    selected: [
+                      ...DirectoryState.selected,
+                      contact.ID,
+                    ],
                   })
-                },
-              }, __('Quick Edit')),
-              contact.ID == getCompany().data.primary_contact_id ? null : ' | ',
-              contact.ID == getCompany().data.primary_contact_id ? null : makeEl('a', {
-                id       : `set-primary-${ contact.ID }`,
-                className: 'set-primary',
-                href     : '#',
-                onClick  : e => {
-                  e.preventDefault()
+                }
+                else {
+                  DirectoryState.set({
+                    selected: DirectoryState.selected.filter(id => id != contact.ID),
+                  })
+                }
 
-                  CompaniesStore.patch(getCompany().ID, {
-                    data: {
-                      primary_contact_id: contact.ID,
-                    },
-                  }).then(item => {
+                morphDirectory()
+              },
+            })),
+            Td({}, [
 
-                    dialog({
-                      message: __('Primary contact changed!', 'groundhogg-companies'),
+              isPrimary() ? Span({ className: 'pill sm', style: {marginBottom: '3px'}}, __('Primary', 'groundhogg-companies')): null,
+              ContactListItem(contact, {}),
+               Div({ className: 'row-actions' }, [
+                makeEl('a', { href: contact.admin }, __('View')),
+                ' | ',
+                makeEl('a', {
+                  id     : `quick-edit-${ contact.ID }`,
+                  href   : '#',
+                  onClick: e => {
+                    e.preventDefault()
+                    companyQuickEdit(contact, c => {
+                      morphDirectory()
                     })
+                  },
+                }, __('Quick Edit')),
+                isPrimary() ? null : ' | ',
+                isPrimary() ? null : makeEl('a', {
+                  id       : `set-primary-${ contact.ID }`,
+                  className: 'set-primary',
+                  href     : '#',
+                  onClick  : e => {
+                    e.preventDefault()
 
-                    morphDirectory()
-                  })
-                },
-              }, __('Set Primary')),
-              ' | ',
-              makeEl('a', {
-                id       : `remove-${ contact.ID }`,
-                className: 'danger trash',
-                href     : '#',
-                onClick  : e => {
-                  e.preventDefault()
-                  dangerConfirmationModal({
-                    alert    : `<p>${ sprintf(__('Are you sure you want to remove %s from %s?'), bold(contact.data.full_name),
-                      bold(getCompany().data.name)) }</p>`,
-                    onConfirm: () => {
-                      removeContacts([contact.ID]).then(r => {
-                        morphDirectory()
+                    CompaniesStore.patch(getCompany().ID, {
+                      data: {
+                        primary_contact_id: contact.ID,
+                      },
+                    }).then(item => {
+
+                      dialog({
+                        message: __('Primary contact changed!', 'groundhogg-companies'),
                       })
-                    },
-                  })
-                },
-              }, __('Remove')),
+
+                      morphDirectory()
+                    })
+                  },
+                }, __('Set Primary')),
+                ' | ',
+                makeEl('a', {
+                  id       : `remove-${ contact.ID }`,
+                  className: 'danger trash',
+                  href     : '#',
+                  onClick  : e => {
+                    e.preventDefault()
+                    dangerConfirmationModal({
+                      alert    : `<p>${ sprintf(__('Are you sure you want to remove %s from %s?'), bold(contact.data.full_name),
+                        bold(getCompany().data.name)) }</p>`,
+                      onConfirm: () => {
+                        removeContacts([contact.ID]).then(r => {
+                          morphDirectory()
+                        })
+                      },
+                    })
+                  },
+                }, __('Remove')),
+              ]),
             ]),
-          ]),
-          Td({}, contact.meta.job_title ?? '-'),
-          Td({}, contact.meta.company_department ?? '-'),
-        ])),
+            Td({}, contact.meta.job_title ?? '-'),
+            Td({}, contact.meta.company_department ?? '-'),
+          ])
+        }),
       ]),
     ])))
 
@@ -1838,10 +1840,12 @@
         width    : 40,
         height   : 40,
         style    : {
+          backgroundColor   : '#ffffff',
           float       : 'left',
-          marginRight : '10px',
+          margin      : '0 20px 16px 20px',
           marginBottom: '-10px',
           borderRadius: '5px',
+          padding: '30px',
         },
       })
     }
@@ -1855,7 +1859,7 @@
         Div({
           className: 'inside full display-flex gap-10',
           style    : {
-            paddingLeft: logo ? '0' : '20px',
+            paddingLeft: 0,
           },
         }, [
 
