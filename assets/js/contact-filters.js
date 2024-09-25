@@ -65,8 +65,8 @@
     },
   })
 
-  registerFilter('job_title', 'company', __('Job Title', 'groundhogg'), {
-    ...BasicTextFilter(__('Job Title', 'groundhogg')),
+  registerFilter('job_title', 'company', __('Position', 'groundhogg'), {
+    ...BasicTextFilter(__('Position', 'groundhogg')),
     onMount (filter, updateFilter) {
 
       $(`#filter-value`).autocomplete({

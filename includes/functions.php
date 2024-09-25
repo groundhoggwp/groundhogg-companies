@@ -119,7 +119,7 @@ function get_contact_company_fields() {
 		'company_address'         => __( 'Company Address', 'groundhogg' ),
 		'company_phone'           => __( 'Company Phone Number', 'groundhogg' ),
 		'company_phone_extension' => __( 'Company Phone Number Extension', 'groundhogg' ),
-		'job_title'               => __( 'Job Title', 'groundhogg' ),
+		'job_title'               => __( 'Position', 'groundhogg' ),
 		'company_department'      => __( 'Department', 'groundhogg' ),
 	];
 }

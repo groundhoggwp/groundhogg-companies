@@ -39,8 +39,8 @@ class Replacements {
 				'code'        => 'job_title',
 				'group'       => 'company',
 				'callback'    => [ $this, 'replacement_job_title' ],
-				'name'        => __( 'Job Title', 'groundhogg' ),
-				'description' => _x( 'The contact\'s job title.', 'replacement', 'groundhogg' ),
+				'name'        => __( 'Position', 'groundhogg' ),
+				'description' => _x( 'The contact\'s position.', 'replacement', 'groundhogg' ),
 			],
 			[
 				'code'        => 'company_department',

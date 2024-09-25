@@ -187,6 +187,10 @@ class Plugin extends Extension {
 	 */
 	public function company_table_columns_callback( $contact, $column_id ) {
 
+		if ( $column_id === 'job_title' || $column_id === 'company_department' ){
+			return $contact->get_meta( $column_id );
+		}
+
 		if ( ! $contact->get_meta( $column_id ) ) {
 
 			$companies = $contact->get_related_objects( 'company', false );
@@ -234,8 +238,7 @@ class Plugin extends Extension {
 		switch ( $column_id ) {
 			default:
 			case 'company_name':
-			case 'job_title':
-			case 'company_department':
+				return $contact->get_meta( 'company_name' );
 			case 'company_phone':
 
 				$phone = $contact->get_meta( 'company_phone' );
