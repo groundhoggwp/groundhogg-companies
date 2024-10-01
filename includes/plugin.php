@@ -146,6 +146,7 @@ class Plugin extends Extension {
 		wp_register_script( 'groundhogg-companies-admin', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/companies.js', [
 			'groundhogg-companies-data-admin',
 			'groundhogg-admin-notes',
+			'groundhogg-admin-tasks',
 			'groundhogg-admin-properties',
 			'groundhogg-admin-components',
 			'jquery-ui-autocomplete',

@@ -3,7 +3,7 @@
  * Plugin Name: Groundhogg - Companies
  * Plugin URI:  https://www.groundhogg.io/downloads/companies/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash
  * Description: Organize contacts into companies and keep track of vital company information.
- * Version: 3.3
+ * Version: 3.3.0.1
  * Author: Groundhogg Inc.
  * Author URI: https://www.groundhogg.io/?utm_source=wp-plugins&utm_campaign=author-uri&utm_medium=wp-dash
  * Text Domain: groundhogg-companies
@@ -25,7 +25,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GROUNDHOGG_COMPANIES_VERSION', '3.3' );
+define( 'GROUNDHOGG_COMPANIES_VERSION', '3.3.0.1' );
 define( 'GROUNDHOGG_COMPANIES_PREVIOUS_STABLE_VERSION', '3.2' );
 define( 'GROUNDHOGG_COMPANIES_NAME', 'Groundhogg - Companies' );
 
