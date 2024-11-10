@@ -3,6 +3,7 @@
 namespace GroundhoggCompanies;
 
 use Groundhogg\Contact;
+use Groundhogg\DB\Query\Table_Query;
 use Groundhogg\Plugin;
 use Groundhogg\Properties;
 use GroundhoggCompanies\Classes\Company;
@@ -38,13 +39,13 @@ function filter_option_sanitize_callback( $callback, $option, $value ) {
 }
 
 // Support for the tasks widget
-add_filter( 'groundhogg/task/associated_context', function ( $context, $object ){
+add_filter( 'groundhogg/task/associated_context', function ( $context, $object ) {
 
-	if ( is_a( $object, Company::class ) ){
+	if ( is_a( $object, Company::class ) ) {
 		$context['link'] = $object->admin_link();
 		$context['name'] = $object->get_name();
 		$context['type'] = 'type';
-		$context['icon']  = 'store';
+		$context['icon'] = 'store';
 	}
 
 	return $context;
@@ -283,12 +284,41 @@ function contact_created( $ID, $data, $contact ) {
 
 	$company = new Company( $company_website, 'domain' );
 
-	if ( $company->exists() ) {
-		$company->create_relationship( $contact );
+	if ( ! $company->exists() ) {
+		return;
 	}
+
+	$company->create_relationship( $contact );
 }
 
 add_action( 'groundhogg/contact/post_update', __NAMESPACE__ . '\contact_updated', 10, 4 );
+
+/**
+ * When the contact owner is changed, also update the owner for any companies where the primary contact ID is this contact
+ *
+ * @param \WP_User $new_owner
+ * @param Contact  $contact
+ * @param \WP_User $orig_owner
+ *
+ * @return void
+ */
+function contact_owner_changed( $new_owner, $contact, $orig_owner ) {
+
+	// fetch all companies where this contact is the primary contact
+	$companyQuery = new Table_Query( 'companies' );
+	$companyQuery->where( 'primary_contact_id', $contact->ID );
+
+	$companies = $companyQuery->get_objects();
+
+	// change the owner to the owner of the contact
+	foreach ( $companies as $company ) {
+		$company->update( [
+			'owner_id' => $new_owner->ID
+		] );
+	}
+}
+
+add_action( 'groundhogg/contact/owner_changed', __NAMESPACE__ . '\contact_owner_changed', 10, 3 );
 
 /**
  * When a contact is updated check the email domain and maybe associate to a company

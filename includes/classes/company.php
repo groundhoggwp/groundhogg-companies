@@ -26,7 +26,7 @@ class Company extends Base_Object_With_Meta {
 	/**
 	 * Gets the oldest contact from the related contacts and makes it the primary contact by default
 	 *
-	 * @return void
+	 * @return bool true if a contact was found, false otherwise
 	 */
 	public function set_primary_contact_to_first_created() {
 		$contactQuery = new Contact_Query( [
@@ -47,12 +47,14 @@ class Company extends Base_Object_With_Meta {
 		$contacts = $contactQuery->get_objects();
 
 		if ( empty( $contacts ) ){
-			return;
+			return false;
 		}
 
 		$this->update([
 			'primary_contact_id' => $contacts[0]->ID
 		]);
+
+		return true;
 	}
 
 	protected function get_meta_db() {
