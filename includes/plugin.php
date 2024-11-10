@@ -36,6 +36,7 @@ class Plugin extends Extension {
 	 */
 	public function includes() {
 		require GROUNDHOGG_COMPANIES_PATH . '/includes/functions.php';
+		require GROUNDHOGG_COMPANIES_PATH . '/includes/cli/company.php';
 	}
 
 	/**
