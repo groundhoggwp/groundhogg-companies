@@ -1386,7 +1386,7 @@
   const Notes = () => Div({
     className: 'gh-panel top-left-square',
   }, Div({
-    className: 'inside',
+    // className: 'inside',
     id       : 'notes-here',
     onCreate : el => {
       setTimeout(() => {

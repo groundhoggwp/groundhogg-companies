@@ -42,6 +42,19 @@ function filter_option_sanitize_callback( $callback, $option, $value ) {
 add_filter( 'groundhogg/task/associated_context', function ( $context, $object ) {
 
 	if ( is_a( $object, Company::class ) ) {
+
+		$hostname = $object->get_hostname();
+
+		if ( $hostname ) {
+			$context['img'] = "https://www.google.com/s2/favicons?domain={$hostname}&sz=40";
+		}
+
+        $logo = $object->get_meta( 'logo' );
+
+        if ( $logo ){
+	        $context['img'] = $logo;
+        }
+
 		$context['link'] = $object->admin_link();
 		$context['name'] = $object->get_name();
 		$context['type'] = 'type';
