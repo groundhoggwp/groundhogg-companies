@@ -1788,7 +1788,7 @@
               {
                 type       : 'secondary_related',
                 object_type: 'company',
-                object_id  : getCompany().ID,
+                object_id  : company.ID,
               },
             ],
           ]),

@@ -631,13 +631,13 @@ ${ map[h]
         {
           key     : 'funnel',
           cap     : 'view_funnels',
-          text    : sprintf(__('Add %s companies to a funnel', 'groundhogg'),
+          text    : sprintf(__('Add %s companies to a flow', 'groundhogg'),
             totalItemsFormatted),
           onSelect: () => {
 
             modal({
               //language=HTML
-              content: `<h2>${ __('Add companies to a funnel', 'groundhogg') }</h2>
+              content: `<h2>${ __('Add companies to a flow', 'groundhogg') }</h2>
               <div id="gh-add-to-funnel" style="width: 500px"></div>`,
               onOpen : () => {
                 document.getElementById('gh-add-to-funnel').append(Groundhogg.FunnelScheduler({

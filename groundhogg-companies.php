@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'GROUNDHOGG_COMPANIES_VERSION', '3.3.0.3' );
-define( 'GROUNDHOGG_COMPANIES_PREVIOUS_STABLE_VERSION', '3.2.0.2' );
+define( 'GROUNDHOGG_COMPANIES_PREVIOUS_STABLE_VERSION', '3.3.0.2' );
 define( 'GROUNDHOGG_COMPANIES_NAME', 'Groundhogg - Companies' );
 
 define( 'GROUNDHOGG_COMPANIES__FILE__', __FILE__ );
