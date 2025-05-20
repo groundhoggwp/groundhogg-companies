@@ -31,6 +31,24 @@
   } = wp.i18n
   const { formatNumber } = Groundhogg.formatting
 
+  const {
+    getOwner,
+    getCurrentUser,
+  } = Groundhogg.user
+
+  const {
+    Modal,
+    Fragment,
+    Autocomplete,
+    Div,
+    Input,
+    Textarea,
+    ItemPicker,
+    Label,
+    Button,
+    Dashicon,
+  } = MakeEl
+
   $(() => {
 
     let mappingGroups = {
@@ -268,24 +286,6 @@ ${ map[h]
       })
     })
 
-    const {
-      getOwner,
-      getCurrentUser,
-    } = Groundhogg.user
-
-    const {
-      Modal,
-      Fragment,
-      Autocomplete,
-      Div,
-      Input,
-      Textarea,
-      ItemPicker,
-      Label,
-      Button,
-      Dashicon,
-    } = MakeEl
-
     document.getElementById('add-company').addEventListener('click', e => {
 
       e.preventDefault()
@@ -373,7 +373,7 @@ ${ map[h]
             Label({ for: 'company-industry' }, __('Industry')),
             Autocomplete({
               id          : 'company-industry',
-              name: 'industry',
+              name        : 'industry',
               value       : State.industry ?? '',
               fetchResults: async (search) => {
                 return Groundhogg.companyIndustries.filter(string => string.match(new RegExp(search, 'i'))).
@@ -383,7 +383,7 @@ ${ map[h]
                   } ))
               },
               // onInput     : e => State.set({ industry: e.target.value }),
-              onChange    : e => State.set({ industry: e.target.value }),
+              onChange: e => State.set({ industry: e.target.value }),
             }),
           ]),
 
@@ -467,14 +467,14 @@ ${ map[h]
                   address,
                   phone,
                   domain,
-                  owner_id
+                  owner_id,
                 } = State
 
                 let company = await CompaniesStore.post({
                   data: {
                     name,
                     domain,
-                    owner_id
+                    owner_id,
                   },
                   meta: {
                     industry,
@@ -499,7 +499,7 @@ ${ map[h]
 
   const { base64_json_encode } = Groundhogg.functions
 
-  $(() => {
+  window.addEventListener('DOMContentLoaded', e => {
 
     $('.bulkactions').
       append(
@@ -566,7 +566,154 @@ ${ map[h]
           cap     : 'edit_companies',
           text    : sprintf(__('Edit %s companies', 'groundhogg'),
             totalItemsFormatted),
-          onSelect: () => {},
+          onSelect: () => {
+
+            const State = Groundhogg.createState({
+              owner_id: null,
+              meta    : {},
+              saving  : false,
+            })
+
+            MakeEl.ModalWithHeader({
+              header: 'Bulk Edit Companies',
+              width : `500px`,
+            }, ({
+              morph,
+              close,
+            }) => {
+
+              return Div({
+                id       : 'bulk-edit-companies-fields',
+                className: 'display-flex column gap-20',
+              }, [
+                // owner
+                Div({
+                  className: 'full display-flex column gap-5',
+                }, [
+                  Label({ for: 'select-owner' }, __('Re-assign Owner')),
+                  ItemPicker({
+                    id          : `select-owner`,
+                    noneSelected: __('No change', 'groundhogg'),
+                    selected    : State.owner_id ? {
+                      id  : State.owner_id,
+                      text: getOwner(State.owner_id).data.display_name,
+                    } : [],
+                    multiple    : false,
+                    style       : {
+                      flexGrow: 1,
+                    },
+                    fetchOptions: async (search) => {
+                      search = new RegExp(search, 'i')
+
+                      return Groundhogg.filters.owners.map(u => ( {
+                        id  : u.ID,
+                        text: u.data.display_name,
+                      } )).filter(({ text }) => text.match(search))
+                    },
+                    onChange    : item => {
+                      State.set({
+                        owner_id: item.id ?? null,
+                      })
+                    },
+                  }),
+                ]),
+
+                // custom fields
+                Div({
+                  id      : 'company-custom-properties',
+                  onCreate: el => {
+
+                    GroundhoggCompanyProperties.tabs.forEach(t => {
+
+                      // Groups belonging to this tab
+                      let groups = GroundhoggCompanyProperties.groups.filter(
+                        g => g.tab === t.id)
+                      // Fields belonging to the groups of this tab
+                      let fields = GroundhoggCompanyProperties.fields.filter(
+                        f => groups.find(g => g.id === f.group))
+
+                      el.append(Div({
+                        id: `t-${ t.id }`,
+                      }))
+
+                      setTimeout(() => {
+
+                        Groundhogg.propertiesEditor(`#t-${ t.id }`, {
+                          values    : State.meta,
+                          properties: {
+                            groups,
+                            fields,
+                          },
+                          onChange  : (meta) => {
+                            State.set({
+                              meta: {
+                                ...State.meta,
+                                ...meta,
+                              },
+                            })
+                          },
+                          canEdit   : () => false,
+                        })
+                      }, 10)
+                    })
+                  },
+                }),
+
+                Div({
+                  className: 'display-flex flex-end',
+                }, [
+                  // save button
+                  MakeEl.Button({
+                    id       : 'update-companies',
+                    className: 'gh-button primary',
+                    disabled : State.saving,
+                    onClick  : async e => {
+
+                      State.set({
+                        saving: true,
+                      })
+
+                      morph()
+
+                      let data = {}
+
+                      if (State.owner_id) {
+                        data.owner_id = State.owner_id
+                      }
+
+                      let items = await CompaniesStore.patchMany({
+                        data,
+                        meta : {
+                          ...State.meta,
+                        },
+                        query: query,
+                      })
+
+                      if (items.length) {
+                        dialog({
+                          message: 'Companies updated!',
+                        })
+                        window.location.reload()
+                        return
+                      }
+
+                      State.set({
+                        saving: false,
+                      })
+
+                      morph()
+
+                      dialog({
+                        message: 'Something went wrong...',
+                        type   : 'error',
+                      })
+                    },
+                  }, State.saving ? MakeEl.Span({ className: 'gh-spinner' }) : sprintf(__('Update %s companies', 'groundhogg'), totalItemsFormatted)),
+                ]),
+              ])
+            })
+
+          },
         },
         {
           key     : 'export',
@@ -723,6 +870,7 @@ ${ map[h]
 
       moreMenu(e.currentTarget, items)
     })
+
   })
 
 } )(jQuery)

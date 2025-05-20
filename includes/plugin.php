@@ -163,6 +163,7 @@ class Plugin extends Extension {
 			'groundhogg-companies-company-filters',
 			'groundhogg-admin-send-broadcast',
 			'groundhogg-admin-funnel-scheduler',
+			'groundhogg-admin-properties',
 			'jquery-ui-autocomplete',
 			'wp-i18n',
 			'papaparse'

@@ -65,6 +65,26 @@ class Companies extends DB {
 		return 'company';
 	}
 
+	protected function add_additional_actions() {
+		add_action( 'groundhogg/owner_deleted', [ $this, 'owner_deleted' ], 10, 2 );
+	}
+
+	/**
+	 * When an owner is deleted, reassign their contacts
+	 *
+	 * @param $prev
+	 * @param $new
+	 *
+	 * @return void
+	 */
+	public function owner_deleted( $prev, $new ) {
+		$this->update( [
+			'owner_id' => $prev,
+		], [
+			'owner_id' => $new,
+		] );
+	}
+
 	/**
 	 * Swap primary contact IDs
 	 *
@@ -76,9 +96,9 @@ class Companies extends DB {
 		$this->update( [
 			'primary_contact_id' => $other->get_id(),
 		],
-		[
-			'primary_contact_id' => $contact->get_id()
-		] );
+			[
+				'primary_contact_id' => $contact->get_id()
+			] );
 	}
 
 	protected function maybe_register_filters() {
