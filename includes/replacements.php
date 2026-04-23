@@ -6,6 +6,8 @@ use Groundhogg\Contact;
 use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\get_array_var;
 use function Groundhogg\get_contactdata;
+use function Groundhogg\get_event_arg;
+use function Groundhogg\replacements;
 
 class Replacements {
 
@@ -85,9 +87,36 @@ class Replacements {
 	 * @return Company|false
 	 */
 	public function get_related_company( $contact ) {
+
+		// check the current event first to see if there is a related company
+		$company_id_from_event = get_event_arg( 'company_id' );
+		if ( $company_id_from_event ){
+			$company = new Company( $company_id_from_event );
+			if ( $company->is_related( $contact ) ){
+				return $company;
+			}
+		}
+
 		$companies = $contact->get_related_objects( 'company', false );
 
 		return count( $companies ) > 0 ? $companies[0] : false;
+	}
+
+	/**
+	 * merge company custom fields
+	 *
+	 * @param $meta_key
+	 *
+	 * @return mixed|string
+	 */
+	public function company_meta( $meta_key ) {
+		$company = $this->get_related_company( replacements()->get_current_contact() );
+
+		if ( ! $company ){
+			return '';
+		}
+
+		return \Groundhogg\Replacements::handle_meta_replacement( $meta_key, [ $company, 'get_meta' ] );
 	}
 
 	/**
