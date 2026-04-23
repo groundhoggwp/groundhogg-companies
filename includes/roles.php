@@ -4,6 +4,7 @@ namespace GroundhoggCompanies;
 
 use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\get_array_var;
+use function Groundhogg\owner_in_team;
 
 class Roles extends \Groundhogg\Roles {
 
@@ -63,6 +64,10 @@ class Roles extends \Groundhogg\Roles {
 
 				if ( $object->get_owner_id() !== $user_id ) {
 					$caps[] = $action . '_others_companies';
+
+					if ( ! owner_in_team( $object->get_owner_id(), $user_id ) ){
+						$caps[] = 'do_not_allow';
+					}
 				}
 
 				break;
@@ -107,6 +112,10 @@ class Roles extends \Groundhogg\Roles {
 				// Trying to download files of contacts that don't belong to them
 				if ( $company->get_owner_id() !== $user_id ) {
 					$caps[] = 'view_others_companies';
+
+					if ( ! owner_in_team( $company->get_owner_id(), $user_id ) ){
+						$caps[] = 'do_not_allow';
+					}
 				}
 
 				break;

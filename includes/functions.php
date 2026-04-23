@@ -14,6 +14,7 @@ use function Groundhogg\get_email_address_hostname;
 use function Groundhogg\get_post_var;
 use function Groundhogg\html;
 use function Groundhogg\is_a_contact;
+use function Groundhogg\sanitize_custom_field;
 
 add_filter( 'groundhogg/api/v4/options_sanitize_callback', __NAMESPACE__ . '\filter_option_sanitize_callback', 10, 3 );
 
@@ -547,7 +548,7 @@ function generate_company_with_map( $fields, $map = [] ) {
 				$_field = properties()->get_field( $field );
 
 				if ( $_field ) {
-					$meta[ $_field['name'] ] = $value;
+					$meta[ $_field['name'] ] = sanitize_custom_field( $value, $_field );
 				}
 
 				break;

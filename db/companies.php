@@ -7,8 +7,11 @@ use Groundhogg\DB\DB;
 use Groundhogg\DB\Query\Filters;
 use Groundhogg\DB\Query\Table_Query;
 use Groundhogg\DB\Query\Where;
+use Groundhogg\Main_Roles;
 use GroundhoggCompanies\Classes\Company;
 use function Groundhogg\get_primary_owner;
+use function Groundhogg\get_team_ids;
+use function Groundhogg\has_team;
 use function Groundhogg\isset_not_empty;
 use function GroundhoggCompanies\properties;
 
@@ -221,8 +224,9 @@ class Companies extends DB {
 	 */
 	public function query( $data = [], $ORDER_BY = '', $from_cache = true ) {
 
-		// Reps can't see others companies
-		if ( current_user_can( 'view_companies' ) && ! current_user_can( 'view_others_companies' ) ) {
+		if ( has_team() ){
+			$data['owner_id'] = get_team_ids();
+		} else if ( Main_Roles::is_sales_representative() ){
 			$data['owner_id'] = get_current_user_id();
 		}
 
