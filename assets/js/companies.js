@@ -1074,7 +1074,7 @@
           className: 'display-flex gap-10',
         }, [
           Button({
-            className: 'gh-button secondary icon small display-flex gap-10',
+            className: 'gh-button secondary small display-flex gap-10',
             onClick  : e => {
               addContactsMenu(e.currentTarget)
             },
