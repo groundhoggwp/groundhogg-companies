@@ -8,6 +8,7 @@
  * Author URI: https://www.groundhogg.io/?utm_source=wp-plugins&utm_campaign=author-uri&utm_medium=wp-dash
  * Text Domain: groundhogg-companies
  * Domain Path: /languages
+ * Update URI: https://groundhogg.io/downloads/
  *
  * Groundhogg is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

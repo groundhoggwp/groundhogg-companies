@@ -167,9 +167,8 @@ class Plugin extends Extension {
 			'groundhogg-admin-funnel-scheduler',
 			'groundhogg-admin-properties',
 			'jquery-ui-autocomplete',
-			'wp-i18n',
-			'papaparse'
-		], GROUNDHOGG_COMPANIES_VERSION, true );
+			'wp-i18n'
+		],GROUNDHOGG_COMPANIES_VERSION, true );
 
 		wp_register_script( 'groundhogg-companies-api-docs', GROUNDHOGG_COMPANIES_ASSETS_URL . 'js/api-docs.js', [
 			'groundhogg-companies-company-filters',
