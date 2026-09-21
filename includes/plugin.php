@@ -9,6 +9,7 @@ use Groundhogg\Bulk_Jobs\Export_Companies;
 use Groundhogg\Contact;
 use Groundhogg\DB\Manager;
 use Groundhogg\Extension;
+use GroundhoggCompanies\Abilities\Abilities;
 use GroundhoggCompanies\Admin\Companies\Companies_Page;
 use GroundhoggCompanies\Api\Companies_Api;
 use GroundhoggCompanies\Bulk_Jobs\Import_companies;
@@ -51,6 +52,7 @@ class Plugin extends Extension {
 
 		new Replacements();
 		new Search_Filters();
+		new Abilities();
 
 		add_action( 'groundhogg/enqueue_api_docs', function () {
 			wp_enqueue_script( 'groundhogg-companies-api-docs' );
