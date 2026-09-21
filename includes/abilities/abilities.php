@@ -11,12 +11,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the Companies abilities with Groundhogg's ability registry. Must be constructed on
- * or before plugins_loaded - see Groundhogg\Abilities\Abilities::add_ability().
+ * Registers the Companies abilities with Groundhogg's ability registry on init - see
+ * Groundhogg\Abilities\Abilities::add_ability().
  */
 class Abilities {
 
 	public function __construct() {
+		add_action( 'init', [ $this, 'register' ] );
+	}
+
+	/**
+	 * WordPress builds the abilities registry lazily, and only once init has started, so anything
+	 * registered while init is running is picked up before the first ability is requested.
+	 *
+	 * @return void
+	 */
+	public function register() {
 
 		// Only Groundhogg versions that ship the extensible abilities registry have add_ability().
 		if ( ! class_exists( Core_Abilities::class ) || ! method_exists( Core_Abilities::class, 'add_ability' ) ) {
@@ -47,7 +57,8 @@ class Abilities {
 	/**
 	 * Add an optional "work_details" section to groundhogg/get-contact, search-contacts, create-contact
 	 * and update-contact via their `expand` param: the contact's job title, department and company
-	 * details. Has to run before those abilities build their schemas, i.e. on plugins_loaded or earlier.
+	 * details. Has to run before those abilities build their schemas, which happens when the registry
+	 * is first used after init.
 	 *
 	 * @return void
 	 */
