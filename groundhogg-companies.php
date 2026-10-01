@@ -3,7 +3,7 @@
  * Plugin Name: Groundhogg - Companies
  * Plugin URI:  https://www.groundhogg.io/downloads/companies/?utm_source=wp-plugins&utm_campaign=plugin-uri&utm_medium=wp-dash
  * Description: Organize contacts into companies and keep track of vital company information.
- * Version: 3.4.1
+ * Version: 3.5.0
  * Author: Groundhogg Inc.
  * Author URI: https://www.groundhogg.io/?utm_source=wp-plugins&utm_campaign=author-uri&utm_medium=wp-dash
  * Text Domain: groundhogg-companies
@@ -26,8 +26,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'GROUNDHOGG_COMPANIES_VERSION', '3.4.1' );
-define( 'GROUNDHOGG_COMPANIES_PREVIOUS_STABLE_VERSION', '3.4.0' );
+define( 'GROUNDHOGG_COMPANIES_VERSION', '3.5.0' );
+define( 'GROUNDHOGG_COMPANIES_PREVIOUS_STABLE_VERSION', '3.4.1' );
 define( 'GROUNDHOGG_COMPANIES_NAME', 'Groundhogg - Companies' );
 
 define( 'GROUNDHOGG_COMPANIES__FILE__', __FILE__ );
@@ -47,7 +47,7 @@ define( 'GROUNDHOGG_COMPANIES_TEXT_DOMAIN', 'groundhogg-companies' );
 
 define( 'GROUNDHOGG_COMPANIES_REQUIRED_WP_VERSION', '6.9' );
 define( 'GROUNDHOGG_COMPANIES_REQUIRED_PHP_VERSION', '7.4' );
-define( 'GROUNDHOGG_COMPANIES_REQUIRED_CORE_VERSION', '4.5' );
+define( 'GROUNDHOGG_COMPANIES_REQUIRED_CORE_VERSION', '4.9' );
 
 // Check PHP and WP are up to date!
 if ( check_wp_version() && check_php_version() ){
@@ -84,7 +84,7 @@ function check_core_version() {
 
 	if ( ! $correct_version ) {
 		add_action( 'admin_notices', function () {
-			$message      = sprintf( esc_html__( '%s requires Groundhogg version %s+. Because you are using an earlier version, the plugin is currently NOT RUNNING.', 'groundhogg' ), GROUNDHOGG_COMPANIES_NAME, GROUNDHOGG_COMPANIES_REQUIRED_CORE_VERSION );
+			$message      = sprintf( esc_html__( '%s requires Groundhogg version %s+. Because you are using an earlier version, the plugin is currently NOT RUNNING.', 'groundhogg-companies' ), GROUNDHOGG_COMPANIES_NAME, GROUNDHOGG_COMPANIES_REQUIRED_CORE_VERSION );
 			$html_message = sprintf( '<div class="notice notice-error">%s</div>', wpautop( $message ) );
 			echo wp_kses_post( $html_message );
 		} );
@@ -104,7 +104,7 @@ function check_wp_version() {
 
 	if ( ! $correct_version ) {
 		add_action( 'admin_notices', function () {
-			$message      = sprintf( esc_html__( '%s requires WordPress version %s+. Because you are using an earlier version, the plugin is currently NOT RUNNING.', 'groundhogg' ), GROUNDHOGG_COMPANIES_NAME, GROUNDHOGG_COMPANIES_REQUIRED_WP_VERSION );
+			$message      = sprintf( esc_html__( '%s requires WordPress version %s+. Because you are using an earlier version, the plugin is currently NOT RUNNING.', 'groundhogg-companies' ), GROUNDHOGG_COMPANIES_NAME, GROUNDHOGG_COMPANIES_REQUIRED_WP_VERSION );
 			$html_message = sprintf( '<div class="notice notice-error">%s</div>', wpautop( $message ) );
 			echo wp_kses_post( $html_message );
 		} );
@@ -124,7 +124,7 @@ function check_php_version() {
 
 	if ( ! $correct_version ) {
 		add_action( 'admin_notices', function () {
-			$message      = sprintf( esc_html__( '%s requires PHP version %s+, plugin is currently NOT RUNNING.', 'groundhogg' ), GROUNDHOGG_COMPANIES_NAME, GROUNDHOGG_COMPANIES_REQUIRED_PHP_VERSION );
+			$message      = sprintf( esc_html__( '%s requires PHP version %s+, plugin is currently NOT RUNNING.', 'groundhogg-companies' ), GROUNDHOGG_COMPANIES_NAME, GROUNDHOGG_COMPANIES_REQUIRED_PHP_VERSION );
 			$html_message = sprintf( '<div class="notice notice-error">%s</div>', wpautop( $message ) );
 			echo wp_kses_post( $html_message );
 		} );
@@ -142,7 +142,7 @@ function check_groundhogg_active() {
 
 		// Is not loaded!
 		if ( ! defined( 'GROUNDHOGG_VERSION' ) ) {
-			$message      = sprintf( esc_html__( 'Groundhogg is not currently active, it must be active for %s to work.', 'groundhogg' ), GROUNDHOGG_COMPANIES_NAME );
+			$message      = sprintf( esc_html__( 'Groundhogg is not currently active, it must be active for %s to work.', 'groundhogg-companies' ), GROUNDHOGG_COMPANIES_NAME );
 			$html_message = sprintf( '<div class="notice notice-warning">%s</div>', wpautop( $message ) );
 			echo wp_kses_post( $html_message );
 		}
