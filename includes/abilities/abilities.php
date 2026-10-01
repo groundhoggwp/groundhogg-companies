@@ -11,34 +11,38 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Registers the Companies abilities with Groundhogg's ability registry on init - see
- * Groundhogg\Abilities\Abilities::add_ability().
+ * Registers the Companies abilities and contact schema extension with Groundhogg's ability registry, on the
+ * actions core fires for each - see the Groundhogg\Abilities\Abilities class docblock.
  */
 class Abilities {
 
 	public function __construct() {
-		add_action( 'init', [ $this, 'register' ] );
+		add_action( 'groundhogg/abilities/register_schema_extensions', [ $this, 'register_schema_extensions' ] );
+		add_action( 'groundhogg/abilities/register_categories', [ $this, 'register_categories' ] );
+		add_action( 'groundhogg/abilities/register_abilities', [ $this, 'register_abilities' ] );
 	}
 
 	/**
-	 * WordPress builds the abilities registry lazily, and only once init has started, so anything
-	 * registered while init is running is picked up before the first ability is requested.
-	 *
 	 * @return void
 	 */
-	public function register() {
-
-		// Only Groundhogg versions that ship the extensible abilities registry have add_ability().
-		if ( ! class_exists( Core_Abilities::class ) || ! method_exists( Core_Abilities::class, 'add_ability' ) ) {
-			return;
-		}
-
+	public function register_schema_extensions() {
 		$this->extend_contact_schema();
+	}
 
+	/**
+	 * @return void
+	 */
+	public function register_categories() {
 		Core_Abilities::add_category( 'groundhogg-companies', [
 			'label'       => __( 'Groundhogg Companies', 'groundhogg-companies' ),
 			'description' => __( 'Find and manage companies, their contacts and notes.', 'groundhogg-companies' ),
 		] );
+	}
+
+	/**
+	 * @return void
+	 */
+	public function register_abilities() {
 
 		foreach ( [
 			List_Companies::class,
@@ -57,8 +61,8 @@ class Abilities {
 	/**
 	 * Add an optional "work_details" section to groundhogg/get-contact, search-contacts, create-contact
 	 * and update-contact via their `expand` param: the contact's job title, department and company
-	 * details. Has to run before those abilities build their schemas, which happens when the registry
-	 * is first used after init.
+	 * details. Has to run before those abilities build their schemas, which is what the
+	 * register_schema_extensions action is for.
 	 *
 	 * @return void
 	 */
