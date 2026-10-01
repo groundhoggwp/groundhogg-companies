@@ -22,7 +22,7 @@
 
   const { ContactFilterRegistry, createFilter } = Groundhogg.filters
 
-  registerFilterGroup('company', _x('Company'))
+  registerFilterGroup('company', __('Company', 'groundhogg-companies'))
 
   ContactFilterRegistry.registerFilter( createFilter( 'company_primary_contacts', 'Primary contact', 'company', {
     edit: () => 'This filter has no settings',
@@ -49,8 +49,8 @@
   //   defaults: {},
   // })
 
-  registerFilter('company_name', 'company', __('Company Name', 'groundhogg'), {
-    ...BasicTextFilter(__('Company Name', 'groundhogg')),
+  registerFilter('company_name', 'company', __('Company Name', 'groundhogg-companies'), {
+    ...BasicTextFilter(__('Company Name', 'groundhogg-companies')),
 
     onMount (filter, updateFilter) {
 
@@ -65,8 +65,8 @@
     },
   })
 
-  registerFilter('job_title', 'company', __('Position', 'groundhogg'), {
-    ...BasicTextFilter(__('Position', 'groundhogg')),
+  registerFilter('job_title', 'company', __('Position', 'groundhogg-companies'), {
+    ...BasicTextFilter(__('Position', 'groundhogg-companies')),
     onMount (filter, updateFilter) {
 
       $(`#filter-value`).autocomplete({
@@ -82,8 +82,8 @@
     },
   })
 
-  registerFilter('company_department', 'company', __('Department', 'groundhogg'), {
-    ...BasicTextFilter(__('Department', 'groundhogg')),
+  registerFilter('company_department', 'company', __('Department', 'groundhogg-companies'), {
+    ...BasicTextFilter(__('Department', 'groundhogg-companies')),
     onMount (filter, updateFilter) {
 
       $(`#filter-value`).autocomplete({
@@ -99,8 +99,8 @@
     },
   })
 
-  registerFilter('company_website', 'company', __('Website', 'groundhogg'), {
-    ...BasicTextFilter(__('Website', 'groundhogg')),
+  registerFilter('company_website', 'company', __('Website', 'groundhogg-companies'), {
+    ...BasicTextFilter(__('Website', 'groundhogg-companies')),
     onMount (filter, updateFilter) {
 
       $('#filter-compare, #filter-value').on('change', function (e) {
@@ -112,8 +112,8 @@
     },
   })
 
-  registerFilter('company_address', 'company', __('Address', 'groundhogg'), {
-    ...BasicTextFilter(__('Address', 'groundhogg')),
+  registerFilter('company_address', 'company', __('Address', 'groundhogg-companies'), {
+    ...BasicTextFilter(__('Address', 'groundhogg-companies')),
     onMount (filter, updateFilter) {
 
       $('#filter-compare, #filter-value').on('change', function (e) {
@@ -125,8 +125,8 @@
     },
   })
 
-  registerFilter('company_phone', 'company', __('Phone', 'groundhogg'), {
-    ...BasicTextFilter(__('Phone', 'groundhogg')),
+  registerFilter('company_phone', 'company', __('Phone', 'groundhogg-companies'), {
+    ...BasicTextFilter(__('Phone', 'groundhogg-companies')),
     onMount (filter, updateFilter) {
 
       $('#filter-compare, #filter-value').on('change', function (e) {

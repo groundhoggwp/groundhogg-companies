@@ -46,13 +46,13 @@ class Companies_Table extends Table {
 	public function get_columns() {
 		$columns = array(
 			'cb'       => '<input type="checkbox" />', // Render a checkbox instead of text.
-			'name'     => _x( 'Company', 'Column label', 'groundhogg' ),
-			'industry' => _x( 'Industry', 'Column label', 'groundhogg' ),
-			'website'  => _x( 'Website', 'Column label', 'groundhogg' ),
-			'address'  => _x( 'Address', 'Column label', 'groundhogg' ),
-			'phone'    => _x( 'Phone', 'Column label', 'groundhogg' ),
-			'owner_id' => _x( 'Owner', 'Column label', 'groundhogg' ),
-			'contacts' => _x( 'Contacts', 'Column label', 'groundhogg' ),
+			'name'     => _x( 'Company', 'Column label', 'groundhogg-companies' ),
+			'industry' => _x( 'Industry', 'Column label', 'groundhogg-companies' ),
+			'website'  => _x( 'Website', 'Column label', 'groundhogg-companies' ),
+			'address'  => _x( 'Address', 'Column label', 'groundhogg-companies' ),
+			'phone'    => _x( 'Phone', 'Column label', 'groundhogg-companies' ),
+			'owner_id' => _x( 'Owner', 'Column label', 'groundhogg-companies' ),
+			'contacts' => _x( 'Contacts', 'Column label', 'groundhogg-companies' ),
 		);
 
 		return apply_filters( 'groundhogg/admin/companies/table/get_columns', $columns );
@@ -215,14 +215,14 @@ class Companies_Table extends Table {
 
 		switch ( $this->get_view() ) {
 			default:
-				$actions[] = [ 'class' => 'edit', 'display' => __( 'Edit' ), 'url' => $item->admin_link() ];
+				$actions[] = [ 'class' => 'edit', 'display' => __( 'Edit', 'groundhogg-companies' ), 'url' => $item->admin_link() ];
 				$actions[] = [
 					'class'     => 'trash',
 					'linkProps' => [
 						'class'     => 'danger-delete',
 						'data-name' => $item->get_name(),
 					],
-					'display'   => __( 'Delete' ),
+					'display'   => __( 'Delete', 'groundhogg-companies' ),
 					'url'       => action_url( 'delete', [ 'company' => $item->get_id() ] )
 				];
 				break;
@@ -235,7 +235,7 @@ class Companies_Table extends Table {
 		return [
 			[
 				'view'    => '',
-				'display' => __( 'All' ),
+				'display' => __( 'All', 'groundhogg-companies' ),
 				'query'   => [],
 			],
 		];

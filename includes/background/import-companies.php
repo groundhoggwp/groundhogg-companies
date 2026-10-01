@@ -55,11 +55,11 @@ class Import_Companies extends Import_Contacts {
 
 		if ( empty( $items ) ) {
 
-			$message = sprintf( __( 'All companies have been imported from %s!', 'groundhogg' ), code_it( $this->fileName ) );
+			$message = sprintf( __( 'All companies have been imported from %s!', 'groundhogg-companies' ), code_it( $this->fileName ) );
 
 			notices()->add_user_notice( $message, 'success', true, $this->user_id );
 
-			$subject = sprintf( __( '[%s] Companies imported!' ), white_labeled_name() );
+			$subject = sprintf( __( '[%s] Companies imported!', 'groundhogg-companies' ), white_labeled_name() );
 
 			wp_mail( get_userdata( $this->user_id )->user_email, $subject, wpautop( $message ), [
 				'Content-Type: text/html'

@@ -67,14 +67,14 @@ class Export_Companies extends Export_Contacts {
 
 		if ( empty( $items ) ) {
 
-			$message = sprintf( __( 'Your companies export %s is ready for download!', 'groundhogg' ), html()->e( 'a', [
+			$message = sprintf( __( 'Your companies export %s is ready for download!', 'groundhogg-companies' ), html()->e( 'a', [
 //				'class' => 'gh-button primary',
 				'href' => file_access_url( '/exports/' . basename( $this->filePath ), true )
-			], __( bold_it( basename( $this->filePath ) ), 'groundhogg' ) ) );
+			], __( bold_it( basename( $this->filePath ) ), 'groundhogg-companies' ) ) );
 
 			notices()->add_user_notice( $message, 'success', true, $this->user_id );
 
-			$subject = sprintf( __( "[%s] Export ready!" ), white_labeled_name() );
+			$subject = sprintf( __( "[%s] Export ready!", 'groundhogg-companies' ), white_labeled_name() );
 
 			wp_mail( get_userdata( $this->user_id )->user_email, $subject, wpautop( $message ), [
 				'Content-Type: text/html'

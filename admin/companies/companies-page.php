@@ -133,7 +133,7 @@ class Companies_Page extends Admin_Page {
 
 		Background_Tasks::add( new Export_Companies( $query, $file_name, [] ) );
 
-		notices()->add_user_notice( __( 'We\'re generating your export in the background. We\'ll let you know when it\'s ready for download.', 'groundhogg' ) );
+		notices()->add_user_notice( __( 'We\'re generating your export in the background. We\'ll let you know when it\'s ready for download.', 'groundhogg-companies' ) );
 
 		return admin_page_url( 'gh_companies' );
 	}
@@ -205,7 +205,7 @@ class Companies_Page extends Admin_Page {
 				return $this->get_name();
 				break;
 			case 'edit':
-				return _x( 'Edit Company', 'page_title', 'groundhogg' );
+				return _x( 'Edit Company', 'page_title', 'groundhogg-companies' );
 				break;
 		}
 	}
@@ -214,13 +214,13 @@ class Companies_Page extends Admin_Page {
 		return [
 			[
 				'link'   => '#',
-				'action' => __( 'Add New', 'groundhogg' ),
+				'action' => __( 'Add New', 'groundhogg-companies' ),
 				'id'     => 'add-company',
 				'target' => '_self',
 			],
 			[
 				'link'   => '#',
-				'action' => __( 'Import', 'groundhogg' ),
+				'action' => __( 'Import', 'groundhogg-companies' ),
 				'id'     => 'import-companies',
 				'target' => '_self',
 			]
@@ -277,7 +277,7 @@ class Companies_Page extends Admin_Page {
 		if ( isset( $mfile['error'] ) ) {
 
 			if ( empty( $mfile['error'] ) ) {
-				$mfile['error'] = _x( 'Could not upload file.', 'error', 'groundhogg' );
+				$mfile['error'] = _x( 'Could not upload file.', 'error', 'groundhogg-companies' );
 			}
 
 			return new \WP_Error( 'BAD_UPLOAD', $mfile['error'] );
@@ -367,7 +367,7 @@ class Companies_Page extends Admin_Page {
 
 		$this->add_notice(
 			'deleted',
-			sprintf( _nx( '%d company deleted.', '%d companies deleted.', count( $this->get_items() ), 'notice', 'groundhogg-company' ),
+			sprintf( _nx( '%d company deleted.', '%d companies deleted.', count( $this->get_items() ), 'notice', 'groundhogg-companies' ),
 				count( $this->get_items() )
 			)
 		);
@@ -385,7 +385,7 @@ class Companies_Page extends Admin_Page {
 		$companies_table = new Companies_Table();
 
 		$companies_table->views();
-		$this->search_form( __( 'Search', 'groundhogg' ) );
+		$this->search_form( __( 'Search', 'groundhogg-companies' ) );
 		?>
         <form method="post" class="wp-clearfix">
 			<?php $companies_table->prepare_items(); ?>

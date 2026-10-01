@@ -129,13 +129,13 @@ function get_company_imports_url( $file_path = '' ) {
  */
 function get_contact_company_fields() {
 	return [
-		'company_name'            => __( 'Company Name', 'groundhogg' ),
-		'company_website'         => __( 'Company Website', 'groundhogg' ),
-		'company_address'         => __( 'Company Address', 'groundhogg' ),
-		'company_phone'           => __( 'Company Phone Number', 'groundhogg' ),
-		'company_phone_extension' => __( 'Company Phone Number Extension', 'groundhogg' ),
-		'job_title'               => __( 'Position', 'groundhogg' ),
-		'company_department'      => __( 'Department', 'groundhogg' ),
+		'company_name'            => __( 'Company Name', 'groundhogg-companies' ),
+		'company_website'         => __( 'Company Website', 'groundhogg-companies' ),
+		'company_address'         => __( 'Company Address', 'groundhogg-companies' ),
+		'company_phone'           => __( 'Company Phone Number', 'groundhogg-companies' ),
+		'company_phone_extension' => __( 'Company Phone Number Extension', 'groundhogg-companies' ),
+		'job_title'               => __( 'Position', 'groundhogg-companies' ),
+		'company_department'      => __( 'Department', 'groundhogg-companies' ),
 	];
 }
 
@@ -149,14 +149,14 @@ function get_contact_company_fields() {
 function get_company_mappable_fields( $extra = [] ) {
 
 	$defaults = [
-		'name'        => __( 'Name' ),
-		'industry'    => __( 'Industry' ),
-		'phone'       => __( 'Phone' ),
-		'address'     => __( 'Address' ),
-		'description' => __( 'Description' ),
-		'domain'      => __( 'Website' ),
-		'notes'       => __( 'Add To Notes' ),
-		'contacts'    => __( 'Add To Contacts' ),
+		'name'        => __( 'Name', 'groundhogg-companies' ),
+		'industry'    => __( 'Industry', 'groundhogg-companies' ),
+		'phone'       => __( 'Phone', 'groundhogg-companies' ),
+		'address'     => __( 'Address', 'groundhogg-companies' ),
+		'description' => __( 'Description', 'groundhogg-companies' ),
+		'domain'      => __( 'Website', 'groundhogg-companies' ),
+		'notes'       => __( 'Add To Notes', 'groundhogg-companies' ),
+		'contacts'    => __( 'Add To Contacts', 'groundhogg-companies' ),
 	];
 
 	$fields = array_merge( $defaults, $extra );
@@ -175,7 +175,7 @@ add_filter( 'groundhogg/mappable_fields', __NAMESPACE__ . '\register_mappable_fi
  */
 function register_mappable_fields( $fields ) {
 
-	$fields[ __( 'Company' ) ] = get_contact_company_fields();
+	$fields[ __( 'Company', 'groundhogg-companies' ) ] = get_contact_company_fields();
 
 	return $fields;
 }
@@ -189,7 +189,7 @@ function show_export_headers() {
 
 	$fields = get_contact_company_fields();
 
-	?><h3><?php _e( 'Company', 'groundhogg' ) ?></h3>
+	?><h3><?php _e( 'Company', 'groundhogg-companies' ) ?></h3>
 	<?php
 
 	html()->list_table( [
@@ -200,8 +200,8 @@ function show_export_headers() {
 			'name'  => "<input type='checkbox' value='1' checked class='select-all'>",
 			'tag'   => 'td'
 		],
-		__( 'Pretty Name', 'groundhogg' ),
-		__( 'Field ID', 'groundhogg' ),
+		__( 'Pretty Name', 'groundhogg-companies' ),
+		__( 'Field ID', 'groundhogg-companies' ),
 	], map_deep( array_keys( $fields ), function ( $header ) use ( $fields ) {
 		return [
 			html()->checkbox( [
@@ -658,11 +658,11 @@ function company_info_fields( $contact ) {
 	}
 
 	?>
-    <h2><?php _e( 'Work Details', 'groundhogg' ) ?></h2>
+    <h2><?php _e( 'Work Details', 'groundhogg-companies' ) ?></h2>
     <div class="gh-rows-and-columns">
         <div class="gh-row">
             <div class="gh-col">
-                <label for="job_title"><?php _e( 'Company Name', 'groundhogg' ) ?></label>
+                <label for="job_title"><?php _e( 'Company Name', 'groundhogg-companies' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'company_name',
@@ -673,7 +673,7 @@ function company_info_fields( $contact ) {
 
             <div class="gh-col">
                 <label
-                        for="company_phone"><?php _e( 'Work Phone & Ext.', 'groundhogg' ) ?></label>
+                        for="company_phone"><?php _e( 'Work Phone & Ext.', 'groundhogg-companies' ) ?></label>
                 <div class="gh-input-group">
 					<?php echo html()->input( [
 						'type'        => 'tel',
@@ -681,7 +681,7 @@ function company_info_fields( $contact ) {
 						'id'          => 'company_phone',
 						'name'        => 'company_phone',
 						'value'       => $company_phone,
-						'placeholder' => __( '+1 (555) 555-5555', 'groundhogg' )
+						'placeholder' => __( '+1 (555) 555-5555', 'groundhogg-companies' )
 					] ); ?>
 					<?php echo html()->input( [
 						'type'        => 'number',
@@ -692,7 +692,7 @@ function company_info_fields( $contact ) {
 						'style'       => [
 							'width' => '60px'
 						],
-						'placeholder' => __( '1234', 'groundhogg' )
+						'placeholder' => __( '1234', 'groundhogg-companies' )
 					] ); ?>
 
                 </div>
@@ -701,7 +701,7 @@ function company_info_fields( $contact ) {
         <div class="gh-row">
             <div class="gh-col">
                 <label
-                        for="job_title"><?php _e( 'Position', 'groundhogg' ) ?></label>
+                        for="job_title"><?php _e( 'Position', 'groundhogg-companies' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'job_title',
@@ -711,7 +711,7 @@ function company_info_fields( $contact ) {
             </div>
             <div class="gh-col">
                 <label
-                        for="company_department"><?php _e( 'Department', 'groundhogg' ) ?></label>
+                        for="company_department"><?php _e( 'Department', 'groundhogg-companies' ) ?></label>
 				<?php echo html()->input( [
 					'class' => 'input',
 					'id'    => 'company_department',
@@ -723,7 +723,7 @@ function company_info_fields( $contact ) {
         <div class="gh-row">
             <div class="gh-col">
                 <label
-                        for="company_website"><?php _e( 'Website', 'groundhogg' ) ?></label>
+                        for="company_website"><?php _e( 'Website', 'groundhogg-companies' ) ?></label>
                 <div class="gh-input-group">
 					<?php echo html()->input( [
 						'type'  => 'url',
@@ -741,7 +741,7 @@ function company_info_fields( $contact ) {
         <div class="gh-row">
             <div class="gh-col">
                 <label
-                        for="company_address"><?php _e( 'Address', 'groundhogg' ) ?></label>
+                        for="company_address"><?php _e( 'Address', 'groundhogg-companies' ) ?></label>
 				<?php echo html()->textarea( [
 					'class' => 'full-width',
 					'id'    => 'company_address',

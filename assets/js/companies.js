@@ -201,7 +201,7 @@
     let tabs = [
       {
         id     : 'general',
-        name   : __('General'),
+        name   : __('General', 'groundhogg-companies'),
         render : () => `<div class="gh-panel top-left-square"><div id="general-info" class="inside"></div></div>`,
         onMount: () => {
 
@@ -311,7 +311,7 @@
 
                 ItemPicker({
                   id          : `select-owner`,
-                  noneSelected: __('Select an owner...', 'groundhogg'),
+                  noneSelected: __('Select an owner...', 'groundhogg-companies'),
                   selected    : {
                     id  : getCompany().data.owner_id,
                     text: getOwner(getCompany().data.owner_id).data.display_name,
@@ -368,7 +368,7 @@
                     })
                   },
                 }),
-                makeEl('i', {}, __('For best results use a square image.')),
+                makeEl('i', {}, __('For best results use a square image.', 'groundhogg-companies')),
               ]),
             ]),
             Div({
@@ -398,7 +398,7 @@
                   morphInfoCard()
 
                 },
-              }, __('Save Changes', 'groundhogg')),
+              }, __('Save Changes', 'groundhogg-companies')),
             ]),
           ]), {
             childrenOnly: true,
@@ -433,7 +433,7 @@
         stop()
         mount()
         dialog({
-          message: __('Changes saved!'),
+          message: __('Changes saved!', 'groundhogg-companies'),
         })
       })
     }
@@ -456,7 +456,7 @@
           gh_company_custom_properties: customTabState,
         }).then(() => {
           dialog({
-            message: __('Changes saved!', 'groundhogg'),
+            message: __('Changes saved!', 'groundhogg-companies'),
           })
         })
       }, 1500)
@@ -474,8 +474,8 @@
 					<div id="custom-fields-here">
 					</div>
 					<div class="sticky-submit has-box-shadow">
-						<button id="cancel-meta-changes" class="gh-button danger text">${ __('Cancel') }</button>
-						<button id="save-meta" class="gh-button primary">${ __('Save Changes') }</button>
+						<button id="cancel-meta-changes" class="gh-button danger text">${ __('Cancel', 'groundhogg-companies') }</button>
+						<button id="save-meta" class="gh-button primary">${ __('Save Changes', 'groundhogg-companies') }</button>
 					</div>
 				</div>
 			</div>`,
@@ -496,12 +496,12 @@
                 {
                   key : 'rename',
                   cap : 'manage_options',
-                  text: __('Rename'),
+                  text: __('Rename', 'groundhogg-companies'),
                 },
                 {
                   key : 'delete',
                   cap : 'manage_options',
-                  text: `<span class="gh-text danger">${ __('Delete') }</span>`,
+                  text: `<span class="gh-text danger">${ __('Delete', 'groundhogg-companies') }</span>`,
                 },
               ],
               onSelect: k => {
@@ -511,8 +511,8 @@
                   case 'delete':
 
                     dangerConfirmationModal({
-                      confirmText: __('Delete'),
-                      alert      : `<p>${ sprintf(__('Are you sure you want to delete %s?', 'groundhogg'),
+                      confirmText: __('Delete', 'groundhogg-companies'),
+                      alert      : `<p>${ sprintf(__('Are you sure you want to delete %s?', 'groundhogg-companies'),
                         bold(customTabState.tabs.find(t => t.id === activeTab).name)) }</p>`,
                       onConfirm  : () => {
                         // Groups belonging to this tab
@@ -537,15 +537,15 @@
                       // language=HTML
                       content: `
                           <div>
-                              <h2>${ __('Rename tab', 'groundhogg') }</h2>
+                              <h2>${ __('Rename tab', 'groundhogg-companies') }</h2>
                               <div class="align-left-space-between">
                                   ${ input({
                                       id         : 'tab-name',
                                       value      : customTabState.tabs.find(t => t.id === activeTab).name,
-                                      placeholder: __('Tab name', 'groundhogg'),
+                                      placeholder: __('Tab name', 'groundhogg-companies'),
                                   }) }
                                   <button id="update-tab" class="gh-button primary">
-                                      ${ __('Save') }
+                                      ${ __('Save', 'groundhogg-companies') }
                                   </button>
                               </div>
                           </div>`,
@@ -672,7 +672,7 @@
       if (userHasCap('manage_options')) {
 
         tooltip('#add-tab', {
-          content : __('Add Tab', 'groundhogg'),
+          content : __('Add Tab', 'groundhogg-companies'),
           position: 'right',
         })
 
@@ -683,14 +683,14 @@
             // language=HTML
             content: `
                 <div>
-                    <h2>${ __('Add a new tab', 'groundhogg') }</h2>
+                    <h2>${ __('Add a new tab', 'groundhogg-companies') }</h2>
                     <div class="align-left-space-between">
                         ${ input({
                             id         : 'tab-name',
-                            placeholder: __('Tab name', 'groundhogg'),
+                            placeholder: __('Tab name', 'groundhogg-companies'),
                         }) }
                         <button id="create-tab" class="gh-button primary">
-                            ${ __('Create') }
+                            ${ __('Create', 'groundhogg-companies') }
                         </button>
                     </div>
                 </div>`,
@@ -824,7 +824,7 @@
     ...QuickAddEditParts,
     onEdit: (c) => {
       dialog({
-        message: __('Contact updated!', 'groundhogg'),
+        message: __('Contact updated!', 'groundhogg-companies'),
       })
       onEdit(c)
     },
@@ -842,7 +842,7 @@
   })
 
   const TotalItems = () => Span({ className: 'total-items displaying-num' },
-    sprintf(_n('%s contact', '%s contacts', DirectoryState.total), formatNumber(DirectoryState.total)))
+    sprintf(_n('%s contact', '%s contacts', DirectoryState.total, 'groundhogg-companies'), formatNumber(DirectoryState.total)))
 
   const Pagination = () => {
 
@@ -1080,18 +1080,18 @@
             },
           }, [
             icons.createContact,
-            __('Add contacts'),
+            __('Add contacts', 'groundhogg-companies'),
           ]),
         ]),
         InputGroup([
           Select({
             name    : 'filter',
             options : {
-              name      : __('Name'),
-              email     : __('Email'),
-              phone     : __('Phone'),
-              position  : __('Position'),
-              department: __('Department'),
+              name      : __('Name', 'groundhogg-companies'),
+              email     : __('Email', 'groundhogg-companies'),
+              phone     : __('Phone', 'groundhogg-companies'),
+              position  : __('Position', 'groundhogg-companies'),
+              department: __('Department', 'groundhogg-companies'),
             },
             selected: DirectoryState.filter ?? '',
             onChange: e => {
@@ -1129,7 +1129,7 @@
             className: 'gh-button danger icon text small',
             onClick  : e => {
               dangerConfirmationModal({
-                alert    : `<p>${ sprintf(__('Are you sure you want to remove %s contacts from %s?'), bold(`${ DirectoryState.selected.length }`),
+                alert    : `<p>${ sprintf(__('Are you sure you want to remove %s contacts from %s?', 'groundhogg-companies'), bold(`${ DirectoryState.selected.length }`),
                   bold(getCompany().data.name)) }</p>`,
                 onConfirm: () => {
 
@@ -1276,10 +1276,10 @@
               },
             }),
           ]),
-          SortableColumn('first_name', __('Name')),
+          SortableColumn('first_name', __('Name', 'groundhogg-companies')),
           // SortableColumn('email', __('Contact Info')),
-          SortableColumn('cm.job_title', __('Position')),
-          SortableColumn('cm.department', __('Department')),
+          SortableColumn('cm.job_title', __('Position', 'groundhogg-companies')),
+          SortableColumn('cm.department', __('Department', 'groundhogg-companies')),
         ]),
       ]),
       TBody({}, [
@@ -1320,7 +1320,7 @@
               isPrimary() ? Span({ className: 'pill sm', style: {marginBottom: '3px'}}, __('Primary', 'groundhogg-companies')): null,
               ContactListItem(contact, {}),
                Div({ className: 'row-actions' }, [
-                makeEl('a', { href: contact.admin }, __('View')),
+                makeEl('a', { href: contact.admin }, __('View', 'groundhogg-companies')),
                 ' | ',
                 makeEl('a', {
                   id     : `quick-edit-${ contact.ID }`,
@@ -1331,7 +1331,7 @@
                       morphDirectory()
                     })
                   },
-                }, __('Quick Edit')),
+                }, __('Quick Edit', 'groundhogg-companies')),
                 isPrimary() ? null : ' | ',
                 isPrimary() ? null : makeEl('a', {
                   id       : `set-primary-${ contact.ID }`,
@@ -1353,7 +1353,7 @@
                       morphDirectory()
                     })
                   },
-                }, __('Set Primary')),
+                }, __('Set Primary', 'groundhogg-companies')),
                 ' | ',
                 makeEl('a', {
                   id       : `remove-${ contact.ID }`,
@@ -1362,7 +1362,7 @@
                   onClick  : e => {
                     e.preventDefault()
                     dangerConfirmationModal({
-                      alert    : `<p>${ sprintf(__('Are you sure you want to remove %s from %s?'), bold(contact.data.full_name),
+                      alert    : `<p>${ sprintf(__('Are you sure you want to remove %s from %s?', 'groundhogg-companies'), bold(contact.data.full_name),
                         bold(getCompany().data.name)) }</p>`,
                       onConfirm: () => {
                         removeContacts([contact.ID]).then(r => {
@@ -1371,7 +1371,7 @@
                       },
                     })
                   },
-                }, __('Remove')),
+                }, __('Remove', 'groundhogg-companies')),
               ]),
             ]),
             Td({}, contact.meta.job_title ?? '-'),
@@ -1416,9 +1416,9 @@
 
         $('#bulk-delete-files').on('click', () => {
           dangerConfirmationModal({
-            confirmText: __('Delete'),
+            confirmText: __('Delete', 'groundhogg-companies'),
             alert      : `<p>${ sprintf(
-              _n('Are you sure you want to delete %d file?', 'Are you sure you want to delete %d files?', selectedFiles.length, 'groundhogg'),
+              _n('Are you sure you want to delete %d file?', 'Are you sure you want to delete %d files?', selectedFiles.length, 'groundhogg-companies'),
               selectedFiles.length) }</p>`,
             onConfirm  : () => {
               _delete(`${ CompaniesStore.route }/${ getCompany().ID }/files`, selectedFiles).then(({ items }) => {
@@ -1436,7 +1436,7 @@
         })
 
         tooltip('#bulk-delete-files', {
-          content : __('Bulk delete files'),
+          content : __('Bulk delete files', 'groundhogg-companies'),
           position: 'right',
         })
 
@@ -1490,11 +1490,11 @@
               items   : [
                 {
                   key : 'download',
-                  text: __('Download'),
+                  text: __('Download', 'groundhogg-companies'),
                 },
                 {
                   key : 'delete',
-                  text: `<span class="gh-text danger">${ __('Delete') }</span>`,
+                  text: `<span class="gh-text danger">${ __('Delete', 'groundhogg-companies') }</span>`,
                 },
               ],
               onSelect: k => {
@@ -1505,8 +1505,8 @@
                   case 'delete':
 
                     dangerConfirmationModal({
-                      confirmText: __('Delete'),
-                      alert      : `<p>${ sprintf(__('Are you sure you want to delete %s?', 'groundhogg'), _file) }</p>`,
+                      confirmText: __('Delete', 'groundhogg-companies'),
+                      alert      : `<p>${ sprintf(__('Are you sure you want to delete %s?', 'groundhogg-companies'), _file) }</p>`,
                       onConfirm  : () => {
                         _delete(`${ CompaniesStore.route }/${ getCompany().ID }/files`, [
                           _file,
@@ -1568,11 +1568,11 @@
             <div id="file-actions" class="inside">
                 <div class="gh-input-group">
                     ${ input({
-                        placeholder: __('Search files...'),
+                        placeholder: __('Search files...', 'groundhogg-companies'),
                         type       : 'search',
                         id         : 'search-files',
                     }) }
-                    <button id="upload-file" class="gh-button secondary">${ __('Upload Files') }</button>
+                    <button id="upload-file" class="gh-button secondary">${ __('Upload Files', 'groundhogg-companies') }</button>
                 </div>
             </div>
             <div id="bulk-actions" class="hidden inside" style="padding-top: 0">
@@ -1871,7 +1871,7 @@
             },
           }, [
             icons.createContact,
-            ToolTip(__('Add a new contact')),
+            ToolTip(__('Add a new contact', 'groundhogg-companies')),
           ]),
 
           getCompany().meta.phone ? makeEl('a', {
@@ -1879,7 +1879,7 @@
             href     : `tel:${ getCompany().meta.phone }`,
           }, [
             icons.phone,
-            ToolTip(__('Call this business')),
+            ToolTip(__('Call this business', 'groundhogg-companies')),
           ]) : null,
 
           Button({
@@ -1912,7 +1912,7 @@
             },
           }, [
             icons.email,
-            ToolTip(__('Send an email')),
+            ToolTip(__('Send an email', 'groundhogg-companies')),
           ]),
 
           Button({
@@ -1923,19 +1923,19 @@
                 {
                   key     : 'merge',
                   cap     : 'delete_companies',
-                  text    : __('Merge'),
+                  text    : __('Merge', 'groundhogg-companies'),
                   onSelect: () => {
 
                     QuickSearchCompanies({
                       exclude: [getCompany().ID],
                       onSelect: co => {
                         confirmationModal({
-                          confirmText: __('Merge'),
+                          confirmText: __('Merge', 'groundhogg-companies'),
                           width      : 500,
                           // language=HTML
                           alert    : `<p>${ sprintf(
                                   __('Are you sure you want to merge %1$s with %2$s? This action cannot be undone.',
-                                          'groundhogg'),
+                                          'groundhogg-companies'),
                                   bold(co.data.name),
                                   bold(getCompany().data.name)) }</p>`,
                           onConfirm: () => {
@@ -1959,7 +1959,7 @@
                 {
                   key     : 'delete',
                   cap     : 'delete_companies',
-                  text    : `<span class="gh-text danger">${ __('Delete') }</span>`,
+                  text    : `<span class="gh-text danger">${ __('Delete', 'groundhogg-companies') }</span>`,
                   onSelect: () => {
                     dangerDeleteModal({
                       name     : bold(getCompany().data.name),
@@ -1978,7 +1978,7 @@
             },
           }, [
             icons.verticalDots,
-            ToolTip(__('More options')),
+            ToolTip(__('More options', 'groundhogg-companies')),
           ]),
 
         ]),
@@ -2031,8 +2031,8 @@
         alert      : `<p>${ sprintf(_n('We found %s contact that has an email address ending with %s. Would you like to relate them to this company?',
           'We found %s contacts that have an email address ending with %s. Would you like to associate them with this company?', contacts.length,
           'groundhogg-companies'), bold(formatNumber(contacts.length)), bold('@' + hostname)) }</p>`,
-        confirmText: __('Yes, add them!'),
-        cancelText : __('No'),
+        confirmText: __('Yes, add them!', 'groundhogg-companies'),
+        cancelText : __('No', 'groundhogg-companies'),
         onConfirm  : () => {
 
           CompaniesStore.createRelationships(getCompany().ID, contacts.map(c => ( {
@@ -2081,7 +2081,7 @@
           e.preventDefault()
           onDelete( item.ID )
         }
-      }, __( 'Remove' ) ) : null
+      }, __( 'Remove', 'groundhogg-companies' ) ) : null
     ])),
   ])
 
@@ -2098,7 +2098,7 @@
         },
       }, [
         Relationships({
-          title: __('Parents'),
+          title: __('Parents', 'groundhogg-companies'),
           id        : getCompany().ID,
           parent_type: 'company',
           store     : CompaniesStore,
@@ -2114,7 +2114,7 @@
           },
         }),
         Relationships({
-          title: __('Subsidiaries'),
+          title: __('Subsidiaries', 'groundhogg-companies'),
           id        : getCompany().ID,
           child_type: 'company',
           store     : CompaniesStore,

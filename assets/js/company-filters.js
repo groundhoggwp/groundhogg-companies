@@ -55,7 +55,7 @@
       }) => Fragment([
         ItemPicker({
           id          : `select-a-contact`,
-          noneSelected: __('Select a contact...', 'groundhogg'),
+          noneSelected: __('Select a contact...', 'groundhogg-companies'),
           selected    : contacts.map(id => ( {
             id,
             text: ContactsStore.get(id).data.email,
@@ -113,7 +113,7 @@
         }),
         Autocomplete({
           id          : `select-industry`,
-          placeholder : __('Select an industry...', 'groundhogg'),
+          placeholder : __('Select an industry...', 'groundhogg-companies'),
           value       : value,
           style       : {
             flexGrow: 1,

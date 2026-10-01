@@ -28,14 +28,14 @@
   }
 
   ApiRegistry.add('companies', {
-    name: __('Companies'),
+    name: __('Companies', 'groundhogg-companies'),
     description: '',
     endpoints: Groundhogg.createRegistry(),
   })
 
   addBaseObjectCRUDEndpoints(ApiRegistry.companies.endpoints, {
-    plural: __('companies'),
-    singular: __('company'),
+    plural: __('companies', 'groundhogg-companies'),
+    singular: __('company', 'groundhogg-companies'),
     route: `${ apiRoot }/companies`,
     searchableColumns: [
       'name',
@@ -87,33 +87,33 @@
     dataParams: [
       {
         param: 'name',
-        description: __('The name of the company.', 'groundhogg'),
+        description: __('The name of the company.', 'groundhogg-companies'),
         type: 'string',
         required: true,
       },
       {
         param: 'slug',
-        description: __('A unique slug to identify the company. If one is not provided it will be generated from the name.', 'groundhogg'),
+        description: __('A unique slug to identify the company. If one is not provided it will be generated from the name.', 'groundhogg-companies'),
         type: 'string',
       },
       {
         param: 'description',
-        description: __('What the company "does" or anything else relevant.', 'groundhogg'),
+        description: __('What the company "does" or anything else relevant.', 'groundhogg-companies'),
         type: 'string',
       },
       {
         param: 'domain',
-        description: __('The URL of the company. Must start with <code>https://</code>.', 'groundhogg'),
+        description: __('The URL of the company. Must start with <code>https://</code>.', 'groundhogg-companies'),
         type: 'string',
       },
       {
         param: 'owner_id',
-        description: __('The ID of the user to assign to the company.', 'groundhogg'),
+        description: __('The ID of the user to assign to the company.', 'groundhogg-companies'),
         type: 'int',
       },
       {
         param: 'primary_contact_id',
-        description: __('The ID of the primary contact for the company.', 'groundhogg'),
+        description: __('The ID of the primary contact for the company.', 'groundhogg-companies'),
         type: 'int',
       },
     ],

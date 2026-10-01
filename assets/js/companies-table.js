@@ -52,44 +52,44 @@
   $(() => {
 
     let mappingGroups = {
-      basic: __('Basic'),
+      basic: __('Basic', 'groundhogg-companies'),
     }
 
     let mappingFields = [
       {
         id   : 'name',
-        label: __('Name'),
+        label: __('Name', 'groundhogg-companies'),
         group: 'basic',
       },
       {
         id   : 'domain',
-        label: __('Website'),
+        label: __('Website', 'groundhogg-companies'),
         group: 'basic',
       },
       {
         id   : 'address',
-        label: __('Address'),
+        label: __('Address', 'groundhogg-companies'),
         group: 'basic',
       },
       {
         id   : 'phone',
-        label: __('Phone'),
+        label: __('Phone', 'groundhogg-companies'),
         group: 'basic',
       },
       {
         id   : 'industry',
-        label: __('Industry'),
+        label: __('Industry', 'groundhogg-companies'),
         group: 'basic',
       },
       {
         id   : 'notes',
-        label: __('Add to Notes'),
+        label: __('Add to Notes', 'groundhogg-companies'),
         group: 'basic',
       },
 
       {
         id   : 'contacts',
-        label: __('Add to Contacts'),
+        label: __('Add to Contacts', 'groundhogg-companies'),
         group: 'basic',
       },
       ...GroundhoggCompanyProperties.fields.map(
@@ -154,7 +154,7 @@ ${ map[h]
                         'groundhogg-companies') }</label>` : '' }
                 <div class="display-flex flex-end gap-10">
                     <button id="cancel-import" class="gh-button danger text">
-                        ${ __('Cancel') }
+                        ${ __('Cancel', 'groundhogg-companies') }
                     </button>
                     <button id="start-import" class="gh-button primary">
                         ${ sprintf(__('Import %s companies',
@@ -186,7 +186,7 @@ ${ map[h]
             if (!r.success) {
               console.log(r)
               dialog({
-                message: __('Something went wrong...'),
+                message: __('Something went wrong...', 'groundhogg-companies'),
                 type   : 'error',
               })
               return
@@ -328,7 +328,7 @@ ${ map[h]
           Div({
             className: 'full display-flex column gap-5',
           }, [
-            Label({ for: 'company-name' }, __('Company Name')),
+            Label({ for: 'company-name' }, __('Company Name', 'groundhogg-companies')),
             Input({
               id     : 'company-name',
               name   : 'name',
@@ -340,7 +340,7 @@ ${ map[h]
           Div({
             className: 'half display-flex column gap-5',
           }, [
-            Label({ for: 'company-website' }, __('Website <i>(with https://)</i>')),
+            Label({ for: 'company-website' }, __('Website <i>(with https://)</i>', 'groundhogg-companies')),
             Input({
               id      : 'company-website',
               name    : 'domain',
@@ -370,7 +370,7 @@ ${ map[h]
           Div({
             className: 'half display-flex column gap-5',
           }, [
-            Label({ for: 'company-industry' }, __('Industry')),
+            Label({ for: 'company-industry' }, __('Industry', 'groundhogg-companies')),
             Autocomplete({
               id          : 'company-industry',
               name        : 'industry',
@@ -396,7 +396,7 @@ ${ map[h]
           Div({
             className: 'full display-flex column gap-5',
           }, [
-            Label({ for: 'company-phone' }, __('Phone Number')),
+            Label({ for: 'company-phone' }, __('Phone Number', 'groundhogg-companies')),
             Input({
               id     : 'company-phone',
               name   : 'phone',
@@ -408,7 +408,7 @@ ${ map[h]
           Div({
             className: 'full display-flex column gap-5',
           }, [
-            Label({ for: 'company-address' }, __('Address')),
+            Label({ for: 'company-address' }, __('Address', 'groundhogg-companies')),
             Textarea({
               id     : 'company-address',
               name   : 'address',
@@ -419,10 +419,10 @@ ${ map[h]
           Div({
             className: 'full display-flex column gap-5',
           }, [
-            Label({ for: 'select-owner' }, __('Owner')),
+            Label({ for: 'select-owner' }, __('Owner', 'groundhogg-companies')),
             ItemPicker({
               id          : `select-owner`,
-              noneSelected: __('Select an owner...', 'groundhogg'),
+              noneSelected: __('Select an owner...', 'groundhogg-companies'),
               selected    : State.owner_id ? {
                 id  : State.owner_id,
                 text: getOwner(State.owner_id).data.display_name,
@@ -454,7 +454,7 @@ ${ map[h]
               id       : 'cancel',
               className: 'gh-button danger text',
               onClick  : close,
-            }, __('Cancel')),
+            }, __('Cancel', 'groundhogg-companies')),
             Button({
               // disabled : State.duplicate !== null,
               id       : 'create',
@@ -490,7 +490,7 @@ ${ map[h]
                 window.open(company.admin, '_self')
 
               },
-            }, __('Create Company')),
+            }, __('Create Company', 'groundhogg-companies')),
           ]),
         ]),
       ]))
@@ -504,7 +504,7 @@ ${ map[h]
     $('.bulkactions').
       append(
         `<button type="button" class="more-actions button button-secondary">${ __(
-          'More Actions', 'groundhogg') }</button>`)
+          'More Actions', 'groundhogg-companies') }</button>`)
     $('.more-actions').on('click', (e) => {
 
       const {
@@ -544,7 +544,7 @@ ${ map[h]
         {
           key     : 'primary_contacts',
           cap     : 'view_companies',
-          text    : __('View primary contacts', 'groundhogg'),
+          text    : __('View primary contacts', 'groundhogg-companies'),
           onSelect: () => {
             window.location.href = adminPageURL('gh_contacts', {
               filters: primaryContactsFilter,
@@ -554,7 +554,7 @@ ${ map[h]
         {
           key     : 'all_contacts',
           cap     : 'view_companies',
-          text    : __('View all related contacts', 'groundhogg'),
+          text    : __('View all related contacts', 'groundhogg-companies'),
           onSelect: () => {
             window.location.href = adminPageURL('gh_contacts', {
               filters: allContactsFilter,
@@ -564,7 +564,7 @@ ${ map[h]
         {
           key     : 'edit',
           cap     : 'edit_companies',
-          text    : sprintf(__('Edit %s companies', 'groundhogg'),
+          text    : sprintf(__('Edit %s companies', 'groundhogg-companies'),
             totalItemsFormatted),
           onSelect: () => {
 
@@ -590,10 +590,10 @@ ${ map[h]
                 Div({
                   className: 'full display-flex column gap-5',
                 }, [
-                  Label({ for: 'select-owner' }, __('Re-assign Owner')),
+                  Label({ for: 'select-owner' }, __('Re-assign Owner', 'groundhogg-companies')),
                   ItemPicker({
                     id          : `select-owner`,
-                    noneSelected: __('No change', 'groundhogg'),
+                    noneSelected: __('No change', 'groundhogg-companies'),
                     selected    : State.owner_id ? {
                       id  : State.owner_id,
                       text: getOwner(State.owner_id).data.display_name,
@@ -708,7 +708,7 @@ ${ map[h]
                         type   : 'error',
                       })
                     },
-                  }, State.saving ? MakeEl.Span({ className: 'gh-spinner' }) : sprintf(__('Update %s companies', 'groundhogg'), totalItemsFormatted)),
+                  }, State.saving ? MakeEl.Span({ className: 'gh-spinner' }) : sprintf(__('Update %s companies', 'groundhogg-companies'), totalItemsFormatted)),
                 ]),
               ])
             })
@@ -718,7 +718,7 @@ ${ map[h]
         {
           key     : 'export',
           cap     : 'export_contacts',
-          text    : sprintf(__('Export %s companies', 'groundhogg'),
+          text    : sprintf(__('Export %s companies', 'groundhogg-companies'),
             totalItemsFormatted),
           onSelect: () => {
 
@@ -742,13 +742,13 @@ ${ map[h]
         {
           key     : 'broadcast',
           cap     : 'schedule_broadcasts',
-          text    : sprintf(__('Send a broadcast to %s companies', 'groundhogg'),
+          text    : sprintf(__('Send a broadcast to %s companies', 'groundhogg-companies'),
             totalItemsFormatted),
           onSelect: () => {
 
             modal({
               //language=HTML
-              content: `<h2>${ __('Send a broadcast', 'groundhogg') }</h2>
+              content: `<h2>${ __('Send a broadcast', 'groundhogg-companies') }</h2>
               <div id="gh-broadcast-form"></div>`,
               onOpen : () => {
                 document.getElementById('gh-broadcast-form').append(Groundhogg.BroadcastScheduler({
@@ -756,14 +756,14 @@ ${ map[h]
                   searchMethods: [
                     {
                       id   : 'company-primary-contacts',
-                      text : sprintf(__('Primary contacts for the selected %s companies', 'groundhogg'), totalItemsFormatted),
+                      text : sprintf(__('Primary contacts for the selected %s companies', 'groundhogg-companies'), totalItemsFormatted),
                       query: () => ( {
                         filters: primaryContactsFilter,
                       } ),
                     },
                     {
                       id   : 'company-all-contacts',
-                      text : sprintf(__('All associated contacts for the selected %s companies', 'groundhogg'), totalItemsFormatted),
+                      text : sprintf(__('All associated contacts for the selected %s companies', 'groundhogg-companies'), totalItemsFormatted),
                       query: () => ( {
                         filters: allContactsFilter,
                       } ),
@@ -778,13 +778,13 @@ ${ map[h]
         {
           key     : 'funnel',
           cap     : 'view_funnels',
-          text    : sprintf(__('Add %s companies to a flow', 'groundhogg'),
+          text    : sprintf(__('Add %s companies to a flow', 'groundhogg-companies'),
             totalItemsFormatted),
           onSelect: () => {
 
             modal({
               //language=HTML
-              content: `<h2>${ __('Add companies to a flow', 'groundhogg') }</h2>
+              content: `<h2>${ __('Add companies to a flow', 'groundhogg-companies') }</h2>
               <div id="gh-add-to-funnel" style="width: 500px"></div>`,
               onOpen : () => {
                 document.getElementById('gh-add-to-funnel').append(Groundhogg.FunnelScheduler({
@@ -793,7 +793,7 @@ ${ map[h]
                   searchMethods: [
                     {
                       id   : 'company-primary-contacts',
-                      text : sprintf(__('Primary contacts for the selected %s companies', 'groundhogg'), totalItemsFormatted),
+                      text : sprintf(__('Primary contacts for the selected %s companies', 'groundhogg-companies'), totalItemsFormatted),
                       query: () => ( {
                         filters: [
                           [
@@ -807,7 +807,7 @@ ${ map[h]
                     },
                     {
                       id   : 'company-all-contacts',
-                      text : sprintf(__('All associated contacts for the selected %s companies', 'groundhogg'), totalItemsFormatted),
+                      text : sprintf(__('All associated contacts for the selected %s companies', 'groundhogg-companies'), totalItemsFormatted),
                       query: () => ( {
                         filters: [
                           [
@@ -830,7 +830,7 @@ ${ map[h]
           key     : 'delete',
           cap     : 'delete_companies',
           text    : `<span class="gh-text danger">${ sprintf(
-            __('Delete %s companies', 'groundhogg'),
+            __('Delete %s companies', 'groundhogg-companies'),
             totalItemsFormatted) }</span>`,
           onSelect: () => {
 
@@ -838,7 +838,7 @@ ${ map[h]
               width    : 600,
               alert    : `<p>${ sprintf(__(
                 'Are you sure you want to delete %s companies? This cannot be undone. Consider <i>exporting</i> first!',
-                'groundhogg'), `<b>${ totalItemsFormatted }</b>`) }</p>`,
+                'groundhogg-companies'), `<b>${ totalItemsFormatted }</b>`) }</p>`,
               onConfirm: () => {
 
                 CompaniesStore.deleteMany({
@@ -849,10 +849,10 @@ ${ map[h]
                   confirmationModal({
                     width           : 600,
                     alert           : `<p>${ sprintf(__(
-                        '🗑️ %s companies are being deleted in the background. <i>It may take a while.</i> We\'ll let you know when it\'s done!', 'groundhogg'),
+                        '🗑️ %s companies are being deleted in the background. <i>It may take a while.</i> We\'ll let you know when it\'s done!', 'groundhogg-companies'),
                       `<b>${ totalItemsFormatted }</b>`) }</p>`,
                     cancelButtonType: 'hidden',
-                    confirmText     : __('Sounds good!', 'groundhogg'),
+                    confirmText     : __('Sounds good!', 'groundhogg-companies'),
                   })
 
                 }).catch(err => {
